@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>URL Encode / Decode – Free Online Tool | ToolKit</title>
+  <meta name="description" content="URL encode or decode strings instantly. Percent-encode special characters for safe use in URLs. Free, no signup." />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --bg:#0f1117; --bg2:#1a1d27; --bg3:#22263a; --accent:#6366f1; --accent2:#818cf8; --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    header { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 16px; height: 60px; position: sticky; top: 0; z-index: 100; }
+    .logo { font-size: 1.2rem; font-weight: 700; color: var(--accent2); text-decoration: none; }
+    .breadcrumb { color: var(--muted); font-size: .85rem; display: flex; align-items: center; gap: 6px; }
+    .breadcrumb a { color: var(--muted); text-decoration: none; } .breadcrumb a:hover { color: var(--text); }
+    nav { margin-left: auto; display: flex; gap: 20px; }
+    nav a { color: var(--muted); text-decoration: none; font-size: .9rem; } nav a:hover { color: var(--text); }
+    .hero { padding: 40px 24px 32px; text-align: center; background: linear-gradient(180deg,#1a1d27 0%,#0f1117 100%); }
+    .hero h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 800; margin-bottom: 10px; }
+    .hero p { color: var(--muted); max-width: 520px; margin: 0 auto; }
+    main { max-width: 900px; margin: 0 auto; padding: 32px 24px 80px; }
+    .mode-toggle { display: flex; margin-bottom: 24px; background: var(--bg2); border: 1.5px solid var(--border); border-radius: 10px; overflow: hidden; width: fit-content; }
+    .mode-btn { padding: 10px 28px; border: none; background: transparent; color: var(--muted); font-size: .9rem; font-weight: 600; cursor: pointer; transition: all .2s; }
+    .mode-btn.active { background: var(--accent); color: #fff; }
+    .io-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    @media (max-width: 640px) { .io-grid { grid-template-columns: 1fr; } }
+    .panel { display: flex; flex-direction: column; gap: 8px; }
+    .panel label { font-size: .85rem; color: var(--muted); font-weight: 600; }
+    textarea { width: 100%; height: 200px; padding: 14px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--bg2); color: var(--text); font-size: .92rem; font-family: 'SF Mono', 'Fira Code', monospace; resize: vertical; outline: none; transition: border-color .2s; }
+    textarea:focus { border-color: var(--accent); }
+    textarea[readonly] { background: var(--bg3); cursor: default; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px; }
+    .btn { padding: 10px 22px; border-radius: 8px; border: none; font-size: .9rem; font-weight: 600; cursor: pointer; transition: all .2s; }
+    .btn-primary { background: var(--accent); color: #fff; } .btn-primary:hover { background: #4f52d4; }
+    .btn-secondary { background: var(--bg2); color: var(--muted); border: 1.5px solid var(--border); } .btn-secondary:hover { color: var(--text); border-color: var(--accent); }
+    .error { background: #f4717120; border: 1px solid #f47171; border-radius: 8px; padding: 12px 16px; color: #f47171; font-size: .88rem; margin-bottom: 16px; display: none; }
+    .faq { margin-top: 48px; }
+    .faq h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 20px; }
+    .faq-item { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; margin-bottom: 10px; }
+    .faq-q { font-weight: 600; margin-bottom: 8px; }
+    .faq-a { color: var(--muted); font-size: .9rem; line-height: 1.6; }
+    footer { border-top: 1px solid var(--border); padding: 28px 24px; text-align: center; color: var(--muted); font-size: .85rem; }
+  </style>
+</head>
+<body>
+<header>
+  <a class="logo" href="../index.html">⚡ ToolKit</a>
+  <div class="breadcrumb"><a href="../index.html">Tools</a> › <span>URL Encode/Decode</span></div>
+  <nav><a href="../index.html">All Tools</a></nav>
+</header>
+
+<div class="hero">
+  <h1>URL Encode / Decode</h1>
+  <p>Percent-encode special characters for safe use in URLs, or decode them back to readable text.</p>
+</div>
+
+<main>
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="btn-encode" onclick="setMode('encode')">Encode</button>
+    <button class="mode-btn" id="btn-decode" onclick="setMode('decode')">Decode</button>
+  </div>
+
+  <div class="io-grid">
+    <div class="panel">
+      <label id="input-label">Plain Text / URL</label>
+      <textarea id="input" placeholder="Enter text to URL-encode…"></textarea>
+    </div>
+    <div class="panel">
+      <label id="output-label">Encoded Output</label>
+      <textarea id="output" readonly placeholder="Result will appear here…"></textarea>
+    </div>
+  </div>
+
+  <div class="error" id="error">Invalid encoded string. Please check your input.</div>
+
+  <div class="actions">
+    <button class="btn btn-primary" onclick="convert()">Convert</button>
+    <button class="btn btn-secondary" onclick="copyOutput()">📋 Copy Result</button>
+    <button class="btn btn-secondary" onclick="swapIO()">⇄ Swap</button>
+    <button class="btn btn-secondary" onclick="clearAll()">🗑 Clear</button>
+  </div>
+
+  <div class="faq">
+    <h2>FAQ</h2>
+    <div class="faq-item">
+      <div class="faq-q">What is URL encoding?</div>
+      <div class="faq-a">URL encoding (percent-encoding) replaces characters that aren't allowed in URLs with a "%" followed by two hex digits. For example, a space becomes %20 and & becomes %26.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">When do I need to URL-encode?</div>
+      <div class="faq-a">When passing special characters in query parameters, form data, or API requests. Characters like spaces, &, =, #, and non-ASCII text must be encoded.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">What's the difference between encodeURI and encodeURIComponent?</div>
+      <div class="faq-a">This tool uses encodeURIComponent, which encodes everything except A-Z a-z 0-9 - _ . ! ~ * ' ( ). It's suitable for encoding individual query parameter values.</div>
+    </div>
+  </div>
+</main>
+
+<footer>© 2026 ToolKit — Free forever. Your data stays in your browser.</footer>
+
+<script>
+let mode = 'encode';
+function setMode(m) {
+  mode = m;
+  document.getElementById('btn-encode').classList.toggle('active', m === 'encode');
+  document.getElementById('btn-decode').classList.toggle('active', m === 'decode');
+  document.getElementById('input-label').textContent  = m === 'encode' ? 'Plain Text / URL' : 'Encoded URL';
+  document.getElementById('output-label').textContent = m === 'encode' ? 'Encoded Output' : 'Decoded Text';
+  document.getElementById('input').placeholder = m === 'encode' ? 'Enter text to URL-encode…' : 'Enter encoded URL to decode…';
+  document.getElementById('output').value = '';
+  document.getElementById('error').style.display = 'none';
+}
+function convert() {
+  const val = document.getElementById('input').value;
+  const err = document.getElementById('error');
+  err.style.display = 'none';
+  try {
+    document.getElementById('output').value = mode === 'encode'
+      ? encodeURIComponent(val)
+      : decodeURIComponent(val);
+  } catch(e) {
+    err.style.display = 'block';
+    document.getElementById('output').value = '';
+  }
+}
+document.getElementById('input').addEventListener('input', convert);
+function copyOutput() {
+  const out = document.getElementById('output').value;
+  if (!out) return;
+  navigator.clipboard.writeText(out);
+}
+function swapIO() {
+  document.getElementById('input').value = document.getElementById('output').value;
+  setMode(mode === 'encode' ? 'decode' : 'encode');
+  convert();
+}
+function clearAll() {
+  document.getElementById('input').value = '';
+  document.getElementById('output').value = '';
+  document.getElementById('error').style.display = 'none';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EMI Loan Calculator Online – Free | ToolKit</title>
+  <meta name="description" content="Calculate your monthly EMI for home, car, or personal loans instantly. Free EMI calculator with amortization schedule." />
+  <link rel="stylesheet" href="tool.css" />
+  <style>
+    .pie-wrap { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+    .pie-legend span { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: middle; }
+    .amort-table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+    .amort-table th { background: var(--bg3); color: var(--muted); padding: 8px 10px; text-align: right; font-size: .75rem; text-transform: uppercase; }
+    .amort-table th:first-child { text-align: left; }
+    .amort-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: right; }
+    .amort-table td:first-child { text-align: left; }
+    .amort-table tbody tr:hover { background: var(--bg3); }
+  </style>
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ ToolKit</a>
+  <nav><a href="index.html">All Tools</a><a href="strategy.html">Strategy</a></nav>
+</header>
+
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Calculator<span>›</span>EMI Calculator</div>
+
+  <h1>EMI Loan Calculator</h1>
+  <p class="tool-desc">Calculate your Equated Monthly Installment (EMI) for any loan. See total interest, payment breakdown, and full amortization schedule.</p>
+
+  <div class="card">
+    <div class="card-title">Loan Details</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:20px;">
+      <div>
+        <label>Loan Amount ($)</label>
+        <input type="number" id="principal" value="100000" oninput="calculate()" min="0" />
+      </div>
+      <div>
+        <label>Annual Interest Rate (%)</label>
+        <input type="number" id="rate" value="7.5" step="0.1" oninput="calculate()" min="0" max="100" />
+      </div>
+      <div>
+        <label>Loan Tenure (Years)</label>
+        <input type="number" id="tenure" value="10" oninput="calculate()" min="1" max="30" />
+      </div>
+    </div>
+
+    <!-- Sliders -->
+    <div style="display:grid;gap:12px;">
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:.8rem;color:var(--muted);margin-bottom:4px;"><span>Loan Amount</span><span id="slider-p-val">$100,000</span></div>
+        <input type="range" id="slider-p" min="1000" max="2000000" step="1000" value="100000" oninput="syncSlider('p')" style="width:100%;accent-color:var(--accent);" />
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:.8rem;color:var(--muted);margin-bottom:4px;"><span>Interest Rate</span><span id="slider-r-val">7.5%</span></div>
+        <input type="range" id="slider-r" min="1" max="30" step="0.1" value="7.5" oninput="syncSlider('r')" style="width:100%;accent-color:var(--accent);" />
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:.8rem;color:var(--muted);margin-bottom:4px;"><span>Tenure</span><span id="slider-t-val">10 years</span></div>
+        <input type="range" id="slider-t" min="1" max="30" step="1" value="10" oninput="syncSlider('t')" style="width:100%;accent-color:var(--accent);" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="stats-row" style="margin-bottom:16px;" id="results-row">
+    <div class="stat-box"><div class="stat-val" id="emi-val">—</div><div class="stat-lbl">Monthly EMI</div></div>
+    <div class="stat-box"><div class="stat-val" id="total-val">—</div><div class="stat-lbl">Total Payment</div></div>
+    <div class="stat-box"><div class="stat-val" id="interest-val">—</div><div class="stat-lbl">Total Interest</div></div>
+    <div class="stat-box"><div class="stat-val" id="ratio-val">—</div><div class="stat-lbl">Interest Ratio</div></div>
+  </div>
+
+  <!-- Visual breakdown -->
+  <div class="card" id="breakdown-card" style="display:none;">
+    <div class="card-title">Payment Breakdown</div>
+    <div class="pie-wrap">
+      <svg id="pie" width="160" height="160" viewBox="0 0 160 160"></svg>
+      <div>
+        <div class="pie-legend" style="margin-bottom:10px;font-size:.9rem;"><span style="background:#6366f1"></span>Principal: <strong id="leg-p">—</strong></div>
+        <div class="pie-legend" style="font-size:.9rem;"><span style="background:#f87171"></span>Interest: <strong id="leg-i">—</strong></div>
+      </div>
+    </div>
+    <!-- Bar chart by year -->
+    <div style="margin-top:20px;overflow-x:auto;">
+      <div id="bar-chart" style="display:flex;align-items:flex-end;gap:4px;height:100px;"></div>
+      <div style="display:flex;justify-content:space-between;font-size:.7rem;color:var(--muted);margin-top:4px;" id="bar-labels"></div>
+    </div>
+  </div>
+
+  <!-- Amortization table (first 24 months) -->
+  <div class="card" id="amort-card" style="display:none;">
+    <div class="card-title">Amortization Schedule (First 24 months)</div>
+    <div style="overflow-x:auto;">
+      <table class="amort-table">
+        <thead><tr><th>Month</th><th>EMI</th><th>Principal</th><th>Interest</th><th>Balance</th></tr></thead>
+        <tbody id="amort-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="faq" style="margin-top:40px;">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-item">
+      <div class="faq-q">What is EMI?</div>
+      <div class="faq-a">EMI (Equated Monthly Installment) is a fixed payment amount made by a borrower to a lender each month. It comprises both principal and interest components.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">What is the EMI formula?</div>
+      <div class="faq-a">EMI = P × r × (1+r)^n / ((1+r)^n − 1), where P = principal, r = monthly interest rate, n = number of months.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">How can I reduce my EMI?</div>
+      <div class="faq-a">You can reduce EMI by increasing the loan tenure, making a larger down payment, negotiating a lower interest rate, or making periodic prepayments.</div>
+    </div>
+  </div>
+
+  <div class="related">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="compound-interest.html">Compound Interest Calculator</a>
+      <a class="related-link" href="percentage-calculator.html">Percentage Calculator</a>
+    </div>
+  </div>
+</div>
+
+<footer>© 2026 ToolKit — Free online tools. No signup required.</footer>
+
+<script>
+function syncSlider(type) {
+  if (type === 'p') {
+    const v = document.getElementById('slider-p').value;
+    document.getElementById('principal').value = v;
+    document.getElementById('slider-p-val').textContent = '$' + parseInt(v).toLocaleString();
+  } else if (type === 'r') {
+    const v = document.getElementById('slider-r').value;
+    document.getElementById('rate').value = v;
+    document.getElementById('slider-r-val').textContent = v + '%';
+  } else {
+    const v = document.getElementById('slider-t').value;
+    document.getElementById('tenure').value = v;
+    document.getElementById('slider-t-val').textContent = v + ' years';
+  }
+  calculate();
+}
+
+function calculate() {
+  const P = parseFloat(document.getElementById('principal').value);
+  const annualRate = parseFloat(document.getElementById('rate').value);
+  const years = parseFloat(document.getElementById('tenure').value);
+
+  // Sync sliders
+  document.getElementById('slider-p').value = P || 0;
+  document.getElementById('slider-r').value = annualRate || 0;
+  document.getElementById('slider-t').value = years || 1;
+  document.getElementById('slider-p-val').textContent = '$' + (P||0).toLocaleString();
+  document.getElementById('slider-r-val').textContent = (annualRate||0) + '%';
+  document.getElementById('slider-t-val').textContent = (years||0) + ' years';
+
+  if (!P || !annualRate || !years || P <= 0 || annualRate <= 0 || years <= 0) return;
+
+  const r = annualRate / 12 / 100;
+  const n = years * 12;
+  const emi = P * r * Math.pow(1+r, n) / (Math.pow(1+r, n) - 1);
+  const total = emi * n;
+  const interest = total - P;
+
+  const fmt = v => '$' + v.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0});
+
+  document.getElementById('emi-val').textContent = fmt(emi);
+  document.getElementById('total-val').textContent = fmt(total);
+  document.getElementById('interest-val').textContent = fmt(interest);
+  document.getElementById('ratio-val').textContent = ((interest/P)*100).toFixed(1) + '%';
+
+  document.getElementById('breakdown-card').style.display = 'block';
+  document.getElementById('amort-card').style.display = 'block';
+
+  // Pie chart
+  drawPie(P, interest);
+  document.getElementById('leg-p').textContent = fmt(P) + ' (' + ((P/total)*100).toFixed(1) + '%)';
+  document.getElementById('leg-i').textContent = fmt(interest) + ' (' + ((interest/total)*100).toFixed(1) + '%)';
+
+  // Amortization
+  let balance = P;
+  const rows = [];
+  for (let m = 1; m <= n; m++) {
+    const interestPart = balance * r;
+    const principalPart = emi - interestPart;
+    balance -= principalPart;
+    rows.push({ m, emi, principal: principalPart, interest: interestPart, balance: Math.max(0, balance) });
+  }
+
+  // Table (first 24)
+  document.getElementById('amort-body').innerHTML = rows.slice(0, 24).map(r =>
+    `<tr><td>${r.m}</td><td>${fmt(r.emi)}</td><td>${fmt(r.principal)}</td><td>${fmt(r.interest)}</td><td>${fmt(r.balance)}</td></tr>`
+  ).join('');
+
+  // Bar chart (yearly)
+  const yearly = [];
+  for (let y = 0; y < years; y++) {
+    const slice = rows.slice(y*12, (y+1)*12);
+    yearly.push({ p: slice.reduce((s,r) => s+r.principal, 0), i: slice.reduce((s,r) => s+r.interest, 0) });
+  }
+  const maxY = Math.max(...yearly.map(y => y.p + y.i));
+  const bars = document.getElementById('bar-chart');
+  const labels = document.getElementById('bar-labels');
+  bars.innerHTML = yearly.map(y => {
+    const h = ((y.p+y.i)/maxY*90).toFixed(1);
+    const ph = (y.p/(y.p+y.i)*100).toFixed(1);
+    return `<div style="flex:1;min-width:14px;height:${h}px;display:flex;flex-direction:column;border-radius:3px 3px 0 0;overflow:hidden;" title="Principal: ${fmt(y.p)}, Interest: ${fmt(y.i)}">
+      <div style="flex:${100-parseFloat(ph)};background:#f8717160;"></div>
+      <div style="flex:${ph};background:#6366f180;"></div>
+    </div>`;
+  }).join('');
+  labels.innerHTML = yearly.map((_,i) => `<span>Y${i+1}</span>`).join('');
+}
+
+function drawPie(p, i) {
+  const total = p + i;
+  const pAngle = (p/total) * 360;
+  const svg = document.getElementById('pie');
+  const r = 70, cx = 80, cy = 80;
+  function polar(angle) {
+    const a = (angle - 90) * Math.PI / 180;
+    return [cx + r*Math.cos(a), cy + r*Math.sin(a)];
+  }
+  const [x1,y1] = polar(0);
+  const [x2,y2] = polar(pAngle);
+  const lg = pAngle > 180 ? 1 : 0;
+  svg.innerHTML = `
+    <path d="M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${lg},1 ${x2},${y2} Z" fill="#6366f1" opacity=".8"/>
+    <path d="M${cx},${cy} L${x2},${y2} A${r},${r} 0 ${1-lg},1 ${x1},${y1} Z" fill="#f87171" opacity=".8"/>
+    <circle cx="${cx}" cy="${cy}" r="36" fill="var(--bg2)"/>`;
+}
+
+// Init
+calculate();
+</script>
+</body>
+</html>

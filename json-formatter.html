@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JSON Formatter & Validator Online – Free | ToolKit</title>
+  <meta name="description" content="Format, validate and minify JSON online. Free tool with syntax highlighting, error detection, and stats." />
+  <link rel="stylesheet" href="tool.css" />
+  <style>
+    .json-output { white-space: pre; overflow-x: auto; font-family: 'SF Mono','Fira Code',monospace; font-size: .88rem; line-height: 1.7; background: var(--bg3); border-radius: 10px; padding: 16px; min-height: 180px; border: 1.5px solid var(--border); max-height: 500px; overflow-y: auto; }
+    .j-key { color: #818cf8; }
+    .j-str { color: #34d399; }
+    .j-num { color: #fbbf24; }
+    .j-bool { color: #f87171; }
+    .j-null { color: #94a3b8; }
+    .valid-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px; font-size: .82rem; font-weight: 700; }
+    .badge-valid { background: #34d39920; color: #34d399; border: 1px solid #34d399; }
+    .badge-invalid { background: #f8717120; color: #f87171; border: 1px solid #f87171; }
+  </style>
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ ToolKit</a>
+  <nav><a href="index.html">All Tools</a><a href="strategy.html">Strategy</a></nav>
+</header>
+
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Developer<span>›</span>JSON Formatter</div>
+
+  <h1>JSON Formatter & Validator</h1>
+  <p class="tool-desc">Paste raw JSON to format it with proper indentation, validate syntax, and see stats. Also supports minification.</p>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <span class="card-title" style="margin-bottom:0">Raw JSON Input</span>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <span id="valid-badge" style="display:none;"></span>
+        <button class="btn btn-secondary btn-sm" onclick="clearAll()">Clear</button>
+      </div>
+    </div>
+    <textarea id="input" placeholder='Paste JSON here… e.g. {"name":"John","age":30}' oninput="autoFormat()"></textarea>
+  </div>
+
+  <div class="btn-group" style="margin-bottom:16px;">
+    <button class="btn btn-primary" onclick="format(2)">Format (2 spaces)</button>
+    <button class="btn btn-secondary" onclick="format(4)">Format (4 spaces)</button>
+    <button class="btn btn-secondary" onclick="minify()">Minify</button>
+    <button class="btn btn-secondary" onclick="validate()">Validate Only</button>
+  </div>
+
+  <div class="alert alert-error" id="err"></div>
+
+  <div class="card" id="stats-card" style="display:none;margin-bottom:16px;">
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-val" id="stat-lines">0</div><div class="stat-lbl">Lines</div></div>
+      <div class="stat-box"><div class="stat-val" id="stat-size">0</div><div class="stat-lbl">Size</div></div>
+      <div class="stat-box"><div class="stat-val" id="stat-keys">0</div><div class="stat-lbl">Top Keys</div></div>
+      <div class="stat-box"><div class="stat-val" id="stat-depth">0</div><div class="stat-lbl">Depth</div></div>
+    </div>
+  </div>
+
+  <div class="card" id="output-card" style="display:none;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <span class="card-title" style="margin-bottom:0">Formatted Output</span>
+      <button class="btn btn-secondary btn-sm copy-btn" onclick="copyOutput()">Copy</button>
+    </div>
+    <div class="json-output" id="output"></div>
+  </div>
+
+  <div class="faq" style="margin-top:40px;">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-item">
+      <div class="faq-q">What is JSON?</div>
+      <div class="faq-a">JSON (JavaScript Object Notation) is a lightweight data format used for storing and transmitting data between a server and a web application. It uses human-readable text in key-value pairs.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Why validate JSON?</div>
+      <div class="faq-a">Invalid JSON causes API errors and parsing failures. Common mistakes include trailing commas, unquoted keys, and single quotes instead of double quotes.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">When should I minify JSON?</div>
+      <div class="faq-a">Minification removes whitespace and reduces file size. Use it for production API responses to reduce bandwidth and improve performance.</div>
+    </div>
+  </div>
+
+  <div class="related">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="base64.html">Base64 Encode/Decode</a>
+      <a class="related-link" href="url-encode.html">URL Encode/Decode</a>
+    </div>
+  </div>
+</div>
+
+<footer>© 2026 ToolKit — Free online tools. No signup required.</footer>
+
+<script>
+let lastFormatted = '';
+
+function autoFormat() {
+  const input = document.getElementById('input').value.trim();
+  if (!input) {
+    document.getElementById('valid-badge').style.display = 'none';
+    document.getElementById('err').style.display = 'none';
+    document.getElementById('output-card').style.display = 'none';
+    document.getElementById('stats-card').style.display = 'none';
+    return;
+  }
+  try {
+    JSON.parse(input);
+    showBadge(true);
+    document.getElementById('err').style.display = 'none';
+  } catch(e) {
+    showBadge(false);
+  }
+}
+
+function showBadge(valid) {
+  const el = document.getElementById('valid-badge');
+  el.style.display = 'inline-flex';
+  el.className = 'valid-badge ' + (valid ? 'badge-valid' : 'badge-invalid');
+  el.textContent = valid ? '✓ Valid JSON' : '✗ Invalid JSON';
+}
+
+function format(indent) {
+  const input = document.getElementById('input').value.trim();
+  if (!input) return;
+  try {
+    const parsed = JSON.parse(input);
+    const formatted = JSON.stringify(parsed, null, indent);
+    lastFormatted = formatted;
+    showOutput(formatted, parsed, indent);
+    showBadge(true);
+    document.getElementById('err').style.display = 'none';
+  } catch(e) {
+    showErr('JSON Error: ' + e.message);
+    showBadge(false);
+  }
+}
+
+function minify() {
+  const input = document.getElementById('input').value.trim();
+  if (!input) return;
+  try {
+    const parsed = JSON.parse(input);
+    const minified = JSON.stringify(parsed);
+    lastFormatted = minified;
+    document.getElementById('output').textContent = minified;
+    document.getElementById('output-card').style.display = 'block';
+    document.getElementById('stats-card').style.display = 'none';
+    showBadge(true);
+    document.getElementById('err').style.display = 'none';
+  } catch(e) {
+    showErr('JSON Error: ' + e.message);
+    showBadge(false);
+  }
+}
+
+function validate() {
+  const input = document.getElementById('input').value.trim();
+  if (!input) return;
+  try {
+    JSON.parse(input);
+    showBadge(true);
+    document.getElementById('err').style.display = 'none';
+  } catch(e) {
+    showErr('JSON Error: ' + e.message);
+    showBadge(false);
+  }
+}
+
+function showOutput(formatted, parsed, indent) {
+  // Syntax highlight
+  const highlighted = formatted.replace(
+    /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+    match => {
+      if (/^"/.test(match)) {
+        return match.endsWith(':')
+          ? `<span class="j-key">${match}</span>`
+          : `<span class="j-str">${match}</span>`;
+      }
+      if (/true|false/.test(match)) return `<span class="j-bool">${match}</span>`;
+      if (/null/.test(match)) return `<span class="j-null">${match}</span>`;
+      return `<span class="j-num">${match}</span>`;
+    }
+  );
+  document.getElementById('output').innerHTML = highlighted;
+  document.getElementById('output-card').style.display = 'block';
+
+  // Stats
+  const lines = formatted.split('\n').length;
+  const size = new Blob([formatted]).size;
+  const sizeStr = size > 1024 ? (size/1024).toFixed(1) + ' KB' : size + ' B';
+  const keys = typeof parsed === 'object' && parsed !== null ? Object.keys(parsed).length : 0;
+
+  function depth(obj, d=0) {
+    if (typeof obj !== 'object' || obj === null) return d;
+    return Math.max(...Object.values(obj).map(v => depth(v, d+1)), d);
+  }
+
+  document.getElementById('stat-lines').textContent = lines;
+  document.getElementById('stat-size').textContent = sizeStr;
+  document.getElementById('stat-keys').textContent = keys;
+  document.getElementById('stat-depth').textContent = depth(parsed);
+  document.getElementById('stats-card').style.display = 'block';
+}
+
+function showErr(msg) {
+  const el = document.getElementById('err');
+  el.textContent = msg;
+  el.style.display = 'block';
+  document.getElementById('output-card').style.display = 'none';
+  document.getElementById('stats-card').style.display = 'none';
+}
+
+function clearAll() {
+  document.getElementById('input').value = '';
+  document.getElementById('output').innerHTML = '';
+  document.getElementById('output-card').style.display = 'none';
+  document.getElementById('stats-card').style.display = 'none';
+  document.getElementById('err').style.display = 'none';
+  document.getElementById('valid-badge').style.display = 'none';
+}
+
+function copyOutput() {
+  if (!lastFormatted) return;
+  navigator.clipboard.writeText(lastFormatted).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+</script>
+</body>
+</html>

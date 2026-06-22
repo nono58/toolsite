@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Word Counter Online – Free | ToolKit</title>
+  <meta name="description" content="Free online word counter. Count words, characters, sentences, paragraphs and reading time instantly. No signup required." />
+  <link rel="stylesheet" href="tool.css" />
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ ToolKit</a>
+  <nav><a href="index.html">All Tools</a><a href="strategy.html">Strategy</a></nav>
+</header>
+
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Text<span>›</span>Word Counter</div>
+
+  <h1>Word Counter</h1>
+  <p class="tool-desc">Count words, characters, sentences, paragraphs, and reading time instantly. Paste or type your text below.</p>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <span class="card-title" style="margin-bottom:0">Your Text</span>
+      <button class="btn btn-secondary btn-sm" onclick="clearAll()">Clear</button>
+    </div>
+    <textarea id="input" placeholder="Paste or type your text here…" oninput="count()"></textarea>
+  </div>
+
+  <div class="stats-row" style="margin-bottom:16px;">
+    <div class="stat-box"><div class="stat-val" id="words">0</div><div class="stat-lbl">Words</div></div>
+    <div class="stat-box"><div class="stat-val" id="chars">0</div><div class="stat-lbl">Characters</div></div>
+    <div class="stat-box"><div class="stat-val" id="chars-ns">0</div><div class="stat-lbl">No Spaces</div></div>
+    <div class="stat-box"><div class="stat-val" id="sentences">0</div><div class="stat-lbl">Sentences</div></div>
+    <div class="stat-box"><div class="stat-val" id="paragraphs">0</div><div class="stat-lbl">Paragraphs</div></div>
+    <div class="stat-box"><div class="stat-val" id="reading">0 min</div><div class="stat-lbl">Reading Time</div></div>
+  </div>
+
+  <!-- Keyword density -->
+  <div class="card" id="keyword-card" style="display:none;">
+    <div class="card-title">Top Keywords</div>
+    <div id="keywords" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+  </div>
+
+  <div class="faq">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-item">
+      <div class="faq-q">How does the word counter work?</div>
+      <div class="faq-a">The tool splits your text by spaces and punctuation to count words accurately. Characters are counted including and excluding spaces. Sentences are detected by . ! ? punctuation.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">How is reading time calculated?</div>
+      <div class="faq-a">Based on the average adult reading speed of 200 words per minute.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Is my text stored anywhere?</div>
+      <div class="faq-a">No. Everything runs in your browser. Your text is never sent to any server.</div>
+    </div>
+  </div>
+
+  <div class="related">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="character-counter.html">Character Counter</a>
+      <a class="related-link" href="text-case-converter.html">Text Case Converter</a>
+      <a class="related-link" href="remove-extra-spaces.html">Remove Extra Spaces</a>
+      <a class="related-link" href="lorem-ipsum.html">Lorem Ipsum Generator</a>
+    </div>
+  </div>
+</div>
+
+<footer>© 2026 ToolKit — Free online tools. No signup required.</footer>
+
+<script>
+function count() {
+  const text = document.getElementById('input').value;
+
+  const words = text.trim() === '' ? 0 : text.trim().split(/\s+/).filter(w => w.length > 0).length;
+  const chars = text.length;
+  const charsNs = text.replace(/\s/g, '').length;
+  const sentences = text.trim() === '' ? 0 : (text.match(/[^.!?]*[.!?]+/g) || []).length || (text.trim() ? 1 : 0);
+  const paragraphs = text.trim() === '' ? 0 : text.split(/\n\s*\n/).filter(p => p.trim()).length || (text.trim() ? 1 : 0);
+  const readMins = Math.ceil(words / 200);
+  const readTime = words === 0 ? '0 min' : readMins === 1 ? '1 min' : readMins + ' mins';
+
+  document.getElementById('words').textContent = words.toLocaleString();
+  document.getElementById('chars').textContent = chars.toLocaleString();
+  document.getElementById('chars-ns').textContent = charsNs.toLocaleString();
+  document.getElementById('sentences').textContent = sentences.toLocaleString();
+  document.getElementById('paragraphs').textContent = paragraphs.toLocaleString();
+  document.getElementById('reading').textContent = readTime;
+
+  // Keyword density
+  if (words > 5) {
+    const stopWords = new Set(['the','a','an','and','or','but','in','on','at','to','for','of','with','is','it','as','by','be','this','that','was','are','from','not','have','had','has','he','she','they','we','you','i','do','did','will','would','could','should','may','might','can','been','its','my','our','their','his','her','your']);
+    const freq = {};
+    text.toLowerCase().match(/\b[a-z]{3,}\b/g)?.forEach(w => {
+      if (!stopWords.has(w)) freq[w] = (freq[w] || 0) + 1;
+    });
+    const top = Object.entries(freq).sort((a,b) => b[1]-a[1]).slice(0,10);
+    document.getElementById('keyword-card').style.display = 'block';
+    document.getElementById('keywords').innerHTML = top.map(([w,n]) =>
+      `<span style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:.82rem;"><strong>${w}</strong> <span style="color:var(--muted)">${n}</span></span>`
+    ).join('');
+  } else {
+    document.getElementById('keyword-card').style.display = 'none';
+  }
+}
+
+function clearAll() {
+  document.getElementById('input').value = '';
+  count();
+}
+</script>
+</body>
+</html>

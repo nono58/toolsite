@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>URL Encode / Decode Online – Free | ToolKit</title>
+  <meta name="description" content="URL encode or decode strings instantly. Free online tool, no signup, works in your browser." />
+  <link rel="stylesheet" href="tool.css" />
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ ToolKit</a>
+  <nav><a href="index.html">All Tools</a><a href="strategy.html">Strategy</a></nav>
+</header>
+
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Developer<span>›</span>URL Encode/Decode</div>
+
+  <h1>URL Encode / Decode</h1>
+  <p class="tool-desc">Encode special characters for safe URL usage, or decode percent-encoded URLs back to readable text.</p>
+
+  <div style="display:flex;gap:10px;margin-bottom:20px;">
+    <button class="btn btn-primary" id="btn-encode" onclick="setMode('encode')">Encode</button>
+    <button class="btn btn-secondary" id="btn-decode" onclick="setMode('decode')">Decode</button>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <span class="card-title" style="margin-bottom:0" id="input-label">Input URL / Text</span>
+      <button class="btn btn-secondary btn-sm" onclick="clearAll()">Clear</button>
+    </div>
+    <textarea id="input" placeholder="Paste URL or text to encode…"></textarea>
+  </div>
+
+  <div style="text-align:center;margin:8px 0;">
+    <button class="btn btn-primary" onclick="run()" style="min-width:180px;">⚡ Convert</button>
+  </div>
+
+  <div class="alert alert-error" id="err"></div>
+
+  <div class="card" style="margin-top:16px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <span class="card-title" style="margin-bottom:0" id="output-label">Encoded Output</span>
+      <button class="btn btn-secondary btn-sm copy-btn" onclick="copyOutput()">Copy</button>
+    </div>
+    <textarea id="output" class="output-area" readonly placeholder="Result will appear here…"></textarea>
+  </div>
+
+  <!-- Examples -->
+  <div class="card" style="margin-top:16px;">
+    <div class="card-title">Common Examples</div>
+    <table style="width:100%;font-size:.85rem;border-collapse:collapse;">
+      <thead><tr style="color:var(--muted)"><th style="padding:6px 8px;text-align:left;">Character</th><th style="padding:6px 8px;text-align:left;">Encoded</th></tr></thead>
+      <tbody id="examples-table"></tbody>
+    </table>
+  </div>
+
+  <div class="faq" style="margin-top:40px;">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-item">
+      <div class="faq-q">Why do URLs need encoding?</div>
+      <div class="faq-a">URLs can only contain a limited set of characters. Spaces, special symbols (&, =, #, etc.) must be percent-encoded to be safely transmitted over the internet.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">What is the difference between %20 and + in URLs?</div>
+      <div class="faq-a">Both represent a space. %20 is standard percent-encoding; + is used in HTML form data (application/x-www-form-urlencoded). Our tool uses %20 (standard).</div>
+    </div>
+  </div>
+
+  <div class="related">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="base64.html">Base64 Encode/Decode</a>
+      <a class="related-link" href="json-formatter.html">JSON Formatter</a>
+      <a class="related-link" href="html-entity.html">HTML Entity Encode</a>
+    </div>
+  </div>
+</div>
+
+<footer>© 2026 ToolKit — Free online tools. No signup required.</footer>
+
+<script>
+const EXAMPLES = [
+  [' ', '%20'], ['!', '%21'], ['"', '%22'], ['#', '%23'], ['$', '%24'],
+  ['%', '%25'], ['&', '%26'], ["'", '%27'], ['(', '%28'], [')', '%29'],
+  ['+', '%2B'], [',', '%2C'], ['/', '%2F'], [':', '%3A'], [';', '%3B'],
+  ['=', '%3D'], ['?', '%3F'], ['@', '%40'], ['[', '%5B'], [']', '%5D'],
+];
+
+document.getElementById('examples-table').innerHTML = EXAMPLES.map(([c, e]) =>
+  `<tr style="border-top:1px solid var(--border)"><td style="padding:6px 8px;font-family:monospace;">${c}</td><td style="padding:6px 8px;font-family:monospace;color:var(--accent2)">${e}</td></tr>`
+).join('');
+
+let mode = 'encode';
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('btn-encode').className = 'btn ' + (m === 'encode' ? 'btn-primary' : 'btn-secondary');
+  document.getElementById('btn-decode').className = 'btn ' + (m === 'decode' ? 'btn-primary' : 'btn-secondary');
+  document.getElementById('input-label').textContent = m === 'encode' ? 'Input URL / Text' : 'Encoded URL Input';
+  document.getElementById('output-label').textContent = m === 'encode' ? 'Encoded Output' : 'Decoded Output';
+  document.getElementById('input').placeholder = m === 'encode' ? 'Paste URL or text to encode…' : 'Paste encoded URL to decode…';
+  document.getElementById('output').value = '';
+  document.getElementById('err').style.display = 'none';
+}
+
+function run() {
+  const input = document.getElementById('input').value;
+  const err = document.getElementById('err');
+  err.style.display = 'none';
+  if (!input.trim()) { showErr('Please enter some text.'); return; }
+  try {
+    document.getElementById('output').value = mode === 'encode'
+      ? encodeURIComponent(input)
+      : decodeURIComponent(input.trim());
+  } catch(e) {
+    showErr('Invalid encoded string. Please check your input.');
+  }
+}
+
+function showErr(msg) {
+  const el = document.getElementById('err');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function clearAll() {
+  document.getElementById('input').value = '';
+  document.getElementById('output').value = '';
+  document.getElementById('err').style.display = 'none';
+}
+
+function copyOutput() {
+  const val = document.getElementById('output').value;
+  if (!val) return;
+  navigator.clipboard.writeText(val).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+
+document.addEventListener('keydown', e => { if (e.ctrlKey && e.key === 'Enter') run(); });
+</script>
+</body>
+</html>

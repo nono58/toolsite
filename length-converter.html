@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Length Converter Online – Free | ToolKit</title>
+  <meta name="description" content="Convert between meters, feet, inches, kilometers, miles, cm, mm and more. Free online length converter." />
+  <link rel="stylesheet" href="tool.css" />
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ ToolKit</a>
+  <nav><a href="index.html">All Tools</a><a href="strategy.html">Strategy</a></nav>
+</header>
+
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Unit & Color<span>›</span>Length Converter</div>
+
+  <h1>Length Converter</h1>
+  <p class="tool-desc">Convert between all common length units instantly. Enter any value and all units update automatically.</p>
+
+  <div class="card">
+    <div class="card-title">Enter Value</div>
+    <div class="grid-2" style="margin-bottom:20px;">
+      <div>
+        <label>Value</label>
+        <input type="number" id="val-input" placeholder="Enter a number" oninput="convert()" />
+      </div>
+      <div>
+        <label>From Unit</label>
+        <select id="from-unit" onchange="convert()">
+          <option value="m">Meter (m)</option>
+          <option value="km">Kilometer (km)</option>
+          <option value="cm">Centimeter (cm)</option>
+          <option value="mm">Millimeter (mm)</option>
+          <option value="um">Micrometer (μm)</option>
+          <option value="nm">Nanometer (nm)</option>
+          <option value="mi">Mile (mi)</option>
+          <option value="yd">Yard (yd)</option>
+          <option value="ft">Foot (ft)</option>
+          <option value="in">Inch (in)</option>
+          <option value="nmi">Nautical Mile</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="results" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;"></div>
+  </div>
+
+  <!-- Common conversions quick ref -->
+  <div class="card">
+    <div class="card-title">Common Conversions</div>
+    <table style="width:100%;font-size:.85rem;border-collapse:collapse;">
+      <thead><tr style="color:var(--muted)"><th style="padding:8px;text-align:left;">From</th><th style="padding:8px;text-align:left;">To</th><th style="padding:8px;text-align:left;">Multiply by</th></tr></thead>
+      <tbody>
+        <tr style="border-top:1px solid var(--border)"><td style="padding:8px;">1 foot</td><td style="padding:8px;">inches</td><td style="padding:8px;color:var(--accent2)">12</td></tr>
+        <tr style="border-top:1px solid var(--border)"><td style="padding:8px;">1 meter</td><td style="padding:8px;">feet</td><td style="padding:8px;color:var(--accent2)">3.28084</td></tr>
+        <tr style="border-top:1px solid var(--border)"><td style="padding:8px;">1 kilometer</td><td style="padding:8px;">miles</td><td style="padding:8px;color:var(--accent2)">0.621371</td></tr>
+        <tr style="border-top:1px solid var(--border)"><td style="padding:8px;">1 mile</td><td style="padding:8px;">kilometers</td><td style="padding:8px;color:var(--accent2)">1.60934</td></tr>
+        <tr style="border-top:1px solid var(--border)"><td style="padding:8px;">1 inch</td><td style="padding:8px;">centimeters</td><td style="padding:8px;color:var(--accent2)">2.54</td></tr>
+        <tr style="border-top:1px solid var(--border)"><td style="padding:8px;">1 yard</td><td style="padding:8px;">meters</td><td style="padding:8px;color:var(--accent2)">0.9144</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="faq" style="margin-top:40px;">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-item">
+      <div class="faq-q">How many feet are in a meter?</div>
+      <div class="faq-a">1 meter = 3.28084 feet. Or more precisely, 1 meter = 3 feet 3.37 inches.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">How many kilometers in a mile?</div>
+      <div class="faq-a">1 mile = 1.60934 kilometers. So 5 miles = 8.047 km.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">What is 5 foot 10 in centimeters?</div>
+      <div class="faq-a">5 feet 10 inches = 70 inches = 177.8 cm. Enter 70 and select Inch to see all units.</div>
+    </div>
+  </div>
+
+  <div class="related">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="percentage-calculator.html">Percentage Calculator</a>
+      <a class="related-link" href="emi-calculator.html">EMI Calculator</a>
+    </div>
+  </div>
+</div>
+
+<footer>© 2026 ToolKit — Free online tools. No signup required.</footer>
+
+<script>
+// All values relative to 1 meter
+const UNITS = {
+  m:   { label: 'Meter',        symbol: 'm',   factor: 1 },
+  km:  { label: 'Kilometer',    symbol: 'km',  factor: 0.001 },
+  cm:  { label: 'Centimeter',   symbol: 'cm',  factor: 100 },
+  mm:  { label: 'Millimeter',   symbol: 'mm',  factor: 1000 },
+  um:  { label: 'Micrometer',   symbol: 'μm',  factor: 1e6 },
+  nm:  { label: 'Nanometer',    symbol: 'nm',  factor: 1e9 },
+  mi:  { label: 'Mile',         symbol: 'mi',  factor: 0.000621371 },
+  yd:  { label: 'Yard',         symbol: 'yd',  factor: 1.09361 },
+  ft:  { label: 'Foot',         symbol: 'ft',  factor: 3.28084 },
+  in:  { label: 'Inch',         symbol: 'in',  factor: 39.3701 },
+  nmi: { label: 'Nautical Mile',symbol: 'nmi', factor: 0.000539957 },
+};
+
+function convert() {
+  const val = parseFloat(document.getElementById('val-input').value);
+  const from = document.getElementById('from-unit').value;
+  const container = document.getElementById('results');
+
+  if (isNaN(val)) {
+    container.innerHTML = '';
+    return;
+  }
+
+  // Convert to meters first
+  const inMeters = val / UNITS[from].factor;
+
+  container.innerHTML = Object.entries(UNITS).map(([key, u]) => {
+    const result = inMeters * u.factor;
+    const display = Math.abs(result) < 0.000001 ? result.toExponential(4)
+                  : parseFloat(result.toPrecision(8)).toLocaleString(undefined, {maximumFractionDigits: 8});
+    const isActive = key === from;
+    return `
+      <div style="background:var(--bg3);border:1px solid ${isActive ? 'var(--accent)' : 'var(--border)'};border-radius:10px;padding:14px;cursor:pointer;" onclick="selectUnit('${key}','${result}')">
+        <div style="font-size:.75rem;color:var(--muted);margin-bottom:4px;">${u.label}</div>
+        <div style="font-size:1.1rem;font-weight:700;color:${isActive ? 'var(--accent2)' : 'var(--text)'}">${display} <span style="font-size:.8rem;color:var(--muted)">${u.symbol}</span></div>
+      </div>`;
+  }).join('');
+}
+
+function selectUnit(unit, val) {
+  document.getElementById('from-unit').value = unit;
+  document.getElementById('val-input').value = parseFloat(parseFloat(val).toPrecision(10));
+  convert();
+}
+</script>
+</body>
+</html>

@@ -197,13 +197,19 @@
 </div>
 
 <div class="stats">
+<<<<<<< HEAD
   <div class="stat"><div class="stat-num">100</div><div class="stat-label">Tools</div></div>
   <div class="stat"><div class="stat-num">9</div><div class="stat-label">Categories</div></div>
+=======
+  <div class="stat"><div class="stat-num" id="stat-total">—</div><div class="stat-label">Tools Live</div></div>
+  <div class="stat"><div class="stat-num" id="stat-cats">—</div><div class="stat-label">Categories</div></div>
+>>>>>>> 554ba1d (show only live tools on homepage)
   <div class="stat"><div class="stat-num">Free</div><div class="stat-label">Forever</div></div>
   <div class="stat"><div class="stat-num">0</div><div class="stat-label">Signups needed</div></div>
 </div>
 
 <main>
+<<<<<<< HEAD
   <div class="filter-bar" id="filterBar">
     <button class="filter-btn active" data-cat="all">All (100)</button>
     <button class="filter-btn" data-cat="pdf">📄 PDF (12)</button>
@@ -216,6 +222,9 @@
     <button class="filter-btn" data-cat="network">🌐 Network (10)</button>
     <button class="filter-btn" data-cat="business">💼 Business (15)</button>
   </div>
+=======
+  <div class="filter-bar" id="filterBar"></div>
+>>>>>>> 554ba1d (show only live tools on homepage)
 
   <div id="toolsContainer"></div>
   <div id="no-results">No tools found for "<span id="search-term"></span>"</div>
@@ -226,6 +235,21 @@
 </footer>
 
 <script>
+<<<<<<< HEAD
+=======
+// URL map for implemented tools
+const TOOL_URLS = {
+  13: 'base64.html',
+  14: 'url-encode.html',
+  17: 'json-formatter.html',
+  42: 'word-counter.html',
+  54: 'length-converter.html',
+  64: 'emi-calculator.html',
+  65: 'compound-interest.html',
+  69: 'percentage-calculator.html',
+};
+
+>>>>>>> 554ba1d (show only live tools on homepage)
 const TOOLS = [
   // ── PDF (12) ──
   { id:1,  name:"PDF to JPG Converter",         cat:"pdf",        vol:"25-30k", priority:1, week1:true },
@@ -375,8 +399,15 @@ function priorityBadge(p, week1) {
 }
 
 function renderCard(tool) {
+<<<<<<< HEAD
   return `
     <a class="tool-card${tool.week1 ? ' week1' : ''}" href="#" title="${tool.name}">
+=======
+  const url = TOOL_URLS[tool.id];
+  if (!url) return '';
+  return `
+    <a class="tool-card${tool.week1 ? ' week1' : ''}" href="${url}" title="${tool.name}">
+>>>>>>> 554ba1d (show only live tools on homepage)
       <div class="card-name">${tool.name}</div>
       <div class="card-meta">
         <span class="card-vol">${tool.vol}/mo</span>
@@ -385,6 +416,33 @@ function renderCard(tool) {
     </a>`;
 }
 
+<<<<<<< HEAD
+=======
+// 実装済みツールのみ
+const LIVE_TOOLS = TOOLS.filter(t => TOOL_URLS[t.id]);
+
+function buildFilterBar() {
+  const bar = document.getElementById('filterBar');
+  const total = LIVE_TOOLS.length;
+
+  // カテゴリ別カウント
+  const catCounts = {};
+  LIVE_TOOLS.forEach(t => { catCounts[t.cat] = (catCounts[t.cat] || 0) + 1; });
+
+  const catLabels = { pdf:'📄 PDF', developer:'💻 Developer', image:'🖼 Image', text:'✏️ Text', unit:'📐 Unit & Color', calculator:'🧮 Calculator', generator:'⚙️ Generator', network:'🌐 Network', business:'💼 Business' };
+
+  let html = `<button class="filter-btn active" data-cat="all">All (${total})</button>`;
+  Object.entries(catCounts).forEach(([cat, count]) => {
+    html += `<button class="filter-btn" data-cat="${cat}">${catLabels[cat]} (${count})</button>`;
+  });
+  bar.innerHTML = html;
+
+  // stats
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-cats').textContent = Object.keys(catCounts).length;
+}
+
+>>>>>>> 554ba1d (show only live tools on homepage)
 function render(query = '', cat = 'all') {
   const container = document.getElementById('toolsContainer');
   const noResults = document.getElementById('no-results');
@@ -395,7 +453,11 @@ function render(query = '', cat = 'all') {
   const html = SECTIONS.map(sec => {
     if (cat !== 'all' && cat !== sec.cat) return '';
 
+<<<<<<< HEAD
     const filtered = TOOLS.filter(t => {
+=======
+    const filtered = LIVE_TOOLS.filter(t => {
+>>>>>>> 554ba1d (show only live tools on homepage)
       if (t.cat !== sec.cat) return false;
       if (q && !t.name.toLowerCase().includes(q)) return false;
       return true;
@@ -430,6 +492,10 @@ function render(query = '', cat = 'all') {
 }
 
 // Init
+<<<<<<< HEAD
+=======
+buildFilterBar();
+>>>>>>> 554ba1d (show only live tools on homepage)
 render();
 
 // Search

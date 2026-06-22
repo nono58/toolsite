@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Word Counter – Free Online Tool | ToolKit</title>
+  <meta name="description" content="Count words, characters, sentences, paragraphs and reading time instantly. Free online word counter, no signup." />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:#0f1117; --bg2:#1a1d27; --bg3:#22263a;
+      --accent:#6366f1; --accent2:#818cf8;
+      --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148;
+      --green:#34d399; --yellow:#fbbf24;
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    header { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 16px; height: 60px; position: sticky; top: 0; z-index: 100; }
+    .logo { font-size: 1.2rem; font-weight: 700; color: var(--accent2); text-decoration: none; }
+    .breadcrumb { color: var(--muted); font-size: .85rem; display: flex; align-items: center; gap: 6px; }
+    .breadcrumb a { color: var(--muted); text-decoration: none; } .breadcrumb a:hover { color: var(--text); }
+    nav { margin-left: auto; display: flex; gap: 20px; }
+    nav a { color: var(--muted); text-decoration: none; font-size: .9rem; } nav a:hover { color: var(--text); }
+
+    .hero { padding: 40px 24px 32px; text-align: center; background: linear-gradient(180deg,#1a1d27 0%,#0f1117 100%); }
+    .hero h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 800; margin-bottom: 10px; }
+    .hero p { color: var(--muted); max-width: 520px; margin: 0 auto; }
+
+    main { max-width: 900px; margin: 0 auto; padding: 32px 24px 80px; }
+
+    /* Stats bar */
+    .stats-bar {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 12px; margin-bottom: 24px;
+    }
+    .stat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; }
+    .stat-num { font-size: 2rem; font-weight: 800; color: var(--accent2); line-height: 1; }
+    .stat-label { color: var(--muted); font-size: .78rem; margin-top: 6px; }
+
+    /* Textarea */
+    .editor-wrap { position: relative; margin-bottom: 16px; }
+    textarea {
+      width: 100%; min-height: 280px; padding: 16px; border-radius: 12px;
+      border: 1.5px solid var(--border); background: var(--bg2); color: var(--text);
+      font-size: 1rem; line-height: 1.7; resize: vertical; outline: none;
+      transition: border-color .2s; font-family: inherit;
+    }
+    textarea:focus { border-color: var(--accent); }
+    textarea::placeholder { color: var(--muted); }
+
+    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn {
+      padding: 9px 18px; border-radius: 8px; border: 1.5px solid var(--border);
+      background: transparent; color: var(--muted); font-size: .85rem; cursor: pointer;
+      transition: all .2s;
+    }
+    .btn:hover { border-color: var(--accent); color: var(--text); }
+    .btn-danger { border-color: #f4717140; color: #f47171; }
+    .btn-danger:hover { background: #f4717120; border-color: #f47171; }
+
+    /* Detail table */
+    .detail-table { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-top: 24px; }
+    .detail-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; border-bottom: 1px solid var(--border); }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-key { color: var(--muted); font-size: .9rem; }
+    .detail-val { font-weight: 700; font-size: 1rem; }
+
+    /* FAQ */
+    .faq { margin-top: 48px; }
+    .faq h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 20px; }
+    .faq-item { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; margin-bottom: 10px; }
+    .faq-q { font-weight: 600; margin-bottom: 8px; }
+    .faq-a { color: var(--muted); font-size: .9rem; line-height: 1.6; }
+
+    footer { border-top: 1px solid var(--border); padding: 28px 24px; text-align: center; color: var(--muted); font-size: .85rem; }
+  </style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="../index.html">⚡ ToolKit</a>
+  <div class="breadcrumb">
+    <a href="../index.html">Tools</a> › <span>Word Counter</span>
+  </div>
+  <nav>
+    <a href="../index.html">All Tools</a>
+    <a href="../strategy.html">Strategy</a>
+  </nav>
+</header>
+
+<div class="hero">
+  <h1>Word Counter</h1>
+  <p>Count words, characters, sentences and more — instantly as you type.</p>
+</div>
+
+<main>
+  <div class="stats-bar">
+    <div class="stat-card"><div class="stat-num" id="words">0</div><div class="stat-label">Words</div></div>
+    <div class="stat-card"><div class="stat-num" id="chars">0</div><div class="stat-label">Characters</div></div>
+    <div class="stat-card"><div class="stat-num" id="chars-no-space">0</div><div class="stat-label">No Spaces</div></div>
+    <div class="stat-card"><div class="stat-num" id="sentences">0</div><div class="stat-label">Sentences</div></div>
+    <div class="stat-card"><div class="stat-num" id="paragraphs">0</div><div class="stat-label">Paragraphs</div></div>
+    <div class="stat-card"><div class="stat-num" id="reading-time">0 min</div><div class="stat-label">Reading Time</div></div>
+  </div>
+
+  <div class="editor-wrap">
+    <textarea id="input" placeholder="Type or paste your text here…"></textarea>
+  </div>
+
+  <div class="toolbar">
+    <button class="btn" onclick="copyText()">📋 Copy Text</button>
+    <button class="btn btn-danger" onclick="clearText()">🗑 Clear</button>
+  </div>
+
+  <div class="detail-table">
+    <div class="detail-row"><span class="detail-key">Unique Words</span><span class="detail-val" id="unique">0</span></div>
+    <div class="detail-row"><span class="detail-key">Avg Word Length</span><span class="detail-val" id="avg-word">0</span></div>
+    <div class="detail-row"><span class="detail-key">Longest Word</span><span class="detail-val" id="longest">—</span></div>
+    <div class="detail-row"><span class="detail-key">Speaking Time (avg 130 wpm)</span><span class="detail-val" id="speak-time">0 min</span></div>
+  </div>
+
+  <div class="faq">
+    <h2>FAQ</h2>
+    <div class="faq-item">
+      <div class="faq-q">How are words counted?</div>
+      <div class="faq-a">Words are sequences of characters separated by whitespace. Hyphenated words (e.g. "well-known") count as one word.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Is my text saved anywhere?</div>
+      <div class="faq-a">No. Everything runs in your browser. Your text never leaves your device.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">What reading speed is used?</div>
+      <div class="faq-a">200 words per minute (average adult reading speed). Speaking time uses 130 wpm.</div>
+    </div>
+  </div>
+</main>
+
+<footer>© 2026 ToolKit — Free forever. No signup needed.</footer>
+
+<script>
+const input = document.getElementById('input');
+
+function analyze(text) {
+  const words = text.trim() === '' ? [] : text.trim().split(/\s+/).filter(w => w.length > 0);
+  const wordCount = words.length;
+  const chars = text.length;
+  const charsNoSpace = text.replace(/\s/g, '').length;
+  const sentences = text === '' ? 0 : (text.match(/[.!?]+/g) || []).length || (text.trim() ? 1 : 0);
+  const paragraphs = text === '' ? 0 : text.split(/\n\n+/).filter(p => p.trim()).length || (text.trim() ? 1 : 0);
+  const readMin = Math.max(1, Math.ceil(wordCount / 200));
+  const speakMin = Math.max(1, Math.ceil(wordCount / 130));
+
+  const unique = new Set(words.map(w => w.toLowerCase().replace(/[^a-z0-9]/g, ''))).size;
+  const avgLen = wordCount ? (words.reduce((s, w) => s + w.replace(/[^a-zA-Z0-9]/g, '').length, 0) / wordCount).toFixed(1) : 0;
+  const longest = words.sort((a, b) => b.length - a.length)[0] || '—';
+
+  document.getElementById('words').textContent = wordCount.toLocaleString();
+  document.getElementById('chars').textContent = chars.toLocaleString();
+  document.getElementById('chars-no-space').textContent = charsNoSpace.toLocaleString();
+  document.getElementById('sentences').textContent = sentences.toLocaleString();
+  document.getElementById('paragraphs').textContent = paragraphs.toLocaleString();
+  document.getElementById('reading-time').textContent = wordCount === 0 ? '0 min' : readMin + ' min';
+  document.getElementById('unique').textContent = unique.toLocaleString();
+  document.getElementById('avg-word').textContent = avgLen;
+  document.getElementById('longest').textContent = longest;
+  document.getElementById('speak-time').textContent = wordCount === 0 ? '0 min' : speakMin + ' min';
+}
+
+input.addEventListener('input', () => analyze(input.value));
+
+function clearText() { input.value = ''; analyze(''); }
+function copyText() {
+  navigator.clipboard.writeText(input.value).then(() => {
+    const btn = document.querySelector('.btn');
+    btn.textContent = '✅ Copied!';
+    setTimeout(() => btn.textContent = '📋 Copy Text', 1500);
+  });
+}
+</script>
+</body>
+</html>

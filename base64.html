@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Base64 Encode / Decode Online – Free | ToolKit</title>
+  <meta name="description" content="Encode or decode Base64 strings instantly online. Free, no signup, works in your browser." />
+  <link rel="stylesheet" href="tool.css" />
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ ToolKit</a>
+  <nav><a href="index.html">All Tools</a><a href="strategy.html">Strategy</a></nav>
+</header>
+
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Developer<span>›</span>Base64</div>
+
+  <h1>Base64 Encode / Decode</h1>
+  <p class="tool-desc">Encode text to Base64 or decode Base64 back to plain text. Instant, secure, no server involved.</p>
+
+  <!-- Mode toggle -->
+  <div style="display:flex;gap:10px;margin-bottom:20px;">
+    <button class="btn btn-primary" id="btn-encode" onclick="setMode('encode')">Encode</button>
+    <button class="btn btn-secondary" id="btn-decode" onclick="setMode('decode')">Decode</button>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <span class="card-title" style="margin-bottom:0" id="input-label">Plain Text Input</span>
+      <button class="btn btn-secondary btn-sm" onclick="clearAll()">Clear</button>
+    </div>
+    <textarea id="input" placeholder="Enter text to encode…"></textarea>
+  </div>
+
+  <div style="text-align:center;margin:8px 0;">
+    <button class="btn btn-primary" onclick="run()" style="min-width:180px;">⚡ Convert</button>
+  </div>
+
+  <div class="alert alert-error" id="err"></div>
+
+  <div class="card" style="margin-top:16px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <span class="card-title" style="margin-bottom:0" id="output-label">Base64 Output</span>
+      <button class="btn btn-secondary btn-sm copy-btn" onclick="copyOutput()">Copy</button>
+    </div>
+    <textarea id="output" class="output-area" readonly placeholder="Result will appear here…"></textarea>
+  </div>
+
+  <div class="faq" style="margin-top:40px;">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-item">
+      <div class="faq-q">What is Base64?</div>
+      <div class="faq-a">Base64 is an encoding scheme that converts binary data into ASCII characters. It's commonly used to embed images in HTML/CSS, transmit data in JSON APIs, and encode email attachments.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Is Base64 encryption?</div>
+      <div class="faq-a">No. Base64 is encoding, not encryption. Anyone can decode a Base64 string. Do not use it to secure sensitive data.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Why does Base64 output end with == ?</div>
+      <div class="faq-a">Base64 uses padding characters (=) to ensure the output length is a multiple of 4. One or two = signs at the end is normal.</div>
+    </div>
+  </div>
+
+  <div class="related">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="url-encode.html">URL Encode/Decode</a>
+      <a class="related-link" href="json-formatter.html">JSON Formatter</a>
+      <a class="related-link" href="hash-generator.html">Hash Generator</a>
+    </div>
+  </div>
+</div>
+
+<footer>© 2026 ToolKit — Free online tools. No signup required.</footer>
+
+<script>
+let mode = 'encode';
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('btn-encode').className = 'btn ' + (m === 'encode' ? 'btn-primary' : 'btn-secondary');
+  document.getElementById('btn-decode').className = 'btn ' + (m === 'decode' ? 'btn-primary' : 'btn-secondary');
+  document.getElementById('input-label').textContent = m === 'encode' ? 'Plain Text Input' : 'Base64 Input';
+  document.getElementById('output-label').textContent = m === 'encode' ? 'Base64 Output' : 'Decoded Text';
+  document.getElementById('input').placeholder = m === 'encode' ? 'Enter text to encode…' : 'Paste Base64 string to decode…';
+  document.getElementById('output').value = '';
+  document.getElementById('err').style.display = 'none';
+}
+
+function run() {
+  const input = document.getElementById('input').value;
+  const err = document.getElementById('err');
+  err.style.display = 'none';
+
+  if (!input.trim()) { showErr('Please enter some text.'); return; }
+
+  try {
+    if (mode === 'encode') {
+      document.getElementById('output').value = btoa(unescape(encodeURIComponent(input)));
+    } else {
+      document.getElementById('output').value = decodeURIComponent(escape(atob(input.trim())));
+    }
+  } catch(e) {
+    showErr(mode === 'decode' ? 'Invalid Base64 string. Please check your input.' : 'Encoding failed.');
+  }
+}
+
+function showErr(msg) {
+  const el = document.getElementById('err');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function clearAll() {
+  document.getElementById('input').value = '';
+  document.getElementById('output').value = '';
+  document.getElementById('err').style.display = 'none';
+}
+
+function copyOutput() {
+  const val = document.getElementById('output').value;
+  if (!val) return;
+  navigator.clipboard.writeText(val).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+
+// Enter key
+document.addEventListener('keydown', e => { if (e.ctrlKey && e.key === 'Enter') run(); });
+</script>
+</body>
+</html>

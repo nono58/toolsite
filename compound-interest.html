@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Compound Interest Calculator Online – Free | ToolKit</title>
+  <meta name="description" content="Calculate compound interest with monthly contributions. See your investment grow with a year-by-year breakdown. Free online calculator." />
+  <link rel="stylesheet" href="tool.css" />
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ ToolKit</a>
+  <nav><a href="index.html">All Tools</a><a href="strategy.html">Strategy</a></nav>
+</header>
+
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Calculator<span>›</span>Compound Interest</div>
+
+  <h1>Compound Interest Calculator</h1>
+  <p class="tool-desc">See how your investment grows over time with compound interest. Supports monthly contributions and different compounding frequencies.</p>
+
+  <div class="card">
+    <div class="card-title">Investment Details</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;">
+      <div>
+        <label>Initial Investment ($)</label>
+        <input type="number" id="principal" value="10000" oninput="calculate()" />
+      </div>
+      <div>
+        <label>Monthly Contribution ($)</label>
+        <input type="number" id="monthly" value="500" oninput="calculate()" />
+      </div>
+      <div>
+        <label>Annual Interest Rate (%)</label>
+        <input type="number" id="rate" value="7" step="0.1" oninput="calculate()" />
+      </div>
+      <div>
+        <label>Investment Period (Years)</label>
+        <input type="number" id="years" value="20" oninput="calculate()" />
+      </div>
+      <div>
+        <label>Compounding Frequency</label>
+        <select id="freq" onchange="calculate()">
+          <option value="12">Monthly</option>
+          <option value="4">Quarterly</option>
+          <option value="2">Semi-Annually</option>
+          <option value="1">Annually</option>
+          <option value="365">Daily</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="stats-row" style="margin-bottom:16px;">
+    <div class="stat-box"><div class="stat-val" id="final-val">—</div><div class="stat-lbl">Final Balance</div></div>
+    <div class="stat-box"><div class="stat-val" id="total-contrib">—</div><div class="stat-lbl">Total Invested</div></div>
+    <div class="stat-box"><div class="stat-val" id="total-interest">—</div><div class="stat-lbl">Interest Earned</div></div>
+    <div class="stat-box"><div class="stat-val" id="total-gain">—</div><div class="stat-lbl">Total Gain</div></div>
+  </div>
+
+  <!-- Growth chart -->
+  <div class="card" id="chart-card" style="display:none;">
+    <div class="card-title">Growth Over Time</div>
+    <div style="position:relative;height:200px;margin-bottom:8px;" id="chart-wrap">
+      <svg id="line-chart" width="100%" height="200" style="overflow:visible;"></svg>
+    </div>
+    <div style="display:flex;gap:20px;font-size:.8rem;">
+      <span><span style="display:inline-block;width:12px;height:3px;background:#6366f1;vertical-align:middle;border-radius:2px;margin-right:5px;"></span>Total Balance</span>
+      <span><span style="display:inline-block;width:12px;height:3px;background:#34d399;vertical-align:middle;border-radius:2px;margin-right:5px;"></span>Amount Invested</span>
+    </div>
+  </div>
+
+  <!-- Year-by-year table -->
+  <div class="card" id="table-card" style="display:none;">
+    <div class="card-title">Year-by-Year Breakdown</div>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:.83rem;">
+        <thead><tr style="color:var(--muted)">
+          <th style="padding:8px 10px;text-align:left;">Year</th>
+          <th style="padding:8px 10px;text-align:right;">Invested</th>
+          <th style="padding:8px 10px;text-align:right;">Interest</th>
+          <th style="padding:8px 10px;text-align:right;">Balance</th>
+        </tr></thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="faq" style="margin-top:40px;">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-item">
+      <div class="faq-q">What is compound interest?</div>
+      <div class="faq-a">Compound interest is interest calculated on both the initial principal and the accumulated interest. Unlike simple interest, it grows exponentially — your earnings generate their own earnings.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">What is the Rule of 72?</div>
+      <div class="faq-a">Divide 72 by the annual interest rate to estimate how many years it takes to double your investment. At 7% rate: 72 ÷ 7 ≈ 10.3 years to double.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Why does compounding frequency matter?</div>
+      <div class="faq-a">More frequent compounding means interest is calculated and added more often, resulting in slightly higher returns. Daily compounding yields marginally more than annual compounding.</div>
+    </div>
+  </div>
+
+  <div class="related">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="emi-calculator.html">EMI Loan Calculator</a>
+      <a class="related-link" href="percentage-calculator.html">Percentage Calculator</a>
+    </div>
+  </div>
+</div>
+
+<footer>© 2026 ToolKit — Free online tools. No signup required.</footer>
+
+<script>
+function calculate() {
+  const P = parseFloat(document.getElementById('principal').value) || 0;
+  const M = parseFloat(document.getElementById('monthly').value) || 0;
+  const r = parseFloat(document.getElementById('rate').value) / 100;
+  const years = parseInt(document.getElementById('years').value) || 0;
+  const n = parseInt(document.getElementById('freq').value);
+
+  if (P < 0 || r <= 0 || years <= 0) return;
+
+  const fmt = v => '$' + Math.round(v).toLocaleString();
+  const rn = r / n;
+  const yearlyData = [];
+
+  let balance = P;
+  for (let y = 1; y <= years; y++) {
+    const monthsInYear = 12;
+    const periodsInYear = n;
+    // Monthly contributions adjusted to compounding period
+    for (let p = 0; p < periodsInYear; p++) {
+      // Add monthly contributions for this period
+      const monthsPerPeriod = 12 / n;
+      balance += M * monthsPerPeriod;
+      balance *= (1 + rn);
+    }
+    const invested = P + M * 12 * y;
+    yearlyData.push({ year: y, balance, invested, interest: balance - invested });
+  }
+
+  const final = yearlyData[yearlyData.length - 1];
+  const totalInvested = P + M * 12 * years;
+  const totalInterest = final.balance - totalInvested;
+  const gain = ((final.balance - P) / P * 100).toFixed(1);
+
+  document.getElementById('final-val').textContent = fmt(final.balance);
+  document.getElementById('total-contrib').textContent = fmt(totalInvested);
+  document.getElementById('total-interest').textContent = fmt(totalInterest);
+  document.getElementById('total-gain').textContent = gain + '%';
+
+  document.getElementById('chart-card').style.display = 'block';
+  document.getElementById('table-card').style.display = 'block';
+
+  // Draw line chart
+  drawChart(yearlyData);
+
+  // Table
+  document.getElementById('table-body').innerHTML = yearlyData.map(d =>
+    `<tr style="border-bottom:1px solid var(--border)">
+      <td style="padding:8px 10px;">${d.year}</td>
+      <td style="padding:8px 10px;text-align:right;">${fmt(d.invested)}</td>
+      <td style="padding:8px 10px;text-align:right;color:var(--accent2)">${fmt(d.interest)}</td>
+      <td style="padding:8px 10px;text-align:right;font-weight:700;">${fmt(d.balance)}</td>
+    </tr>`
+  ).join('');
+}
+
+function drawChart(data) {
+  const svg = document.getElementById('line-chart');
+  const W = svg.parentElement.offsetWidth || 700;
+  const H = 190;
+  const pad = { l: 60, r: 20, t: 10, b: 30 };
+  const iW = W - pad.l - pad.r;
+  const iH = H - pad.t - pad.b;
+
+  const maxVal = Math.max(...data.map(d => d.balance));
+  const minVal = 0;
+  const scaleX = i => pad.l + (i / (data.length - 1)) * iW;
+  const scaleY = v => pad.t + iH - ((v - minVal) / (maxVal - minVal)) * iH;
+
+  const balancePath = data.map((d, i) => `${i===0?'M':'L'}${scaleX(i)},${scaleY(d.balance)}`).join(' ');
+  const investedPath = data.map((d, i) => `${i===0?'M':'L'}${scaleX(i)},${scaleY(d.invested)}`).join(' ');
+
+  // Area fill
+  const areaBalance = balancePath + ` L${scaleX(data.length-1)},${pad.t+iH} L${pad.l},${pad.t+iH} Z`;
+  const areaInvested = investedPath + ` L${scaleX(data.length-1)},${pad.t+iH} L${pad.l},${pad.t+iH} Z`;
+
+  // Y axis labels
+  const yLabels = [0, 0.25, 0.5, 0.75, 1].map(f => {
+    const v = minVal + f * (maxVal - minVal);
+    const y = scaleY(v);
+    const label = v >= 1e6 ? (v/1e6).toFixed(1)+'M' : v >= 1e3 ? (v/1e3).toFixed(0)+'K' : v.toFixed(0);
+    return `<text x="${pad.l-8}" y="${y+4}" text-anchor="end" fill="#94a3b8" font-size="11">${label}</text>
+            <line x1="${pad.l}" y1="${y}" x2="${pad.l+iW}" y2="${y}" stroke="#2d3148" stroke-width="0.5"/>`;
+  }).join('');
+
+  // X axis labels (every 5 years or so)
+  const step = Math.ceil(data.length / 6);
+  const xLabels = data.filter((_,i) => i % step === 0 || i === data.length-1).map(d => {
+    const x = scaleX(d.year - 1);
+    return `<text x="${x}" y="${pad.t+iH+18}" text-anchor="middle" fill="#94a3b8" font-size="11">Y${d.year}</text>`;
+  }).join('');
+
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.innerHTML = `
+    <defs>
+      <linearGradient id="grad-b" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6366f1" stop-opacity=".3"/><stop offset="100%" stop-color="#6366f1" stop-opacity="0"/></linearGradient>
+      <linearGradient id="grad-i" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#34d399" stop-opacity=".2"/><stop offset="100%" stop-color="#34d399" stop-opacity="0"/></linearGradient>
+    </defs>
+    ${yLabels}${xLabels}
+    <path d="${areaBalance}" fill="url(#grad-b)"/>
+    <path d="${areaInvested}" fill="url(#grad-i)"/>
+    <path d="${balancePath}" fill="none" stroke="#6366f1" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="${investedPath}" fill="none" stroke="#34d399" stroke-width="2" stroke-dasharray="5,3" stroke-linejoin="round"/>`;
+}
+
+calculate();
+</script>
+</body>
+</html>

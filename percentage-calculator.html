@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Percentage Calculator Online – Free | ToolKit</title>
+  <meta name="description" content="Calculate percentages instantly. Find what % of a number is, percentage change, and more. Free online tool." />
+  <link rel="stylesheet" href="tool.css" />
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ ToolKit</a>
+  <nav><a href="index.html">All Tools</a><a href="strategy.html">Strategy</a></nav>
+</header>
+
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Calculator<span>›</span>Percentage Calculator</div>
+
+  <h1>Percentage Calculator</h1>
+  <p class="tool-desc">Three types of percentage calculations in one place. Instant results as you type.</p>
+
+  <!-- Calc 1 -->
+  <div class="card">
+    <div class="card-title">What is X% of Y?</div>
+    <div class="grid-2">
+      <div>
+        <label>Percentage (%)</label>
+        <input type="number" id="c1-pct" placeholder="e.g. 15" oninput="calc1()" />
+      </div>
+      <div>
+        <label>of Number</label>
+        <input type="number" id="c1-num" placeholder="e.g. 200" oninput="calc1()" />
+      </div>
+    </div>
+    <div class="result-box" style="margin-top:16px;" id="c1-result">
+      <div class="result-val" id="c1-val">—</div>
+      <div class="result-lbl" id="c1-lbl">Enter values above</div>
+    </div>
+  </div>
+
+  <!-- Calc 2 -->
+  <div class="card">
+    <div class="card-title">X is what % of Y?</div>
+    <div class="grid-2">
+      <div>
+        <label>Value (X)</label>
+        <input type="number" id="c2-x" placeholder="e.g. 30" oninput="calc2()" />
+      </div>
+      <div>
+        <label>Total (Y)</label>
+        <input type="number" id="c2-y" placeholder="e.g. 200" oninput="calc2()" />
+      </div>
+    </div>
+    <div class="result-box" style="margin-top:16px;">
+      <div class="result-val" id="c2-val">—</div>
+      <div class="result-lbl" id="c2-lbl">Enter values above</div>
+    </div>
+  </div>
+
+  <!-- Calc 3 -->
+  <div class="card">
+    <div class="card-title">Percentage Change (Increase / Decrease)</div>
+    <div class="grid-2">
+      <div>
+        <label>Original Value</label>
+        <input type="number" id="c3-from" placeholder="e.g. 100" oninput="calc3()" />
+      </div>
+      <div>
+        <label>New Value</label>
+        <input type="number" id="c3-to" placeholder="e.g. 125" oninput="calc3()" />
+      </div>
+    </div>
+    <div class="result-box" style="margin-top:16px;">
+      <div class="result-val" id="c3-val">—</div>
+      <div class="result-lbl" id="c3-lbl">Enter values above</div>
+    </div>
+  </div>
+
+  <!-- Calc 4 -->
+  <div class="card">
+    <div class="card-title">Add / Subtract Percentage</div>
+    <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:end;">
+      <div>
+        <label>Base Number</label>
+        <input type="number" id="c4-num" placeholder="e.g. 500" oninput="calc4()" />
+      </div>
+      <div>
+        <select id="c4-op" onchange="calc4()" style="width:auto;">
+          <option value="add">+ Add</option>
+          <option value="sub">− Subtract</option>
+        </select>
+      </div>
+      <div>
+        <label>Percentage (%)</label>
+        <input type="number" id="c4-pct" placeholder="e.g. 20" oninput="calc4()" />
+      </div>
+    </div>
+    <div class="result-box" style="margin-top:16px;">
+      <div class="result-val" id="c4-val">—</div>
+      <div class="result-lbl" id="c4-lbl">Enter values above</div>
+    </div>
+  </div>
+
+  <div class="faq" style="margin-top:40px;">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-item">
+      <div class="faq-q">How do I calculate 20% of 150?</div>
+      <div class="faq-a">Use the first calculator: enter 20 in Percentage and 150 in Number. Result: 30. Formula: (20 ÷ 100) × 150 = 30.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">How do I calculate percentage increase?</div>
+      <div class="faq-a">Use the third calculator. Formula: ((New − Original) ÷ Original) × 100. Example: from 80 to 100 = 25% increase.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">What is 15% tip on $85?</div>
+      <div class="faq-a">Enter 15% of 85 in the first calculator. Result: $12.75. Total with tip: $97.75.</div>
+    </div>
+  </div>
+
+  <div class="related">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="emi-calculator.html">EMI Loan Calculator</a>
+      <a class="related-link" href="compound-interest.html">Compound Interest Calculator</a>
+      <a class="related-link" href="length-converter.html">Length Converter</a>
+    </div>
+  </div>
+</div>
+
+<footer>© 2026 ToolKit — Free online tools. No signup required.</footer>
+
+<script>
+function fmt(n) {
+  if (isNaN(n) || !isFinite(n)) return null;
+  return parseFloat(n.toFixed(6)).toLocaleString(undefined, {maximumFractionDigits:6});
+}
+
+function calc1() {
+  const pct = parseFloat(document.getElementById('c1-pct').value);
+  const num = parseFloat(document.getElementById('c1-num').value);
+  if (isNaN(pct) || isNaN(num)) { set('c1-val','—'); set('c1-lbl','Enter values above'); return; }
+  const res = (pct / 100) * num;
+  set('c1-val', fmt(res));
+  set('c1-lbl', `${pct}% of ${num} = ${fmt(res)}`);
+}
+
+function calc2() {
+  const x = parseFloat(document.getElementById('c2-x').value);
+  const y = parseFloat(document.getElementById('c2-y').value);
+  if (isNaN(x) || isNaN(y) || y === 0) { set('c2-val','—'); set('c2-lbl','Enter values above'); return; }
+  const res = (x / y) * 100;
+  set('c2-val', fmt(res) + '%');
+  set('c2-lbl', `${x} is ${fmt(res)}% of ${y}`);
+}
+
+function calc3() {
+  const from = parseFloat(document.getElementById('c3-from').value);
+  const to = parseFloat(document.getElementById('c3-to').value);
+  if (isNaN(from) || isNaN(to) || from === 0) { set('c3-val','—'); set('c3-lbl','Enter values above'); return; }
+  const res = ((to - from) / Math.abs(from)) * 100;
+  const dir = res >= 0 ? 'increase' : 'decrease';
+  set('c3-val', (res >= 0 ? '+' : '') + fmt(res) + '%');
+  set('c3-lbl', `${Math.abs(fmt(res))}% ${dir} from ${from} to ${to}`);
+  document.getElementById('c3-val').style.color = res >= 0 ? 'var(--green)' : 'var(--red)';
+}
+
+function calc4() {
+  const num = parseFloat(document.getElementById('c4-num').value);
+  const pct = parseFloat(document.getElementById('c4-pct').value);
+  const op  = document.getElementById('c4-op').value;
+  if (isNaN(num) || isNaN(pct)) { set('c4-val','—'); set('c4-lbl','Enter values above'); return; }
+  const delta = (pct / 100) * num;
+  const res = op === 'add' ? num + delta : num - delta;
+  set('c4-val', fmt(res));
+  set('c4-lbl', `${num} ${op === 'add' ? '+' : '−'} ${pct}% (${fmt(delta)}) = ${fmt(res)}`);
+}
+
+function set(id, val) { document.getElementById(id).textContent = val; }
+</script>
+</body>
+</html>
