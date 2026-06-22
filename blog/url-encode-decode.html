@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>URL Encode & Decode Online – Percent Encoding Explained | QuickTools</title>
+  <meta name="description" content="Encode and decode URLs online for free. Learn what URL encoding (percent encoding) is, why it matters, and how to fix common URL errors." />
+  <meta name="keywords" content="url encode online, url decode online, percent encoding, url encoder decoder, encode url, decode url" />
+  <link rel="canonical" href="https://toolsite-xn828584.vercel.app/blog/url-encode-decode.html" />
+  <meta property="og:title" content="URL Encode & Decode Online – Percent Encoding Explained" />
+  <meta property="og:description" content="Free online URL encoder/decoder. Learn what percent encoding is and how to fix URL errors." />
+  <meta property="og:type" content="article" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "URL Encode & Decode Online – Percent Encoding Explained",
+    "description": "Learn what URL encoding (percent encoding) is, why it matters, and how to encode/decode URLs online for free.",
+    "author": { "@type": "Organization", "name": "QuickTools" },
+    "publisher": { "@type": "Organization", "name": "QuickTools", "url": "https://toolsite-xn828584.vercel.app/" },
+    "datePublished": "2026-06-22",
+    "dateModified": "2026-06-22"
+  }
+  </script>
+  <link rel="stylesheet" href="../blog/blog.css" />
+</head>
+<body>
+<header>
+  <a class="logo" href="../index.html">⚡ Quick<span>Tools</span></a>
+</header>
+<div class="container">
+  <div class="breadcrumb">
+    <a href="../index.html">Home</a> › <a href="index.html">Blog</a> › URL Encode/Decode
+  </div>
+
+  <h1>URL Encode & Decode Online — Percent Encoding Explained</h1>
+  <div class="meta">
+    <span>June 22, 2026</span>
+    <span>6 min read</span>
+    <span>Developer Tools</span>
+  </div>
+
+  <div class="article-body">
+
+    <p>Have you ever seen a URL like <code>https://example.com/search?q=hello%20world</code> and wondered what <code>%20</code> means? That's URL encoding (also called percent encoding). This guide explains what it is, why it matters, and how to encode and decode URLs instantly online.</p>
+
+    <div class="cta-box">
+      <h3>⚡ Free URL Encoder / Decoder</h3>
+      <p>Encode or decode any URL or query string instantly. Free, no signup.</p>
+      <a class="btn-cta" href="../url-encode.html">Open URL Encoder →</a>
+    </div>
+
+    <h2>What Is URL Encoding?</h2>
+    <p>URLs can only contain a limited set of ASCII characters. Characters outside this set — including spaces, Unicode letters, and special symbols — must be encoded so they can be safely transmitted over the internet.</p>
+    <p>URL encoding replaces unsafe characters with a <code>%</code> followed by two hexadecimal digits representing the character's byte value. This is why it's also called <em>percent encoding</em>.</p>
+    <p>Example: a space character (byte value 32, or 0x20 in hex) becomes <code>%20</code>.</p>
+
+    <h2>Which Characters Get Encoded?</h2>
+    <p>URL-safe characters that do <strong>not</strong> need encoding (RFC 3986 unreserved characters):</p>
+    <pre><code>A–Z  a–z  0–9  -  _  .  ~</code></pre>
+    <p>Everything else is encoded, including:</p>
+    <table style="width:100%;border-collapse:collapse;font-size:.85rem;margin-bottom:20px;">
+      <thead>
+        <tr style="border-bottom:1px solid var(--border);">
+          <th style="padding:8px;text-align:left;color:var(--muted);">Character</th>
+          <th style="padding:8px;text-align:left;color:var(--muted);">Encoded</th>
+          <th style="padding:8px;text-align:left;color:var(--muted);">Reason</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--border);"><td style="padding:8px;">Space</td><td style="padding:8px;font-family:monospace;">%20</td><td style="padding:8px;">Not allowed in URLs</td></tr>
+        <tr style="border-bottom:1px solid var(--border);"><td style="padding:8px;">#</td><td style="padding:8px;font-family:monospace;">%23</td><td style="padding:8px;">Reserved for fragments</td></tr>
+        <tr style="border-bottom:1px solid var(--border);"><td style="padding:8px;">&</td><td style="padding:8px;font-family:monospace;">%26</td><td style="padding:8px;">Separates query params</td></tr>
+        <tr style="border-bottom:1px solid var(--border);"><td style="padding:8px;">+</td><td style="padding:8px;font-family:monospace;">%2B</td><td style="padding:8px;">Means space in form data</td></tr>
+        <tr style="border-bottom:1px solid var(--border);"><td style="padding:8px;">=</td><td style="padding:8px;font-family:monospace;">%3D</td><td style="padding:8px;">Separates key=value</td></tr>
+        <tr style="border-bottom:1px solid var(--border);"><td style="padding:8px;">?</td><td style="padding:8px;font-family:monospace;">%3F</td><td style="padding:8px;">Starts query string</td></tr>
+        <tr style="border-bottom:1px solid var(--border);"><td style="padding:8px;">/</td><td style="padding:8px;font-family:monospace;">%2F</td><td style="padding:8px;">Path separator</td></tr>
+        <tr><td style="padding:8px;">日本語</td><td style="padding:8px;font-family:monospace;">%E6%97%A5%E6%9C%AC%E8%AA%9E</td><td style="padding:8px;">Non-ASCII</td></tr>
+      </tbody>
+    </table>
+
+    <h2>encodeURI vs. encodeURIComponent</h2>
+    <p>JavaScript has two built-in URL encoding functions with an important difference:</p>
+
+    <h3>encodeURI()</h3>
+    <p>Encodes a <em>complete URL</em>. It does <strong>not</strong> encode characters that are valid parts of a URL structure (<code>: / ? # [ ] @ ! $ & ' ( ) * + , ; =</code>).</p>
+    <pre><code>encodeURI("https://example.com/search?q=hello world")
+// → "https://example.com/search?q=hello%20world"</code></pre>
+
+    <h3>encodeURIComponent()</h3>
+    <p>Encodes a <em>component</em> of a URL (like a query parameter value). It encodes everything except unreserved characters.</p>
+    <pre><code>encodeURIComponent("price=100&currency=USD")
+// → "price%3D100%26currency%3DUSD"</code></pre>
+    <p><strong>Rule of thumb:</strong> Use <code>encodeURIComponent()</code> when encoding individual parameter values. Use <code>encodeURI()</code> for a full URL.</p>
+
+    <h2>Common URL Encoding Issues</h2>
+
+    <h3>Double-encoding</h3>
+    <p>If you encode an already-encoded URL, you get double-encoding: <code>%20</code> becomes <code>%2520</code>. Always decode first before re-encoding.</p>
+
+    <h3>Space as + vs %20</h3>
+    <p>In HTML form submissions (application/x-www-form-urlencoded), spaces are encoded as <code>+</code>. In general URL encoding (RFC 3986), spaces are <code>%20</code>. Make sure you're using the right variant for your context.</p>
+
+    <h3>Non-ASCII characters in URLs</h3>
+    <p>Characters like Japanese (日本語) or emoji (🚀) must be UTF-8 encoded, then percent-encoded. Modern browsers do this automatically in the address bar, but you may need to handle it manually in code.</p>
+
+    <h2>How to URL Encode Online</h2>
+    <ol>
+      <li>Open the <a href="../url-encode.html">QuickTools URL Encoder</a></li>
+      <li>Paste your URL or text string</li>
+      <li>Click <strong>Encode</strong></li>
+      <li>Copy the encoded result</li>
+    </ol>
+
+    <h2>URL Encoding in Different Languages</h2>
+    <pre><code># Python
+from urllib.parse import quote, unquote
+quote("hello world")       # → 'hello%20world'
+unquote("hello%20world")   # → 'hello world'
+
+# JavaScript
+encodeURIComponent("hello world")  # → 'hello%20world'
+decodeURIComponent("hello%20world") # → 'hello world'
+
+# PHP
+urlencode("hello world")   # → 'hello+world'
+urldecode("hello+world")   # → 'hello world'
+rawurlencode("hello world") # → 'hello%20world'</code></pre>
+
+    <h2>URL Parser</h2>
+    <p>Need to break a full URL into its components (protocol, host, path, query params, fragment)? Use the <a href="../url-parser.html">URL Parser</a> to analyze any URL.</p>
+
+    <div class="faq">
+      <h2>Frequently Asked Questions</h2>
+
+      <div class="faq-item">
+        <div class="faq-q">Why do URLs sometimes have %20 and sometimes +?</div>
+        <div class="faq-a">Both represent a space, but in different contexts. <code>%20</code> is standard percent encoding (RFC 3986). <code>+</code> is used in application/x-www-form-urlencoded (HTML forms). Most modern web apps treat them the same, but it's best to use <code>%20</code> in general URLs.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Is URL encoding the same as Base64?</div>
+        <div class="faq-a">No. URL encoding replaces special characters with %XX sequences. Base64 converts binary data to a text string using 64 printable characters. They solve different problems.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Do I need to encode the entire URL?</div>
+        <div class="faq-a">No. Only encode the parts that could contain special characters — typically the values in query string parameters. The protocol, domain, and path usually don't need encoding.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">What is %0A?</div>
+        <div class="faq-a"><code>%0A</code> is a newline character (line feed, ASCII 10). <code>%0D</code> is a carriage return. Together <code>%0D%0A</code> represents a Windows-style line ending (CRLF).</div>
+      </div>
+    </div>
+
+    <div class="cta-box">
+      <h3>Encode or decode your URL now</h3>
+      <p>Free, instant, and runs entirely in your browser.</p>
+      <a class="btn-cta" href="../url-encode.html">Open URL Encoder →</a>
+    </div>
+
+  </div>
+
+  <div class="related-articles">
+    <h2>Related Tools & Articles</h2>
+    <div class="related-grid">
+      <a class="related-card" href="../url-encode.html">⚡ URL Encoder/Decoder</a>
+      <a class="related-card" href="../url-parser.html">URL Parser</a>
+      <a class="related-card" href="../base64.html">Base64 Encoder</a>
+      <a class="related-card" href="../hash-generator.html">Hash Generator</a>
+      <a class="related-card" href="base64-encode-decode.html">Base64 Guide</a>
+      <a class="related-card" href="json-formatter-online.html">JSON Formatter Guide</a>
+    </div>
+  </div>
+</div>
+<footer>© 2026 QuickTools — Free online tools. No signup required. · <a href="../index.html">All Tools</a></footer>
+</body>
+</html>

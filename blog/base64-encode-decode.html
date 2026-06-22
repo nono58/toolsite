@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Base64 Encode & Decode Online – What Is Base64? | QuickTools</title>
+  <meta name="description" content="Encode and decode Base64 strings online for free. Learn what Base64 is, why it's used, and how to convert text and images to Base64 instantly." />
+  <meta name="keywords" content="base64 encode online, base64 decode online, base64 converter, encode base64, decode base64, what is base64" />
+  <link rel="canonical" href="https://toolsite-xn828584.vercel.app/blog/base64-encode-decode.html" />
+  <meta property="og:title" content="Base64 Encode & Decode Online – What Is Base64?" />
+  <meta property="og:description" content="Free online Base64 encoder/decoder. Learn what Base64 is and how to use it." />
+  <meta property="og:type" content="article" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Base64 Encode & Decode Online – What Is Base64?",
+    "description": "Learn what Base64 is, why it's used, and how to encode/decode Base64 strings for free online.",
+    "author": { "@type": "Organization", "name": "QuickTools" },
+    "publisher": { "@type": "Organization", "name": "QuickTools", "url": "https://toolsite-xn828584.vercel.app/" },
+    "datePublished": "2026-06-22",
+    "dateModified": "2026-06-22"
+  }
+  </script>
+  <link rel="stylesheet" href="../blog/blog.css" />
+</head>
+<body>
+<header>
+  <a class="logo" href="../index.html">⚡ Quick<span>Tools</span></a>
+</header>
+<div class="container">
+  <div class="breadcrumb">
+    <a href="../index.html">Home</a> › <a href="index.html">Blog</a> › Base64
+  </div>
+
+  <h1>Base64 Encode & Decode Online — What Is Base64 and How to Use It</h1>
+  <div class="meta">
+    <span>June 22, 2026</span>
+    <span>7 min read</span>
+    <span>Developer Tools</span>
+  </div>
+
+  <div class="article-body">
+
+    <p>You've probably seen strings like <code>SGVsbG8gV29ybGQ=</code> in API responses, email headers, or browser URLs. That's Base64. This guide explains what Base64 encoding is, why it exists, and how to encode and decode it instantly online.</p>
+
+    <div class="cta-box">
+      <h3>⚡ Free Base64 Encoder / Decoder</h3>
+      <p>Encode text, URLs, or images to Base64 — or decode any Base64 string. Instant, free, private.</p>
+      <a class="btn-cta" href="../base64.html">Open Base64 Tool →</a>
+    </div>
+
+    <h2>What Is Base64?</h2>
+    <p>Base64 is an encoding scheme that converts binary data into a string of 64 printable ASCII characters. The 64 characters are:</p>
+    <ul>
+      <li>Uppercase letters: <code>A–Z</code> (26)</li>
+      <li>Lowercase letters: <code>a–z</code> (26)</li>
+      <li>Digits: <code>0–9</code> (10)</li>
+      <li>Two symbols: <code>+</code> and <code>/</code> (2)</li>
+      <li>Padding character: <code>=</code></li>
+    </ul>
+    <p>The encoding works by taking every 3 bytes (24 bits) of input and splitting them into four 6-bit groups. Each 6-bit group maps to one of the 64 characters.</p>
+
+    <h2>Why Is Base64 Used?</h2>
+    <p>Some protocols (like email via SMTP, or certain HTTP headers) were designed to handle only text, not arbitrary binary data. Base64 solves this by representing any binary data as safe, printable text. Common use cases include:</p>
+
+    <h3>1. Embedding images in HTML/CSS</h3>
+    <p>Instead of referencing an image file, you can embed it directly using a Data URL:</p>
+    <pre><code>&lt;img src="data:image/png;base64,iVBORw0KGgo..." /&gt;</code></pre>
+    <p>This reduces HTTP requests but increases file size. Use the <a href="../image-to-base64.html">Image to Base64 Converter</a> for this.</p>
+
+    <h3>2. API authentication</h3>
+    <p>HTTP Basic Authentication encodes credentials as Base64:</p>
+    <pre><code>Authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=</code></pre>
+    <p>Note: Base64 is <strong>not encryption</strong>. Anyone can decode it. Always use HTTPS.</p>
+
+    <h3>3. Email attachments (MIME)</h3>
+    <p>Email attachments are encoded in Base64 so binary files (PDFs, images) can travel through text-based email protocols.</p>
+
+    <h3>4. JWT tokens</h3>
+    <p>JSON Web Tokens use Base64URL (a URL-safe variant) to encode the header and payload. Use the <a href="../jwt-decoder.html">JWT Decoder</a> to inspect them.</p>
+
+    <h3>5. Storing binary data in JSON or XML</h3>
+    <p>Since JSON strings must be valid Unicode text, binary data (images, files) must be Base64-encoded before embedding.</p>
+
+    <h2>Base64 Encoding Example</h2>
+    <p>Let's encode the word <strong>"Hello"</strong>:</p>
+    <table style="width:100%;border-collapse:collapse;font-size:.85rem;margin-bottom:20px;">
+      <thead>
+        <tr style="border-bottom:1px solid var(--border);">
+          <th style="padding:8px;text-align:left;color:var(--muted);">Character</th>
+          <th style="padding:8px;text-align:left;color:var(--muted);">ASCII (decimal)</th>
+          <th style="padding:8px;text-align:left;color:var(--muted);">Binary (8-bit)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--border);"><td style="padding:8px;">H</td><td style="padding:8px;">72</td><td style="padding:8px;font-family:monospace;">01001000</td></tr>
+        <tr style="border-bottom:1px solid var(--border);"><td style="padding:8px;">e</td><td style="padding:8px;">101</td><td style="padding:8px;font-family:monospace;">01100101</td></tr>
+        <tr style="border-bottom:1px solid var(--border);"><td style="padding:8px;">l</td><td style="padding:8px;">108</td><td style="padding:8px;font-family:monospace;">01101100</td></tr>
+        <tr style="border-bottom:1px solid var(--border);"><td style="padding:8px;">l</td><td style="padding:8px;">108</td><td style="padding:8px;font-family:monospace;">01101100</td></tr>
+        <tr><td style="padding:8px;">o</td><td style="padding:8px;">111</td><td style="padding:8px;font-family:monospace;">01101111</td></tr>
+      </tbody>
+    </table>
+    <p>The 5 bytes (40 bits) are grouped into six 6-bit chunks, mapped to Base64 characters, and padded with <code>=</code> to make the output a multiple of 4: <code>SGVsbG8=</code></p>
+
+    <h2>How to Encode Base64 Online</h2>
+    <ol>
+      <li>Go to the <a href="../base64.html">QuickTools Base64 Tool</a></li>
+      <li>Select <strong>Encode</strong> mode</li>
+      <li>Type or paste your text</li>
+      <li>The Base64 output appears instantly</li>
+      <li>Click <strong>Copy</strong></li>
+    </ol>
+
+    <h2>How to Decode Base64 Online</h2>
+    <ol>
+      <li>Go to the <a href="../base64.html">QuickTools Base64 Tool</a></li>
+      <li>Select <strong>Decode</strong> mode</li>
+      <li>Paste the Base64 string (e.g. <code>SGVsbG8=</code>)</li>
+      <li>The decoded text appears instantly</li>
+    </ol>
+    <p>If the Base64 string decodes to binary (not readable text), the tool will indicate that the output is binary data.</p>
+
+    <h2>Base64 vs Base64URL</h2>
+    <p>Standard Base64 uses <code>+</code> and <code>/</code>, which have special meaning in URLs. <strong>Base64URL</strong> replaces them with <code>-</code> and <code>_</code>, making encoded strings safe to use in URLs and filenames without percent-encoding.</p>
+    <table style="width:100%;border-collapse:collapse;font-size:.88rem;margin-bottom:20px;">
+      <thead>
+        <tr style="border-bottom:1px solid var(--border);">
+          <th style="padding:8px;text-align:left;color:var(--muted);">Variant</th>
+          <th style="padding:8px;text-align:left;color:var(--muted);">Special chars</th>
+          <th style="padding:8px;text-align:left;color:var(--muted);">Use case</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--border);"><td style="padding:8px;">Base64</td><td style="padding:8px;"><code>+/=</code></td><td style="padding:8px;">Email, general encoding</td></tr>
+        <tr><td style="padding:8px;">Base64URL</td><td style="padding:8px;"><code>-_</code> (no padding)</td><td style="padding:8px;">JWT, URLs, filenames</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Base64 in JavaScript</h2>
+    <pre><code>// Encode
+const encoded = btoa("Hello World");
+// → "SGVsbG8gV29ybGQ="
+
+// Decode
+const decoded = atob("SGVsbG8gV29ybGQ=");
+// → "Hello World"</code></pre>
+    <p>Note: <code>btoa()</code> only works with Latin-1 characters. For Unicode strings, encode to UTF-8 bytes first.</p>
+
+    <h2>Base64 in Python</h2>
+    <pre><code>import base64
+
+# Encode
+encoded = base64.b64encode(b"Hello World").decode()
+# → 'SGVsbG8gV29ybGQ='
+
+# Decode
+decoded = base64.b64decode("SGVsbG8gV29ybGQ=").decode()
+# → 'Hello World'</code></pre>
+
+    <div class="faq">
+      <h2>Frequently Asked Questions</h2>
+
+      <div class="faq-item">
+        <div class="faq-q">Is Base64 the same as encryption?</div>
+        <div class="faq-a">No. Base64 is encoding, not encryption. Anyone can decode it — there's no secret key. Never use Base64 to hide sensitive data. Use proper encryption (AES, RSA) instead.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Why does Base64 output end with = or ==?</div>
+        <div class="faq-a">Base64 processes 3 bytes at a time. If the input isn't a multiple of 3 bytes, padding characters (=) are added to complete the last group.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">How much does Base64 increase file size?</div>
+        <div class="faq-a">Approximately 33%. Every 3 bytes of input become 4 Base64 characters, increasing size by 4/3.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Can I encode images to Base64?</div>
+        <div class="faq-a">Yes. Use the <a href="../image-to-base64.html">Image to Base64 Converter</a> to get a data URL you can embed directly in HTML or CSS.</div>
+      </div>
+    </div>
+
+    <div class="cta-box">
+      <h3>Encode or decode Base64 now</h3>
+      <p>Free, instant, and private — runs entirely in your browser.</p>
+      <a class="btn-cta" href="../base64.html">Open Base64 Tool →</a>
+    </div>
+
+  </div>
+
+  <div class="related-articles">
+    <h2>Related Tools & Articles</h2>
+    <div class="related-grid">
+      <a class="related-card" href="../base64.html">⚡ Base64 Encoder/Decoder</a>
+      <a class="related-card" href="../image-to-base64.html">Image to Base64</a>
+      <a class="related-card" href="../jwt-decoder.html">JWT Decoder</a>
+      <a class="related-card" href="../hash-generator.html">Hash Generator</a>
+      <a class="related-card" href="json-formatter-online.html">JSON Formatter Guide</a>
+      <a class="related-card" href="url-encode-decode.html">URL Encode Guide</a>
+    </div>
+  </div>
+</div>
+<footer>© 2026 QuickTools — Free online tools. No signup required. · <a href="../index.html">All Tools</a></footer>
+</body>
+</html>
