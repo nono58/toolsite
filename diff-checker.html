@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Text Diff Checker Online – Free | QuickTools</title>
+  <meta name="description" content="Compare two texts and highlight differences. Line-by-line diff viewer. Free online diff checker tool." />
+  <link rel="stylesheet" href="tool.css" />
+  <style>
+    .diff-wrap { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .diff-output { font-family:'SF Mono','Fira Code',monospace; font-size:.83rem; line-height:1.6; border-radius:10px; border:1.5px solid var(--border); overflow:auto; max-height:480px; }
+    .diff-line { padding:2px 12px; white-space:pre-wrap; word-break:break-all; }
+    .diff-add  { background:#22c55e20; color:#86efac; border-left:3px solid #22c55e; }
+    .diff-del  { background:#f8717120; color:#fca5a5; border-left:3px solid #f87171; text-decoration:line-through; }
+    .diff-eq   { color:var(--muted); border-left:3px solid transparent; }
+    .diff-num  { color:var(--bg3); font-size:.75rem; user-select:none; margin-right:8px; display:inline-block; width:3ch; text-align:right; }
+    @media(max-width:640px){.diff-wrap{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Text<span>›</span>Diff Checker</div>
+  <h1>Text Diff Checker</h1>
+  <p class="tool-desc">Paste two versions of text to compare them. Added lines are highlighted green, removed lines red.</p>
+
+  <div class="diff-wrap">
+    <div>
+      <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px;">Original</div>
+      <textarea id="text-a" placeholder="Paste original text here…" oninput="diff()" style="min-height:220px;"></textarea>
+    </div>
+    <div>
+      <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px;">Changed</div>
+      <textarea id="text-b" placeholder="Paste changed text here…" oninput="diff()" style="min-height:220px;"></textarea>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:8px;">
+    <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;">
+      <label style="display:flex;align-items:center;gap:8px;font-size:.88rem;cursor:pointer;margin:0;">
+        <input type="checkbox" id="ignore-case" onchange="diff()" style="width:auto;" /> Ignore case
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;font-size:.88rem;cursor:pointer;margin:0;">
+        <input type="checkbox" id="ignore-space" onchange="diff()" style="width:auto;" /> Ignore whitespace
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;font-size:.88rem;cursor:pointer;margin:0;">
+        <input type="checkbox" id="show-eq" checked onchange="diff()" style="width:auto;" /> Show unchanged lines
+      </label>
+      <button class="btn btn-secondary btn-sm" onclick="clearAll()">Clear</button>
+    </div>
+  </div>
+
+  <div id="stats-row" class="card" style="display:none;">
+    <div class="stats-row" id="diff-stats"></div>
+  </div>
+
+  <div id="diff-card" class="card" style="display:none;padding:0;overflow:hidden;">
+    <div style="padding:10px 16px;background:var(--bg3);border-bottom:1px solid var(--border);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);">Diff Output</div>
+    <div class="diff-output" id="diff-output"></div>
+  </div>
+
+  <div class="related" style="margin-top:32px;">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="duplicate-line-remover.html">Duplicate Line Remover</a>
+      <a class="related-link" href="word-counter.html">Word Counter</a>
+    </div>
+  </div>
+</div>
+<footer>© 2026 QuickTools — Free online tools. No signup required.</footer>
+<script>
+// Myers diff algorithm (simplified LCS)
+function lcs(a, b) {
+  const m=a.length, n=b.length;
+  const dp = Array.from({length:m+1},()=>new Array(n+1).fill(0));
+  for(let i=1;i<=m;i++) for(let j=1;j<=n;j++)
+    dp[i][j] = a[i-1]===b[j-1] ? dp[i-1][j-1]+1 : Math.max(dp[i-1][j],dp[i][j-1]);
+  // Traceback
+  const result=[];
+  let i=m,j=n;
+  while(i>0||j>0){
+    if(i>0&&j>0&&a[i-1]===b[j-1]){result.push({type:'eq',val:a[i-1]});i--;j--;}
+    else if(j>0&&(i===0||dp[i][j-1]>=dp[i-1][j])){result.push({type:'add',val:b[j-1]});j--;}
+    else{result.push({type:'del',val:a[i-1]});i--;}
+  }
+  return result.reverse();
+}
+
+function normalize(s) {
+  let v = s;
+  if(document.getElementById('ignore-case').checked) v=v.toLowerCase();
+  if(document.getElementById('ignore-space').checked) v=v.trim().replace(/\s+/g,' ');
+  return v;
+}
+
+function diff() {
+  const a = document.getElementById('text-a').value.split('\n');
+  const b = document.getElementById('text-b').value.split('\n');
+  if(!a[0]&&!b[0]){
+    document.getElementById('diff-card').style.display='none';
+    document.getElementById('stats-row').style.display='none';
+    return;
+  }
+
+  const na = a.map(normalize);
+  const nb = b.map(normalize);
+  const ops = lcs(na, nb);
+
+  // Map back to original values
+  let ai=0,bi=0;
+  const lines=ops.map(op=>{
+    if(op.type==='eq'){const v={type:'eq',orig:a[ai],changed:b[bi]};ai++;bi++;return v;}
+    if(op.type==='add'){const v={type:'add',val:b[bi]};bi++;return v;}
+    const v={type:'del',val:a[ai]};ai++;return v;
+  });
+
+  const showEq = document.getElementById('show-eq').checked;
+  let adds=0,dels=0;
+  const html=[];
+  let lineNum=1;
+  for(const l of lines){
+    if(l.type==='add'){adds++;html.push(`<div class="diff-line diff-add"><span class="diff-num">${lineNum++}</span>${esc(l.val)}</div>`);}
+    else if(l.type==='del'){dels++;html.push(`<div class="diff-line diff-del"><span class="diff-num"> </span>${esc(l.val)}</div>`);}
+    else if(showEq){html.push(`<div class="diff-line diff-eq"><span class="diff-num">${lineNum++}</span>${esc(l.orig)}</div>`);}
+    else lineNum++;
+  }
+
+  document.getElementById('diff-output').innerHTML = html.join('') || '<div class="diff-line diff-eq">No differences found.</div>';
+  document.getElementById('diff-stats').innerHTML=`<span style="color:#86efac;">+${adds} added</span><span style="color:#fca5a5;">−${dels} removed</span><span>${Math.abs(adds-dels)} net change</span>`;
+  document.getElementById('diff-card').style.display='block';
+  document.getElementById('stats-row').style.display='block';
+}
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function clearAll(){document.getElementById('text-a').value='';document.getElementById('text-b').value='';diff();}
+</script>
+</body>
+</html>

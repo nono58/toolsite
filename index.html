@@ -173,9 +173,11 @@ const TOOL_URLS = {
   13: 'base64.html',
   14: 'url-encode.html',
   17: 'json-formatter.html',
+  18: 'json-to-csv.html',
   24: 'uuid-generator.html',
   26: 'regex-tester.html',
   27: 'hash-generator.html',
+  33: 'image-resizer.html',
   34: 'image-compressor.html',
   38: 'image-grayscale.html',
   40: 'image-to-base64.html',
@@ -184,9 +186,11 @@ const TOOL_URLS = {
   45: 'text-case.html',
   46: 'remove-extra-spaces.html',
   49: 'duplicate-line-remover.html',
+  51: 'diff-checker.html',
   52: 'lorem-ipsum.html',
   54: 'length-converter.html',
   56: 'temperature-converter.html',
+  58: 'number-to-words.html',
   62: 'color-converter.html',
   63: 'color-palette.html',
   64: 'emi-calculator.html',
@@ -194,6 +198,12 @@ const TOOL_URLS = {
   67: 'age-calculator.html',
   69: 'percentage-calculator.html',
   71: 'qr-code-generator.html',
+  111: 'markdown-preview.html',
+  112: 'password-generator.html',
+  113: 'word-frequency.html',
+  114: 'url-parser.html',
+  115: 'timestamp-converter.html',
+  116: 'css-minifier.html',
 };
 
 const TOOLS = [
@@ -232,7 +242,7 @@ const TOOLS = [
   { id:30, name:"SVG to PNG Converter",          cat:"image",      vol:"8-10k",  priority:2 },
   { id:31, name:"TIFF to JPG Converter",         cat:"image",      vol:"3-5k",   priority:3 },
   { id:32, name:"BMP to PNG Converter",          cat:"image",      vol:"2-3k",   priority:3 },
-  { id:33, name:"Image Resizer (Batch)",         cat:"image",      vol:"10-15k", priority:2 },
+  { id:33, name:"Image Resizer",                 cat:"image",      vol:"10-15k", priority:2 },
   { id:34, name:"Image Compressor",              cat:"image",      vol:"12-15k", priority:2 },
   { id:35, name:"Image Cropper",                 cat:"image",      vol:"4-6k",   priority:2 },
   { id:36, name:"Background Remover",            cat:"image",      vol:"10-15k", priority:2 },
@@ -316,6 +326,13 @@ const TOOLS = [
   { id:108, name:"Travel Cost Calculator",       cat:"business",   vol:"3-5k",   priority:3 },
   { id:109, name:"Crypto Unit Converter",        cat:"business",   vol:"4-6k",   priority:3 },
   { id:110, name:"Contract Generator (NDA)",     cat:"business",   vol:"3-5k",   priority:3 },
+  // ── Extra tools (implemented) ──
+  { id:111, name:"Markdown Preview",             cat:"developer",  vol:"15-20k", priority:2 },
+  { id:112, name:"Password Generator",           cat:"generator",  vol:"20-25k", priority:2 },
+  { id:113, name:"Word Frequency Counter",       cat:"text",       vol:"5-8k",   priority:2 },
+  { id:114, name:"URL Parser",                   cat:"developer",  vol:"8-10k",  priority:2 },
+  { id:115, name:"Timestamp Converter",          cat:"developer",  vol:"12-15k", priority:2 },
+  { id:116, name:"CSS Minifier",                 cat:"developer",  vol:"10-12k", priority:2 },
 ];
 
 const SECTIONS = [

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Word Frequency Counter Online – Free | QuickTools</title>
+  <meta name="description" content="Analyze word frequency in any text. See top words, keyword density, and export results as CSV. Free online tool." />
+  <link rel="stylesheet" href="tool.css" />
+  <style>
+    .freq-bar-wrap { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+    .freq-bar-track { flex:1; height:10px; background:var(--bg3); border-radius:999px; overflow:hidden; }
+    .freq-bar { height:100%; background:var(--accent); border-radius:999px; transition:width .4s; }
+    .freq-word { min-width:120px; font-family:monospace; font-size:.88rem; }
+    .freq-count { min-width:40px; text-align:right; font-size:.8rem; color:var(--muted); }
+    .freq-pct { min-width:48px; text-align:right; font-size:.8rem; color:var(--accent2); font-weight:700; }
+  </style>
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Text<span>›</span>Word Frequency Counter</div>
+  <h1>Word Frequency Counter</h1>
+  <p class="tool-desc">Analyze word frequency and keyword density in any text. Useful for SEO, content analysis, and writing optimization.</p>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <span class="card-title" style="margin-bottom:0;">Input Text</span>
+      <button class="btn btn-secondary btn-sm" onclick="clearAll()">Clear</button>
+    </div>
+    <textarea id="input" placeholder="Paste your text here to analyze word frequency…" oninput="analyze()" style="min-height:180px;"></textarea>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;">
+      <label style="display:flex;align-items:center;gap:8px;font-size:.88rem;cursor:pointer;margin:0;">
+        <input type="checkbox" id="ignore-stop" checked onchange="analyze()" style="width:auto;" /> Ignore common words
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;font-size:.88rem;cursor:pointer;margin:0;">
+        <input type="checkbox" id="ignore-case" checked onchange="analyze()" style="width:auto;" /> Case insensitive
+      </label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <label style="margin:0;font-size:.88rem;">Show top</label>
+        <select id="top-n" onchange="analyze()" style="width:auto;">
+          <option value="10">10</option>
+          <option value="20">20</option>
+          <option value="50">50</option>
+          <option value="0">All</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div id="result-card" style="display:none;">
+    <div class="card">
+      <div class="stats-row" id="stats"></div>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <span class="card-title" style="margin-bottom:0;">Word Frequency</span>
+        <button class="btn btn-secondary btn-sm" onclick="exportCsv()">⬇ Export CSV</button>
+      </div>
+      <div id="freq-list"></div>
+    </div>
+  </div>
+
+  <div class="related" style="margin-top:32px;">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="word-counter.html">Word Counter</a>
+      <a class="related-link" href="duplicate-line-remover.html">Duplicate Line Remover</a>
+    </div>
+  </div>
+</div>
+<footer>© 2026 QuickTools — Free online tools. No signup required.</footer>
+<script>
+const STOPWORDS = new Set('a an the and or but in on at to for of with is are was were be been has have had do does did will would could should may might must can i you he she it we they me him her us them my your his its our their this that these those'.split(' '));
+
+let allFreq = [];
+
+function analyze() {
+  const text = document.getElementById('input').value;
+  if (!text.trim()) { document.getElementById('result-card').style.display='none'; return; }
+
+  const ignoreCase = document.getElementById('ignore-case').checked;
+  const ignoreStop = document.getElementById('ignore-stop').checked;
+  const topN = parseInt(document.getElementById('top-n').value);
+
+  const words = text.toLowerCase().match(/\b[a-z']{2,}\b/g) || [];
+  const totalWords = words.length;
+  const freq = {};
+  for (let w of words) {
+    if (ignoreCase) w = w.toLowerCase();
+    if (ignoreStop && STOPWORDS.has(w)) continue;
+    freq[w] = (freq[w]||0)+1;
+  }
+
+  allFreq = Object.entries(freq).sort((a,b)=>b[1]-a[1]);
+  const shown = topN > 0 ? allFreq.slice(0,topN) : allFreq;
+  const maxCount = shown[0]?.[1] || 1;
+  const uniqueWords = Object.keys(freq).length;
+
+  document.getElementById('stats').innerHTML = `
+    <span>${totalWords.toLocaleString()} total words</span>
+    <span>${uniqueWords.toLocaleString()} unique words</span>
+    <span>${(uniqueWords/Math.max(totalWords,1)*100).toFixed(1)}% diversity</span>
+  `;
+
+  document.getElementById('freq-list').innerHTML = shown.map(([w,c]) => {
+    const pct = (c/totalWords*100).toFixed(2);
+    const barW = (c/maxCount*100).toFixed(1);
+    return `<div class="freq-bar-wrap">
+      <span class="freq-word">${esc(w)}</span>
+      <div class="freq-bar-track"><div class="freq-bar" style="width:${barW}%"></div></div>
+      <span class="freq-count">${c}</span>
+      <span class="freq-pct">${pct}%</span>
+    </div>`;
+  }).join('') || '<div style="color:var(--muted);">No words found.</div>';
+
+  document.getElementById('result-card').style.display='block';
+}
+
+function exportCsv() {
+  const csv = 'Word,Count,Percentage\n' + allFreq.map(([w,c])=>`${w},${c},${(c/allFreq.reduce((s,[,n])=>s+n,0)*100).toFixed(2)}%`).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='word-frequency.csv';a.click();
+}
+
+function clearAll(){document.getElementById('input').value='';analyze();}
+function esc(s){return String(s).replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+</script>
+</body>
+</html>

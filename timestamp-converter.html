@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unix Timestamp Converter Online – Free | QuickTools</title>
+  <meta name="description" content="Convert Unix timestamps to human-readable dates and vice versa. Live clock, timezone support. Free online timestamp converter." />
+  <link rel="stylesheet" href="tool.css" />
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Developer<span>›</span>Timestamp Converter</div>
+  <h1>Unix Timestamp Converter</h1>
+  <p class="tool-desc">Convert Unix timestamps to human-readable dates and back. Supports seconds, milliseconds, and timezone display.</p>
+
+  <!-- Live clock -->
+  <div class="card" style="text-align:center;">
+    <div style="font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:8px;">Current Unix Timestamp</div>
+    <div id="live-ts" style="font-size:2.2rem;font-weight:800;color:var(--accent2);font-family:monospace;cursor:pointer;" onclick="copyLive()" title="Click to copy"></div>
+    <div id="live-ms" style="font-size:1rem;color:var(--muted);font-family:monospace;margin-top:4px;"></div>
+    <div id="live-date" style="font-size:.9rem;color:var(--text);margin-top:6px;"></div>
+    <div style="margin-top:10px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+      <button class="btn btn-secondary btn-sm" onclick="useNow()">Use Now →</button>
+    </div>
+  </div>
+
+  <!-- Timestamp → Date -->
+  <div class="card">
+    <div class="card-title">Timestamp → Date</div>
+    <div class="grid-2">
+      <div>
+        <label>Unix Timestamp</label>
+        <input type="number" id="ts-input" placeholder="e.g. 1700000000" oninput="tsToDate()" />
+      </div>
+      <div>
+        <label>Unit</label>
+        <select id="ts-unit" onchange="tsToDate()">
+          <option value="s">Seconds (s)</option>
+          <option value="ms">Milliseconds (ms)</option>
+        </select>
+      </div>
+    </div>
+    <div id="ts-result" style="display:none;margin-top:16px;">
+      <div id="ts-date-list" style="display:grid;gap:8px;"></div>
+    </div>
+  </div>
+
+  <!-- Date → Timestamp -->
+  <div class="card">
+    <div class="card-title">Date → Timestamp</div>
+    <div class="grid-2">
+      <div>
+        <label>Date</label>
+        <input type="date" id="date-input" oninput="dateToTs()" />
+      </div>
+      <div>
+        <label>Time</label>
+        <input type="time" id="time-input" value="00:00:00" step="1" oninput="dateToTs()" />
+      </div>
+    </div>
+    <div id="date-result" style="display:none;margin-top:16px;">
+      <div id="date-ts-list" style="display:grid;gap:8px;"></div>
+    </div>
+  </div>
+
+  <!-- Reference -->
+  <div class="card">
+    <div class="card-title">Common Timestamps</div>
+    <div style="display:grid;gap:8px;">
+      <div id="ref-list"></div>
+    </div>
+  </div>
+
+  <div class="related" style="margin-top:32px;">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="age-calculator.html">Age Calculator</a>
+      <a class="related-link" href="url-encode.html">URL Encoder</a>
+    </div>
+  </div>
+</div>
+<footer>© 2026 QuickTools — Free online tools. No signup required.</footer>
+<script>
+// Live clock
+function updateClock() {
+  const now = Date.now();
+  const s = Math.floor(now/1000);
+  document.getElementById('live-ts').textContent = s;
+  document.getElementById('live-ms').textContent = now + ' ms';
+  document.getElementById('live-date').textContent = new Date(now).toUTCString();
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+function copyLive() {
+  navigator.clipboard.writeText(document.getElementById('live-ts').textContent);
+  const el = document.getElementById('live-ts');
+  el.style.color = '#34d399';
+  setTimeout(()=>el.style.color='', 800);
+}
+
+function useNow() {
+  const s = Math.floor(Date.now()/1000);
+  document.getElementById('ts-input').value = s;
+  document.getElementById('ts-unit').value = 's';
+  tsToDate();
+}
+
+const FORMATS = [
+  ['UTC', d => d.toUTCString()],
+  ['ISO 8601', d => d.toISOString()],
+  ['Local', d => d.toLocaleString()],
+  ['Date only', d => d.toISOString().split('T')[0]],
+  ['Time only (UTC)', d => d.toISOString().split('T')[1].replace('Z','')],
+];
+
+function tsToDate() {
+  let ts = parseFloat(document.getElementById('ts-input').value);
+  if (isNaN(ts)) { document.getElementById('ts-result').style.display='none'; return; }
+  if (document.getElementById('ts-unit').value === 's') ts *= 1000;
+  const d = new Date(ts);
+  document.getElementById('ts-date-list').innerHTML = FORMATS.map(([l,fn])=>resultRow(l, fn(d))).join('');
+  // Also show seconds + ms
+  document.getElementById('ts-date-list').innerHTML += resultRow('Seconds', Math.floor(ts/1000));
+  document.getElementById('ts-date-list').innerHTML += resultRow('Milliseconds', ts);
+  document.getElementById('ts-result').style.display='block';
+}
+
+function dateToTs() {
+  const d = document.getElementById('date-input').value;
+  const t = document.getElementById('time-input').value;
+  if (!d) { document.getElementById('date-result').style.display='none'; return; }
+  const date = new Date(d + 'T' + (t||'00:00:00'));
+  const ms = date.getTime();
+  const s = Math.floor(ms/1000);
+  document.getElementById('date-ts-list').innerHTML = [
+    resultRow('Unix (seconds)', s),
+    resultRow('Unix (milliseconds)', ms),
+    ...FORMATS.map(([l,fn])=>resultRow(l, fn(date))),
+  ].join('');
+  document.getElementById('date-result').style.display='block';
+}
+
+function resultRow(label, value) {
+  return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg3);border-radius:8px;gap:8px;">
+    <span style="font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;min-width:140px;">${label}</span>
+    <span style="font-family:monospace;font-size:.88rem;flex:1;word-break:break-all;">${value}</span>
+    <button class="btn btn-secondary btn-sm" style="padding:2px 10px;font-size:.75rem;" onclick="navigator.clipboard.writeText('${String(value).replace(/'/g,"\\'")}').then(()=>{event.target.textContent='✓';setTimeout(()=>event.target.textContent='Copy',1200)})">Copy</button>
+  </div>`;
+}
+
+// Reference list
+const refs = [
+  ['Unix Epoch', 0],
+  ['Y2K', 946684800],
+  ['Year 2038 Problem', 2147483647],
+  ['One year ago', Math.floor(Date.now()/1000) - 31536000],
+  ['One month ago', Math.floor(Date.now()/1000) - 2592000],
+  ['Yesterday', Math.floor(Date.now()/1000) - 86400],
+];
+document.getElementById('ref-list').innerHTML = refs.map(([l,ts])=>`
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg3);border-radius:8px;margin-bottom:6px;gap:8px;cursor:pointer;" onclick="document.getElementById('ts-input').value=${ts};document.getElementById('ts-unit').value='s';tsToDate();" title="Click to load">
+    <span style="font-size:.88rem;">${l}</span>
+    <span style="font-family:monospace;font-size:.85rem;color:var(--accent2);">${ts}</span>
+    <span style="font-size:.78rem;color:var(--muted);">${new Date(ts*1000).getFullYear()}</span>
+  </div>`).join('');
+
+// Init date input to today
+document.getElementById('date-input').value = new Date().toISOString().split('T')[0];
+</script>
+</body>
+</html>

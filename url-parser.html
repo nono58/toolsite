@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>URL Parser & Analyzer Online – Free | QuickTools</title>
+  <meta name="description" content="Parse and analyze any URL. Break down protocol, domain, path, query parameters, and fragment. Free online URL parser." />
+  <link rel="stylesheet" href="tool.css" />
+  <style>
+    .url-part { display:flex; gap:12px; align-items:baseline; padding:10px 0; border-bottom:1px solid var(--border); }
+    .url-part:last-child { border-bottom:none; }
+    .url-label { min-width:120px; font-size:.78rem; text-transform:uppercase; letter-spacing:.05em; font-weight:700; color:var(--muted); }
+    .url-value { font-family:monospace; font-size:.9rem; word-break:break-all; flex:1; }
+    .url-value.empty { color:var(--muted); font-style:italic; }
+    .param-row { display:flex; gap:8px; padding:6px 0; border-bottom:1px solid var(--border); font-size:.88rem; }
+    .param-row:last-child { border-bottom:none; }
+    .param-key { font-family:monospace; color:var(--accent2); min-width:140px; word-break:break-all; }
+    .param-val { font-family:monospace; flex:1; word-break:break-all; }
+  </style>
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Developer<span>›</span>URL Parser</div>
+  <h1>URL Parser & Analyzer</h1>
+  <p class="tool-desc">Break any URL into its components: protocol, host, path, query parameters, and fragment. Decode percent-encoding automatically.</p>
+
+  <div class="card">
+    <label>Enter URL</label>
+    <input type="text" id="url-input" placeholder="https://example.com/path?foo=bar&baz=123#section" oninput="parse()" style="font-family:monospace;font-size:.9rem;" />
+    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-secondary btn-sm" onclick="loadSample('basic')">Sample URL</button>
+      <button class="btn btn-secondary btn-sm" onclick="loadSample('complex')">Complex URL</button>
+      <button class="btn btn-secondary btn-sm" onclick="clearAll()">Clear</button>
+    </div>
+  </div>
+
+  <div id="result" style="display:none;">
+    <div class="card">
+      <div class="card-title">Components</div>
+      <div id="components"></div>
+    </div>
+
+    <div class="card" id="params-card" style="display:none;">
+      <div class="card-title">Query Parameters</div>
+      <div id="params-list"></div>
+    </div>
+
+    <div class="card" id="build-card">
+      <div class="card-title">Build / Edit</div>
+      <div style="display:grid;gap:10px;">
+        <div class="grid-2">
+          <div><label>Protocol</label><input type="text" id="b-proto" placeholder="https:" oninput="rebuild()" /></div>
+          <div><label>Host</label><input type="text" id="b-host" placeholder="example.com" oninput="rebuild()" /></div>
+        </div>
+        <div><label>Path</label><input type="text" id="b-path" placeholder="/path/to/page" oninput="rebuild()" /></div>
+        <div><label>Query String</label><input type="text" id="b-query" placeholder="key=value&foo=bar" oninput="rebuild()" /></div>
+        <div><label>Fragment</label><input type="text" id="b-hash" placeholder="section" oninput="rebuild()" /></div>
+        <div>
+          <label>Rebuilt URL</label>
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="rebuilt-url" readonly style="font-family:monospace;font-size:.85rem;flex:1;" />
+            <button class="btn btn-secondary btn-sm" onclick="copyRebuilt()">Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="related" style="margin-top:32px;">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="url-encode.html">URL Encoder/Decoder</a>
+      <a class="related-link" href="base64.html">Base64 Encoder</a>
+    </div>
+  </div>
+</div>
+<footer>© 2026 QuickTools — Free online tools. No signup required.</footer>
+<script>
+function parse() {
+  const raw = document.getElementById('url-input').value.trim();
+  if (!raw) { document.getElementById('result').style.display='none'; return; }
+
+  let url;
+  try { url = new URL(raw); } catch {
+    try { url = new URL('https://'+raw); } catch {
+      document.getElementById('result').style.display='none'; return;
+    }
+  }
+
+  const parts = [
+    ['Protocol', url.protocol],
+    ['Username', url.username],
+    ['Password', url.password ? '••••••' : ''],
+    ['Hostname', url.hostname],
+    ['Port', url.port || (url.protocol==='https:'?'443':url.protocol==='http:'?'80':'')],
+    ['Path', url.pathname],
+    ['Query String', url.search],
+    ['Fragment', url.hash ? url.hash.slice(1) : ''],
+    ['Origin', url.origin],
+    ['Full URL', url.href],
+  ];
+
+  document.getElementById('components').innerHTML = parts.map(([l,v])=>
+    `<div class="url-part"><span class="url-label">${l}</span><span class="url-value${v?'':' empty'}">${esc(v||'—')}</span>${v&&l!=='Password'?`<button class="btn btn-secondary btn-sm" style="padding:2px 10px;font-size:.75rem;" onclick="copy('${esc(v).replace(/'/g,"\\'")}')">Copy</button>`:''}</div>`
+  ).join('');
+
+  // Query params
+  const params = [...url.searchParams.entries()];
+  if (params.length) {
+    document.getElementById('params-list').innerHTML = params.map(([k,v])=>
+      `<div class="param-row"><span class="param-key">${esc(k)}</span><span class="param-val">${esc(decodeURIComponent(v))}</span><button class="btn btn-secondary btn-sm" style="padding:2px 10px;font-size:.75rem;" onclick="copy('${esc(v).replace(/'/g,"\\'")}')">Copy</button></div>`
+    ).join('');
+    document.getElementById('params-card').style.display='block';
+  } else {
+    document.getElementById('params-card').style.display='none';
+  }
+
+  // Populate builder
+  document.getElementById('b-proto').value = url.protocol;
+  document.getElementById('b-host').value = url.host;
+  document.getElementById('b-path').value = url.pathname;
+  document.getElementById('b-query').value = url.search.replace(/^\?/,'');
+  document.getElementById('b-hash').value = url.hash.replace(/^#/,'');
+  rebuild();
+
+  document.getElementById('result').style.display='block';
+}
+
+function rebuild() {
+  const proto = document.getElementById('b-proto').value.replace(/:?\/*$/,'');
+  const host  = document.getElementById('b-host').value;
+  const path  = document.getElementById('b-path').value;
+  const query = document.getElementById('b-query').value;
+  const hash  = document.getElementById('b-hash').value;
+  let url = (proto?proto+'://':'') + host + path;
+  if (query) url += '?' + query;
+  if (hash)  url += '#' + hash;
+  document.getElementById('rebuilt-url').value = url;
+}
+
+function copy(text) {
+  navigator.clipboard.writeText(text).then(()=>{
+    const b=event.target;b.textContent='✓';setTimeout(()=>b.textContent='Copy',1200);
+  });
+}
+function copyRebuilt() { copy(document.getElementById('rebuilt-url').value); }
+function clearAll() { document.getElementById('url-input').value=''; parse(); }
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function loadSample(type) {
+  const samples = {
+    basic: 'https://www.example.com/products/shoes?color=red&size=42&sale=true#reviews',
+    complex: 'https://user:pass@api.example.com:8080/v2/search?q=hello+world&lang=en&page=2&sort=relevance#top',
+  };
+  document.getElementById('url-input').value = samples[type];
+  parse();
+}
+
+loadSample('basic');
+</script>
+</body>
+</html>

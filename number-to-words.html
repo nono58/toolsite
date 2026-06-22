@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Number to Words Converter Online – Free | QuickTools</title>
+  <meta name="description" content="Convert numbers to words in English. Supports decimals, currency, and ordinal forms. Free online number to words converter." />
+  <link rel="stylesheet" href="tool.css" />
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Text<span>›</span>Number to Words</div>
+  <h1>Number to Words Converter</h1>
+  <p class="tool-desc">Convert numbers to English words. Useful for invoices, legal documents, and writing. Supports integers, decimals, and currency.</p>
+
+  <div class="card">
+    <label>Enter Number</label>
+    <input type="text" id="num-input" placeholder="e.g. 1234567.89" oninput="convert()" style="font-size:1.1rem;" />
+    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-secondary btn-sm" onclick="loadSample(1234567)">1,234,567</button>
+      <button class="btn btn-secondary btn-sm" onclick="loadSample(1000000000)">1 Billion</button>
+      <button class="btn btn-secondary btn-sm" onclick="loadSample(99.95)">99.95</button>
+      <button class="btn btn-secondary btn-sm" onclick="loadSample(-42)">Negative</button>
+    </div>
+  </div>
+
+  <div id="result-card" class="card" style="display:none;">
+    <div class="card-title">Results</div>
+
+    <div style="display:grid;gap:10px;">
+      <div style="padding:14px 16px;background:var(--bg3);border-radius:10px;">
+        <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px;">Standard</div>
+        <div id="out-standard" style="font-size:1.05rem;line-height:1.5;color:var(--text);"></div>
+        <button class="btn btn-secondary btn-sm" style="margin-top:8px;" onclick="copy('out-standard')">Copy</button>
+      </div>
+      <div style="padding:14px 16px;background:var(--bg3);border-radius:10px;">
+        <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px;">Title Case</div>
+        <div id="out-title" style="font-size:1.05rem;line-height:1.5;color:var(--text);"></div>
+        <button class="btn btn-secondary btn-sm" style="margin-top:8px;" onclick="copy('out-title')">Copy</button>
+      </div>
+      <div style="padding:14px 16px;background:var(--bg3);border-radius:10px;">
+        <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px;">Ordinal</div>
+        <div id="out-ordinal" style="font-size:1.05rem;line-height:1.5;color:var(--accent2);"></div>
+        <button class="btn btn-secondary btn-sm" style="margin-top:8px;" onclick="copy('out-ordinal')">Copy</button>
+      </div>
+      <div style="padding:14px 16px;background:var(--bg3);border-radius:10px;">
+        <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px;">Currency (USD)</div>
+        <div id="out-currency" style="font-size:1.05rem;line-height:1.5;color:var(--text);"></div>
+        <button class="btn btn-secondary btn-sm" style="margin-top:8px;" onclick="copy('out-currency')">Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="error-card" class="card" style="display:none;background:#f8717120;border-color:#f8717140;">
+    <div style="color:#f87171;" id="error-msg"></div>
+  </div>
+
+  <div class="related" style="margin-top:32px;">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="percentage-calculator.html">Percentage Calculator</a>
+      <a class="related-link" href="word-counter.html">Word Counter</a>
+    </div>
+  </div>
+</div>
+<footer>© 2026 QuickTools — Free online tools. No signup required.</footer>
+<script>
+const ONES = ['','one','two','three','four','five','six','seven','eight','nine',
+  'ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'];
+const TENS = ['','','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
+const SCALES = ['','thousand','million','billion','trillion','quadrillion'];
+
+function sayBelow1000(n) {
+  if (n === 0) return '';
+  if (n < 20) return ONES[n];
+  if (n < 100) return TENS[Math.floor(n/10)] + (n%10 ? '-'+ONES[n%10] : '');
+  const h = Math.floor(n/100);
+  const r = n % 100;
+  return ONES[h] + ' hundred' + (r ? ' ' + sayBelow1000(r) : '');
+}
+
+function intToWords(n) {
+  if (n === 0) return 'zero';
+  let neg = n < 0;
+  n = Math.abs(Math.floor(n));
+  const parts = [];
+  let scaleIdx = 0;
+  while (n > 0) {
+    const chunk = n % 1000;
+    if (chunk !== 0) {
+      const words = sayBelow1000(chunk) + (SCALES[scaleIdx] ? ' ' + SCALES[scaleIdx] : '');
+      parts.unshift(words);
+    }
+    n = Math.floor(n / 1000);
+    scaleIdx++;
+  }
+  return (neg ? 'negative ' : '') + parts.join(', ');
+}
+
+function toOrdinal(words) {
+  const map = {one:'first',two:'second',three:'third',four:'fourth',five:'fifth',
+    six:'sixth',seven:'seventh',eight:'eighth',nine:'ninth',ten:'tenth',
+    eleven:'eleventh',twelve:'twelfth',thirteen:'thirteenth',fourteen:'fourteenth',
+    fifteen:'fifteenth',sixteen:'sixteenth',seventeen:'seventeenth',eighteen:'eighteenth',
+    nineteen:'nineteenth',twenty:'twentieth',thirty:'thirtieth',forty:'fortieth',
+    fifty:'fiftieth',sixty:'sixtieth',seventy:'seventieth',eighty:'eightieth',ninety:'ninetieth'};
+  const last = words.split(/[\s-]/).pop();
+  if (map[last]) return words.slice(0, words.length - last.length) + map[last];
+  return words + 'th';
+}
+
+function toTitle(s) { return s.replace(/\b\w/g,c=>c.toUpperCase()); }
+
+function convert() {
+  const raw = document.getElementById('num-input').value.trim();
+  const errCard = document.getElementById('error-card');
+  const resCard = document.getElementById('result-card');
+  errCard.style.display='none'; resCard.style.display='none';
+  if (!raw) return;
+
+  const n = parseFloat(raw.replace(/,/g,''));
+  if (isNaN(n)) { document.getElementById('error-msg').textContent='Invalid number.'; errCard.style.display='block'; return; }
+  if (Math.abs(n) > 999999999999999) { document.getElementById('error-msg').textContent='Number too large (max 999 trillion).'; errCard.style.display='block'; return; }
+
+  const intPart = Math.floor(Math.abs(n));
+  const decStr = raw.includes('.') ? raw.split('.')[1] : '';
+  const isNeg = n < 0;
+
+  let standard = (isNeg?'negative ':'')+intToWords(intPart);
+  if (decStr) standard += ' point ' + decStr.split('').map(d=>ONES[parseInt(d)]||'zero').join(' ');
+
+  // Currency
+  const dollars = intPart;
+  const cents = decStr ? Math.round(parseFloat('0.'+decStr.padEnd(2,'0').slice(0,2)*100)) : 0;
+  let currency = (isNeg?'negative ':'')+intToWords(dollars) + (dollars===1?' dollar':' dollars');
+  if (cents) currency += ' and ' + intToWords(cents) + (cents===1?' cent':' cents');
+
+  document.getElementById('out-standard').textContent = standard;
+  document.getElementById('out-title').textContent = toTitle(standard);
+  document.getElementById('out-ordinal').textContent = toOrdinal(standard);
+  document.getElementById('out-currency').textContent = toTitle(currency);
+  resCard.style.display='block';
+}
+
+function copy(id) {
+  navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>{
+    const b=event.target;b.textContent='Copied!';setTimeout(()=>b.textContent='Copy',1500);
+  });
+}
+function loadSample(n) { document.getElementById('num-input').value=n; convert(); }
+loadSample(1234567.89);
+</script>
+</body>
+</html>

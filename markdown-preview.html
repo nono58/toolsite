@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Markdown Preview Online – Free | QuickTools</title>
+  <meta name="description" content="Write and preview Markdown in real time. Export as HTML. Free online Markdown editor and previewer." />
+  <link rel="stylesheet" href="tool.css" />
+  <style>
+    .editor-wrap { display:grid; grid-template-columns:1fr 1fr; gap:0; border:1.5px solid var(--border); border-radius:12px; overflow:hidden; min-height:480px; }
+    .editor-pane { display:flex; flex-direction:column; }
+    .pane-header { padding:10px 16px; background:var(--bg3); border-bottom:1px solid var(--border); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); display:flex; justify-content:space-between; align-items:center; }
+    #md-input { flex:1; border:none; outline:none; background:var(--bg2); color:var(--text); font-family:'SF Mono','Fira Code',monospace; font-size:.88rem; padding:16px; resize:none; line-height:1.6; border-right:1px solid var(--border); }
+    #preview { flex:1; padding:20px; background:var(--bg); overflow-y:auto; line-height:1.7; font-size:.95rem; }
+    #preview h1,#preview h2,#preview h3,#preview h4 { color:var(--text); margin:1.2em 0 .5em; font-weight:700; }
+    #preview h1 { font-size:1.6rem; border-bottom:1px solid var(--border); padding-bottom:.4em; }
+    #preview h2 { font-size:1.3rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+    #preview p { margin:.7em 0; }
+    #preview code { background:var(--bg3); padding:2px 6px; border-radius:4px; font-family:'SF Mono',monospace; font-size:.85em; color:var(--accent2); }
+    #preview pre { background:var(--bg3); padding:16px; border-radius:8px; overflow-x:auto; margin:1em 0; }
+    #preview pre code { background:none; padding:0; color:var(--text); }
+    #preview blockquote { border-left:3px solid var(--accent); margin:1em 0; padding:.5em 1em; background:var(--bg2); border-radius:0 8px 8px 0; color:var(--muted); }
+    #preview a { color:var(--accent2); }
+    #preview ul,#preview ol { margin:.7em 0; padding-left:1.5em; }
+    #preview li { margin:.3em 0; }
+    #preview table { border-collapse:collapse; width:100%; margin:1em 0; }
+    #preview th,#preview td { border:1px solid var(--border); padding:8px 12px; }
+    #preview th { background:var(--bg3); }
+    #preview hr { border:none; border-top:1px solid var(--border); margin:1.5em 0; }
+    #preview img { max-width:100%; border-radius:8px; }
+    @media(max-width:640px) { .editor-wrap { grid-template-columns:1fr; } #md-input { border-right:none; border-bottom:1px solid var(--border); min-height:240px; } }
+  </style>
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Developer<span>›</span>Markdown Preview</div>
+  <h1>Markdown Preview</h1>
+  <p class="tool-desc">Write Markdown on the left, see the rendered HTML on the right in real time. Export as HTML or copy.</p>
+
+  <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+    <button class="btn btn-secondary btn-sm" onclick="copyHtml()">Copy HTML</button>
+    <button class="btn btn-secondary btn-sm" onclick="downloadHtml()">Download HTML</button>
+    <button class="btn btn-secondary btn-sm" onclick="clearAll()">Clear</button>
+    <button class="btn btn-secondary btn-sm" onclick="loadSample()">Load Sample</button>
+  </div>
+
+  <div class="editor-wrap">
+    <div class="editor-pane">
+      <div class="pane-header"><span>✏️ Markdown</span><span id="char-count">0 chars</span></div>
+      <textarea id="md-input" placeholder="Type Markdown here…" oninput="render()"></textarea>
+    </div>
+    <div class="editor-pane">
+      <div class="pane-header"><span>👁 Preview</span></div>
+      <div id="preview"></div>
+    </div>
+  </div>
+
+  <div class="related" style="margin-top:32px;">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="json-formatter.html">JSON Formatter</a>
+      <a class="related-link" href="css-minifier.html">CSS Minifier</a>
+    </div>
+  </div>
+</div>
+<footer>© 2026 QuickTools — Free online tools. No signup required.</footer>
+<script>
+function mdToHtml(md) {
+  let h = md
+    // Escape HTML
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    // Code blocks (before inline)
+    .replace(/```(\w*)\n?([\s\S]*?)```/g, (_,lang,code) => `<pre><code class="language-${lang}">${code.trim()}</code></pre>`)
+    // Inline code
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    // Headers
+    .replace(/^###### (.+)$/gm,'<h6>$1</h6>')
+    .replace(/^##### (.+)$/gm,'<h5>$1</h5>')
+    .replace(/^#### (.+)$/gm,'<h4>$1</h4>')
+    .replace(/^### (.+)$/gm,'<h3>$1</h3>')
+    .replace(/^## (.+)$/gm,'<h2>$1</h2>')
+    .replace(/^# (.+)$/gm,'<h1>$1</h1>')
+    // HR
+    .replace(/^---+$/gm,'<hr>')
+    // Blockquotes
+    .replace(/^&gt; (.+)$/gm,'<blockquote>$1</blockquote>')
+    // Bold + italic
+    .replace(/\*\*\*(.+?)\*\*\*/g,'<strong><em>$1</em></strong>')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g,'<em>$1</em>')
+    .replace(/__(.+?)__/g,'<strong>$1</strong>')
+    .replace(/_(.+?)_/g,'<em>$1</em>')
+    // Strikethrough
+    .replace(/~~(.+?)~~/g,'<del>$1</del>')
+    // Links & images
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g,'<img alt="$1" src="$2">')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank">$1</a>')
+    // Unordered lists
+    .replace(/^\s*[-*+] (.+)$/gm,'<li>$1</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g, m => `<ul>${m}</ul>`)
+    // Ordered lists
+    .replace(/^\d+\. (.+)$/gm,'<li>$1</li>')
+    // Tables
+    .replace(/\|(.+)\|\n\|[-| :]+\|\n((?:\|.+\|\n?)+)/g, (_, header, rows) => {
+      const th = header.split('|').filter(Boolean).map(c=>`<th>${c.trim()}</th>`).join('');
+      const trs = rows.trim().split('\n').map(r => '<tr>'+r.split('|').filter(Boolean).map(c=>`<td>${c.trim()}</td>`).join('')+'</tr>').join('');
+      return `<table><thead><tr>${th}</tr></thead><tbody>${trs}</tbody></table>`;
+    })
+    // Paragraphs
+    .replace(/^(?!<[a-z]|$)(.+)$/gm,'<p>$1</p>')
+    // Clean empty lines between block elements
+    .replace(/\n{2,}/g,'\n');
+  return h;
+}
+
+function render() {
+  const val = document.getElementById('md-input').value;
+  document.getElementById('preview').innerHTML = mdToHtml(val);
+  document.getElementById('char-count').textContent = val.length + ' chars';
+}
+
+function copyHtml() {
+  navigator.clipboard.writeText(mdToHtml(document.getElementById('md-input').value)).then(() => {
+    const btn = event.target; btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy HTML',1500);
+  });
+}
+
+function downloadHtml() {
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:system-ui,sans-serif;max-width:800px;margin:40px auto;padding:0 20px;line-height:1.7;}code{background:#f4f4f4;padding:2px 6px;border-radius:3px;}pre{background:#f4f4f4;padding:16px;border-radius:6px;}table{border-collapse:collapse;}td,th{border:1px solid #ddd;padding:8px;}blockquote{border-left:3px solid #6366f1;margin:1em 0;padding:.5em 1em;background:#f8f8f8;}</style></head><body>${mdToHtml(document.getElementById('md-input').value)}</body></html>`;
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([html],{type:'text/html'})); a.download='document.html'; a.click();
+}
+
+function clearAll() { document.getElementById('md-input').value=''; render(); }
+
+function loadSample() {
+  document.getElementById('md-input').value = `# Hello, Markdown!
+
+This is a **bold** statement and this is *italic*.
+
+## Code Example
+
+\`\`\`javascript
+function greet(name) {
+  return \`Hello, \${name}!\`;
+}
+\`\`\`
+
+Inline \`code\` looks like this.
+
+## Lists
+
+- Item one
+- Item two
+- Item three
+
+1. First
+2. Second
+3. Third
+
+## Blockquote
+
+> "The best way to predict the future is to invent it." — Alan Kay
+
+## Table
+
+| Name    | Role      | Score |
+|---------|-----------|-------|
+| Alice   | Developer | 95    |
+| Bob     | Designer  | 88    |
+
+---
+
+[QuickTools](https://quicktools.vercel.app) — free online tools.
+`;
+  render();
+}
+
+loadSample();
+</script>
+</body>
+</html>

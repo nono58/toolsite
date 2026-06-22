@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CSS Minifier Online – Free | QuickTools</title>
+  <meta name="description" content="Minify and beautify CSS online. Remove comments, whitespace, and optimize your CSS for production. Free online CSS minifier." />
+  <link rel="stylesheet" href="tool.css" />
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Developer<span>›</span>CSS Minifier</div>
+  <h1>CSS Minifier & Beautifier</h1>
+  <p class="tool-desc">Minify CSS to reduce file size for production, or beautify/format CSS for readability. Free and runs entirely in your browser.</p>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <span class="card-title" style="margin-bottom:0;">Input CSS</span>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-secondary btn-sm" onclick="loadSample()">Sample</button>
+        <button class="btn btn-secondary btn-sm" onclick="clearAll()">Clear</button>
+      </div>
+    </div>
+    <textarea id="css-input" placeholder="Paste your CSS here…" style="min-height:220px;font-family:monospace;font-size:.85rem;" oninput="updateStats()"></textarea>
+    <div class="stats-row" id="input-stats" style="margin-top:8px;"></div>
+  </div>
+
+  <div style="display:flex;gap:10px;margin-bottom:8px;flex-wrap:wrap;">
+    <button class="btn btn-primary" onclick="minify()">⚡ Minify</button>
+    <button class="btn btn-secondary" onclick="beautify()">✨ Beautify</button>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <span class="card-title" style="margin-bottom:0;">Output</span>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-secondary btn-sm" onclick="copyOutput()">Copy</button>
+        <button class="btn btn-secondary btn-sm" onclick="downloadCss()">⬇ Download</button>
+      </div>
+    </div>
+    <div class="stats-row" id="output-stats" style="margin-bottom:12px;"></div>
+    <textarea id="css-output" class="output-area" readonly style="min-height:220px;font-family:monospace;font-size:.85rem;"></textarea>
+  </div>
+
+  <div class="related" style="margin-top:32px;">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="json-formatter.html">JSON Formatter</a>
+      <a class="related-link" href="markdown-preview.html">Markdown Preview</a>
+    </div>
+  </div>
+</div>
+<footer>© 2026 QuickTools — Free online tools. No signup required.</footer>
+<script>
+function minifyCSS(css) {
+  return css
+    // Remove comments
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    // Remove newlines and extra whitespace
+    .replace(/\s+/g, ' ')
+    // Remove spaces around selectors/braces/colons/semicolons
+    .replace(/\s*{\s*/g, '{')
+    .replace(/\s*}\s*/g, '}')
+    .replace(/\s*:\s*/g, ':')
+    .replace(/\s*;\s*/g, ';')
+    .replace(/\s*,\s*/g, ',')
+    .replace(/\s*>\s*/g, '>')
+    .replace(/\s*\+\s*/g, '+')
+    .replace(/\s*~\s*/g, '~')
+    // Remove last semicolon before }
+    .replace(/;}/g, '}')
+    // Remove leading/trailing zeros
+    .replace(/(:| )0\.(\d)/g, '$10.$2')
+    // Remove units from zero values
+    .replace(/\b0(px|em|rem|%|pt|ex|in|cm|mm|vw|vh|vmin|vmax)\b/g, '0')
+    .trim();
+}
+
+function beautifyCSS(css) {
+  // First minify to normalize
+  let m = minifyCSS(css);
+  let result = '';
+  let indent = 0;
+  for (let i = 0; i < m.length; i++) {
+    const ch = m[i];
+    if (ch === '{') {
+      result += ' {\n';
+      indent++;
+      result += '  '.repeat(indent);
+    } else if (ch === '}') {
+      result = result.trimEnd();
+      result += '\n' + '  '.repeat(Math.max(0,indent-1)) + '}\n\n';
+      indent = Math.max(0, indent - 1);
+    } else if (ch === ';') {
+      result += ';\n' + '  '.repeat(indent);
+    } else if (ch === ',') {
+      // Could be in selector or value
+      if (indent === 0) result += ',\n';
+      else result += ', ';
+    } else {
+      result += ch;
+    }
+  }
+  return result.trim();
+}
+
+function minify() {
+  const input = document.getElementById('css-input').value;
+  const output = minifyCSS(input);
+  document.getElementById('css-output').value = output;
+  updateOutputStats(input, output);
+}
+
+function beautify() {
+  const input = document.getElementById('css-input').value;
+  const output = beautifyCSS(input);
+  document.getElementById('css-output').value = output;
+  updateOutputStats(input, output);
+}
+
+function updateStats() {
+  const val = document.getElementById('css-input').value;
+  const lines = val.split('\n').length;
+  const size = new Blob([val]).size;
+  document.getElementById('input-stats').innerHTML =
+    `<span>${lines} lines</span><span>${val.length} chars</span><span>${fmtSize(size)}</span>`;
+}
+
+function updateOutputStats(input, output) {
+  const inSize = new Blob([input]).size;
+  const outSize = new Blob([output]).size;
+  const saved = inSize - outSize;
+  const pct = inSize > 0 ? (saved/inSize*100).toFixed(1) : 0;
+  document.getElementById('output-stats').innerHTML =
+    `<span>${fmtSize(inSize)} → ${fmtSize(outSize)}</span><span style="color:#34d399;">${pct}% saved</span>`;
+}
+
+function fmtSize(b) {
+  if(b<1024)return b+' B';
+  return (b/1024).toFixed(1)+' KB';
+}
+
+function copyOutput() {
+  navigator.clipboard.writeText(document.getElementById('css-output').value).then(()=>{
+    const b=event.target;b.textContent='Copied!';setTimeout(()=>b.textContent='Copy',1500);
+  });
+}
+
+function downloadCss() {
+  const val = document.getElementById('css-output').value;
+  if (!val) return;
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([val],{type:'text/css'}));a.download='style.min.css';a.click();
+}
+
+function clearAll() { document.getElementById('css-input').value=''; document.getElementById('css-output').value=''; updateStats(); }
+
+function loadSample() {
+  document.getElementById('css-input').value = `/* Main Layout */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-color: #0f1117;
+  color: #e2e8f0;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Header styles */
+header {
+  background: #1a1d27;
+  border-bottom: 1px solid #2d3148;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.btn-primary {
+  background: #6366f1;
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background: #4f46e5;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 16px;
+  }
+}`;
+  updateStats();
+}
+
+loadSample();
+minify();
+</script>
+</body>
+</html>

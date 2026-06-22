@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JSON to CSV Converter Online – Free | QuickTools</title>
+  <meta name="description" content="Convert JSON arrays to CSV format instantly. Download as .csv file. Free online JSON to CSV converter." />
+  <link rel="stylesheet" href="tool.css" />
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Developer<span>›</span>JSON to CSV</div>
+  <h1>JSON to CSV Converter</h1>
+  <p class="tool-desc">Paste a JSON array and convert it to CSV instantly. Supports nested objects, custom delimiters, and batch download.</p>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <span class="card-title" style="margin-bottom:0;">JSON Input</span>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-secondary btn-sm" onclick="loadSample()">Sample</button>
+        <button class="btn btn-secondary btn-sm" onclick="clearAll()">Clear</button>
+      </div>
+    </div>
+    <textarea id="json-input" placeholder='Paste JSON array here…&#10;[{"name":"Alice","age":30},{"name":"Bob","age":25}]' style="min-height:180px;font-family:monospace;font-size:.88rem;" oninput="convert()"></textarea>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Options</div>
+    <div class="grid-2">
+      <div>
+        <label>Delimiter</label>
+        <select id="delimiter" onchange="convert()">
+          <option value=",">Comma (,)</option>
+          <option value=";">Semicolon (;)</option>
+          <option value="&#9;">Tab</option>
+          <option value="|">Pipe (|)</option>
+        </select>
+      </div>
+      <div>
+        <label>Nested objects</label>
+        <select id="nested" onchange="convert()">
+          <option value="flatten">Flatten (key.subkey)</option>
+          <option value="json">Keep as JSON string</option>
+        </select>
+      </div>
+    </div>
+    <label style="display:flex;align-items:center;gap:8px;margin-top:12px;font-size:.88rem;cursor:pointer;">
+      <input type="checkbox" id="quote-all" onchange="convert()" style="width:auto;" />
+      Quote all fields
+    </label>
+  </div>
+
+  <div id="result-card" class="card" style="display:none;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+      <span class="card-title" style="margin-bottom:0;">CSV Output</span>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-secondary btn-sm" onclick="copyOutput()">Copy</button>
+        <button class="btn btn-primary btn-sm" onclick="downloadCsv()">⬇ Download .csv</button>
+      </div>
+    </div>
+    <div class="stats-row" id="stats" style="margin-bottom:12px;"></div>
+    <textarea id="csv-output" class="output-area" readonly style="min-height:200px;font-family:monospace;font-size:.82rem;"></textarea>
+  </div>
+
+  <div id="error-card" class="card" style="display:none;background:#f8717120;border-color:#f8717140;">
+    <div style="color:#f87171;font-size:.9rem;" id="error-msg"></div>
+  </div>
+
+  <div class="related" style="margin-top:32px;">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="json-formatter.html">JSON Formatter</a>
+      <a class="related-link" href="url-encode.html">URL Encoder</a>
+    </div>
+  </div>
+</div>
+<footer>© 2026 QuickTools — Free online tools. No signup required.</footer>
+<script>
+function flattenObj(obj, prefix='') {
+  return Object.keys(obj).reduce((acc, k) => {
+    const key = prefix ? prefix+'.'+k : k;
+    const val = obj[k];
+    if (val && typeof val === 'object' && !Array.isArray(val)) {
+      Object.assign(acc, flattenObj(val, key));
+    } else {
+      acc[key] = Array.isArray(val) ? JSON.stringify(val) : val;
+    }
+    return acc;
+  }, {});
+}
+
+function escField(val, delim, quoteAll) {
+  if (val === null || val === undefined) return '';
+  const s = typeof val === 'object' ? JSON.stringify(val) : String(val);
+  if (quoteAll || s.includes(delim) || s.includes('"') || s.includes('\n')) {
+    return '"' + s.replace(/"/g, '""') + '"';
+  }
+  return s;
+}
+
+function convert() {
+  const raw = document.getElementById('json-input').value.trim();
+  const errCard = document.getElementById('error-card');
+  const resCard = document.getElementById('result-card');
+  errCard.style.display = 'none'; resCard.style.display = 'none';
+  if (!raw) return;
+
+  let data;
+  try { data = JSON.parse(raw); } catch(e) {
+    document.getElementById('error-msg').textContent = 'Invalid JSON: ' + e.message;
+    errCard.style.display = 'block'; return;
+  }
+  if (!Array.isArray(data)) { data = [data]; }
+  if (!data.length) { document.getElementById('error-msg').textContent = 'Array is empty.'; errCard.style.display='block'; return; }
+
+  const delim = document.getElementById('delimiter').value;
+  const nested = document.getElementById('nested').value;
+  const quoteAll = document.getElementById('quote-all').checked;
+
+  const rows = data.map(r => {
+    if (typeof r !== 'object' || r === null) return { value: r };
+    return nested === 'flatten' ? flattenObj(r) : r;
+  });
+
+  // Collect all keys
+  const keys = [];
+  const seen = new Set();
+  for (const row of rows) {
+    for (const k of Object.keys(row)) {
+      if (!seen.has(k)) { seen.add(k); keys.push(k); }
+    }
+  }
+
+  const header = keys.map(k => escField(k, delim, quoteAll)).join(delim);
+  const lines = rows.map(row => keys.map(k => escField(row[k], delim, quoteAll)).join(delim));
+  const csv = [header, ...lines].join('\n');
+
+  document.getElementById('csv-output').value = csv;
+  document.getElementById('stats').innerHTML = `<span>${rows.length} rows</span><span>${keys.length} columns</span><span>${(new Blob([csv]).size/1024).toFixed(1)} KB</span>`;
+  resCard.style.display = 'block';
+}
+
+function copyOutput() {
+  navigator.clipboard.writeText(document.getElementById('csv-output').value).then(() => {
+    const b = event.target; b.textContent='Copied!'; setTimeout(()=>b.textContent='Copy',1500);
+  });
+}
+
+function downloadCsv() {
+  const csv = document.getElementById('csv-output').value;
+  const a = document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download='data.csv'; a.click();
+}
+
+function clearAll() { document.getElementById('json-input').value=''; convert(); }
+
+function loadSample() {
+  document.getElementById('json-input').value = JSON.stringify([
+    {"id":1,"name":"Alice","age":30,"city":"Tokyo","score":95.5},
+    {"id":2,"name":"Bob","age":25,"city":"London","score":88.0},
+    {"id":3,"name":"Carol","age":35,"city":"New York","score":72.3},
+  ], null, 2);
+  convert();
+}
+
+loadSample();
+</script>
+</body>
+</html>
