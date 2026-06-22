@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QR Code Generator Online – Free | QuickTools</title>
+  <meta name="description" content="Generate QR codes for URLs, text, email, phone, and WiFi. Download as PNG. Free online QR code generator." />
+  <link rel="stylesheet" href="tool.css" />
+  <style>
+    #qr-wrap { display:flex; justify-content:center; align-items:center; min-height:240px; }
+    #qr-wrap canvas, #qr-wrap img { border-radius:12px; max-width:100%; }
+    .type-btn { padding:8px 16px; border-radius:999px; border:1.5px solid var(--border); background:transparent; color:var(--muted); font-size:.85rem; cursor:pointer; transition:all .2s; }
+    .type-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+  </style>
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Generator<span>›</span>QR Code Generator</div>
+  <h1>QR Code Generator</h1>
+  <p class="tool-desc">Generate QR codes for URLs, plain text, email, phone numbers, or WiFi credentials. Download as PNG instantly.</p>
+
+  <div class="card">
+    <div class="card-title">Type</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="type-btn active" data-type="url" onclick="setType(this)">🔗 URL</button>
+      <button class="type-btn" data-type="text" onclick="setType(this)">📝 Text</button>
+      <button class="type-btn" data-type="email" onclick="setType(this)">📧 Email</button>
+      <button class="type-btn" data-type="phone" onclick="setType(this)">📞 Phone</button>
+      <button class="type-btn" data-type="wifi" onclick="setType(this)">📶 WiFi</button>
+    </div>
+  </div>
+
+  <div class="card" id="input-card">
+    <!-- URL -->
+    <div id="form-url">
+      <label>URL</label>
+      <input type="url" id="url-input" placeholder="https://example.com" oninput="generate()" />
+    </div>
+    <!-- Text -->
+    <div id="form-text" style="display:none;">
+      <label>Text</label>
+      <textarea id="text-input" placeholder="Enter any text…" oninput="generate()" rows="3"></textarea>
+    </div>
+    <!-- Email -->
+    <div id="form-email" style="display:none;">
+      <label>Email Address</label>
+      <input type="email" id="email-addr" placeholder="user@example.com" oninput="generate()" />
+      <label style="margin-top:10px;">Subject (optional)</label>
+      <input type="text" id="email-subj" placeholder="Hello!" oninput="generate()" />
+      <label style="margin-top:10px;">Body (optional)</label>
+      <textarea id="email-body" rows="2" oninput="generate()"></textarea>
+    </div>
+    <!-- Phone -->
+    <div id="form-phone" style="display:none;">
+      <label>Phone Number</label>
+      <input type="tel" id="phone-input" placeholder="+1 555 123 4567" oninput="generate()" />
+    </div>
+    <!-- WiFi -->
+    <div id="form-wifi" style="display:none;">
+      <div class="grid-2">
+        <div>
+          <label>Network Name (SSID)</label>
+          <input type="text" id="wifi-ssid" placeholder="MyNetwork" oninput="generate()" />
+        </div>
+        <div>
+          <label>Password</label>
+          <input type="text" id="wifi-pass" placeholder="password123" oninput="generate()" />
+        </div>
+      </div>
+      <label style="margin-top:10px;">Security</label>
+      <select id="wifi-sec" onchange="generate()">
+        <option value="WPA">WPA/WPA2</option>
+        <option value="WEP">WEP</option>
+        <option value="">None</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+      <span class="card-title" style="margin-bottom:0;">QR Code</span>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <label style="font-size:.85rem;color:var(--muted);">Size</label>
+        <select id="qr-size" onchange="generate()" style="width:auto;">
+          <option value="200">200px</option>
+          <option value="300" selected>300px</option>
+          <option value="400">400px</option>
+          <option value="500">500px</option>
+        </select>
+      </div>
+    </div>
+    <div id="qr-wrap">
+      <div style="color:var(--muted);font-size:.9rem;">Enter data above to generate QR code</div>
+    </div>
+    <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-primary" id="download-btn" onclick="downloadQR()" style="display:none;">⬇ Download PNG</button>
+      <button class="btn btn-secondary" id="copy-btn" onclick="copyQR()" style="display:none;">Copy Image</button>
+    </div>
+  </div>
+
+  <div class="related" style="margin-top:32px;">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="url-encode.html">URL Encoder</a>
+      <a class="related-link" href="base64.html">Base64 Encoder</a>
+    </div>
+  </div>
+</div>
+<footer>© 2026 QuickTools — Free online tools. No signup required.</footer>
+
+<!-- QRCode.js from cdnjs -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+let currentType = 'url';
+let qrInstance = null;
+
+function setType(btn) {
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentType = btn.dataset.type;
+  ['url','text','email','phone','wifi'].forEach(t => {
+    document.getElementById('form-'+t).style.display = t === currentType ? '' : 'none';
+  });
+  generate();
+}
+
+function getData() {
+  switch(currentType) {
+    case 'url':   return document.getElementById('url-input').value.trim() || null;
+    case 'text':  return document.getElementById('text-input').value.trim() || null;
+    case 'phone': { const p = document.getElementById('phone-input').value.trim(); return p ? 'tel:'+p : null; }
+    case 'email': {
+      const a = document.getElementById('email-addr').value.trim();
+      if (!a) return null;
+      const s = encodeURIComponent(document.getElementById('email-subj').value.trim());
+      const b = encodeURIComponent(document.getElementById('email-body').value.trim());
+      let uri = 'mailto:'+a;
+      if (s || b) uri += '?' + (s ? 'subject='+s : '') + (s && b ? '&' : '') + (b ? 'body='+b : '');
+      return uri;
+    }
+    case 'wifi': {
+      const ssid = document.getElementById('wifi-ssid').value.trim();
+      if (!ssid) return null;
+      const pass = document.getElementById('wifi-pass').value;
+      const sec  = document.getElementById('wifi-sec').value;
+      return `WIFI:T:${sec};S:${ssid};P:${pass};;`;
+    }
+  }
+  return null;
+}
+
+function generate() {
+  const data = getData();
+  const size = parseInt(document.getElementById('qr-size').value);
+  const wrap = document.getElementById('qr-wrap');
+
+  if (!data) {
+    wrap.innerHTML = '<div style="color:var(--muted);font-size:.9rem;">Enter data above to generate QR code</div>';
+    document.getElementById('download-btn').style.display = 'none';
+    document.getElementById('copy-btn').style.display = 'none';
+    return;
+  }
+
+  wrap.innerHTML = '';
+  try {
+    qrInstance = new QRCode(wrap, {
+      text: data,
+      width: size,
+      height: size,
+      colorDark: '#000000',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M,
+    });
+    document.getElementById('download-btn').style.display = '';
+    document.getElementById('copy-btn').style.display = '';
+  } catch(e) {
+    wrap.innerHTML = `<div style="color:#f87171;">Error: ${e.message}</div>`;
+  }
+}
+
+function getCanvas() {
+  return document.getElementById('qr-wrap').querySelector('canvas');
+}
+
+function downloadQR() {
+  const c = getCanvas();
+  if (!c) return;
+  const a = document.createElement('a');
+  a.download = 'qrcode.png';
+  a.href = c.toDataURL('image/png');
+  a.click();
+}
+
+async function copyQR() {
+  const c = getCanvas();
+  if (!c) return;
+  c.toBlob(async blob => {
+    try {
+      await navigator.clipboard.write([new ClipboardItem({'image/png': blob})]);
+      const btn = document.getElementById('copy-btn');
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy Image', 1500);
+    } catch(e) { alert('Copy not supported in this browser. Use Download instead.'); }
+  });
+}
+</script>
+</body>
+</html>

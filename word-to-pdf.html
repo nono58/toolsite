@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Word to PDF Converter Online – Free | QuickTools</title>
+  <meta name="description" content="Convert Word documents (.doc, .docx) to PDF online for free. No signup. Files processed in your browser." />
+  <link rel="stylesheet" href="tool.css" />
+  <style>
+    .drop-zone { border:2px dashed var(--border); border-radius:14px; padding:56px 24px; text-align:center; cursor:pointer; transition:all .2s; background:var(--bg3); }
+    .drop-zone:hover,.drop-zone.drag-over { border-color:var(--accent); background:#6366f110; }
+    .drop-zone p { color:var(--muted); margin-top:8px; font-size:.9rem; }
+    .file-item { display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:var(--bg3); border-radius:10px; margin-bottom:8px; }
+    .file-name { font-size:.9rem; font-weight:600; }
+    .file-size { font-size:.8rem; color:var(--muted); }
+    .status-badge { padding:4px 10px; border-radius:999px; font-size:.78rem; font-weight:700; }
+    .status-ready { background:#6366f120; color:var(--accent2); }
+    .status-done  { background:#34d39920; color:#34d399; }
+    .status-error { background:#f8717120; color:#f87171; }
+    .progress-bar { height:4px; background:var(--bg3); border-radius:999px; overflow:hidden; margin-top:6px; }
+    .progress-fill { height:100%; background:var(--accent); border-radius:999px; transition:width .3s; }
+  </style>
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>PDF<span>›</span>Word to PDF</div>
+  <h1>Word to PDF Converter</h1>
+  <p class="tool-desc">Convert .docx files to PDF in your browser. Your files never leave your device.</p>
+
+  <div class="card">
+    <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+      <div style="font-size:2.5rem;">📄</div>
+      <div style="font-weight:700;margin-top:8px;">Drop .docx files here or click to select</div>
+      <p>.docx format supported · Multiple files allowed</p>
+    </div>
+    <input type="file" id="file-input" accept=".docx,.doc" multiple style="display:none;" onchange="handleFiles(this.files)" />
+  </div>
+
+  <div id="file-list" style="display:none;">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <span class="card-title" style="margin-bottom:0;">Files</span>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-primary btn-sm" onclick="convertAll()" id="convert-btn">Convert All to PDF</button>
+          <button class="btn btn-secondary btn-sm" onclick="clearFiles()">Clear</button>
+        </div>
+      </div>
+      <div id="items"></div>
+    </div>
+  </div>
+
+  <div class="card" style="background:#3b82f620;border-color:#3b82f640;margin-top:8px;">
+    <div style="font-size:.88rem;color:#93c5fd;">
+      ℹ️ <strong>How it works:</strong> This tool uses the <a href="https://github.com/mwilliamson/mammoth.js" style="color:#93c5fd;" target="_blank">Mammoth.js</a> library to convert DOCX to HTML, then renders it as a PDF using the browser's built-in print engine. Complex formatting (tables, images) is preserved as best as possible.
+    </div>
+  </div>
+
+  <div class="related" style="margin-top:32px;">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="image-to-base64.html">Image to Base64</a>
+      <a class="related-link" href="base64.html">Base64 Encoder</a>
+    </div>
+  </div>
+</div>
+<footer>© 2026 QuickTools — Free online tools. No signup required.</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script>
+let files = [];
+
+const dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('drag-over'); handleFiles(e.dataTransfer.files); });
+
+function handleFiles(incoming) {
+  for (const f of incoming) {
+    if (!f.name.match(/\.docx?$/i)) continue;
+    files.push({ file: f, status: 'ready', url: null });
+  }
+  render();
+}
+
+function render() {
+  if (!files.length) { document.getElementById('file-list').style.display = 'none'; return; }
+  document.getElementById('file-list').style.display = 'block';
+  document.getElementById('items').innerHTML = files.map((f, i) => `
+    <div class="file-item" id="item-${i}">
+      <div>
+        <div class="file-name">📄 ${esc(f.file.name)}</div>
+        <div class="file-size">${(f.file.size/1024).toFixed(0)} KB</div>
+        <div class="progress-bar" id="prog-${i}" style="display:none;"><div class="progress-fill" id="fill-${i}" style="width:0%"></div></div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <span class="status-badge ${f.status==='done'?'status-done':f.status==='error'?'status-error':'status-ready'}" id="badge-${i}">
+          ${f.status==='done'?'✓ Done':f.status==='error'?'✗ Error':'Ready'}
+        </span>
+        ${f.url ? `<button class="btn btn-secondary btn-sm" onclick="downloadFile(${i})">⬇ Download</button>` : ''}
+        <button class="btn btn-secondary btn-sm" onclick="removeFile(${i})">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+function removeFile(i) { files.splice(i, 1); render(); }
+function clearFiles() { files = []; render(); document.getElementById('file-list').style.display='none'; }
+
+async function convertAll() {
+  const btn = document.getElementById('convert-btn');
+  btn.disabled = true; btn.textContent = 'Converting…';
+  for (let i = 0; i < files.length; i++) {
+    if (files[i].status === 'done') continue;
+    await convertOne(i);
+  }
+  btn.disabled = false; btn.textContent = 'Convert All to PDF';
+}
+
+async function convertOne(i) {
+  const f = files[i];
+  document.getElementById('prog-'+i).style.display = 'block';
+  document.getElementById('fill-'+i).style.width = '30%';
+  document.getElementById('badge-'+i).textContent = 'Converting…';
+  document.getElementById('badge-'+i).className = 'status-badge status-ready';
+
+  try {
+    const buf = await f.file.arrayBuffer();
+    document.getElementById('fill-'+i).style.width = '60%';
+    const result = await mammoth.convertToHtml({ arrayBuffer: buf });
+    document.getElementById('fill-'+i).style.width = '85%';
+
+    // Create a printable HTML document and open print dialog
+    const html = `<!DOCTYPE html><html><head>
+      <meta charset="UTF-8">
+      <title>${esc(f.file.name)}</title>
+      <style>
+        body { font-family: Arial, sans-serif; font-size: 12pt; line-height: 1.5; margin: 2.5cm; color: #000; }
+        table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+        td, th { border: 1px solid #ccc; padding: 6px 10px; }
+        img { max-width: 100%; }
+        h1,h2,h3,h4 { margin-top: 1.2em; }
+        p { margin: 0.6em 0; }
+        @page { margin: 2.5cm; }
+      </style>
+    </head><body>${result.value}</body></html>`;
+
+    const blob = new Blob([html], { type: 'text/html' });
+    f.url = URL.createObjectURL(blob);
+    f.htmlContent = html;
+    f.status = 'done';
+
+    document.getElementById('fill-'+i).style.width = '100%';
+    document.getElementById('badge-'+i).textContent = '✓ Done';
+    document.getElementById('badge-'+i).className = 'status-badge status-done';
+  } catch(e) {
+    f.status = 'error';
+    document.getElementById('badge-'+i).textContent = '✗ Error';
+    document.getElementById('badge-'+i).className = 'status-badge status-error';
+  }
+  render();
+}
+
+function downloadFile(i) {
+  const f = files[i];
+  if (!f.htmlContent) return;
+
+  // Open in new window and trigger print-to-PDF
+  const win = window.open('', '_blank');
+  win.document.write(f.htmlContent);
+  win.document.close();
+  win.onload = () => {
+    setTimeout(() => {
+      win.print();
+    }, 500);
+  };
+}
+
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+</script>
+</body>
+</html>

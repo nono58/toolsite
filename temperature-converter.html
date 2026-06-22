@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Temperature Converter – °C °F K | QuickTools</title>
+  <meta name="description" content="Convert temperature between Celsius, Fahrenheit, Kelvin, and Rankine instantly. Free online temperature converter." />
+  <link rel="stylesheet" href="tool.css" />
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Unit<span>›</span>Temperature Converter</div>
+  <h1>Temperature Converter</h1>
+  <p class="tool-desc">Convert between Celsius, Fahrenheit, Kelvin, and Rankine. Click any result to use it as the new input.</p>
+
+  <div class="card">
+    <div class="card-title">Enter Temperature</div>
+    <div class="grid-2">
+      <div>
+        <label>Value</label>
+        <input type="number" id="value" value="100" oninput="convert()" step="any" />
+      </div>
+      <div>
+        <label>From Unit</label>
+        <select id="unit" onchange="convert()">
+          <option value="C">Celsius (°C)</option>
+          <option value="F">Fahrenheit (°F)</option>
+          <option value="K">Kelvin (K)</option>
+          <option value="R">Rankine (°R)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div id="results" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;"></div>
+
+  <div class="card" style="margin-top:24px;">
+    <div class="card-title">Common Reference Points</div>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:.88rem;">
+        <thead>
+          <tr style="border-bottom:1px solid var(--border);">
+            <th style="text-align:left;padding:8px 12px;color:var(--muted);">Reference</th>
+            <th style="padding:8px 12px;color:var(--muted);">°C</th>
+            <th style="padding:8px 12px;color:var(--muted);">°F</th>
+            <th style="padding:8px 12px;color:var(--muted);">K</th>
+          </tr>
+        </thead>
+        <tbody id="ref-table"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="related" style="margin-top:32px;">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="length-converter.html">Length Converter</a>
+      <a class="related-link" href="percentage-calculator.html">Percentage Calculator</a>
+    </div>
+  </div>
+</div>
+<footer>© 2026 QuickTools — Free online tools. No signup required.</footer>
+<script>
+const UNITS = [
+  { id:'C', label:'Celsius',    symbol:'°C' },
+  { id:'F', label:'Fahrenheit', symbol:'°F' },
+  { id:'K', label:'Kelvin',     symbol:'K'  },
+  { id:'R', label:'Rankine',    symbol:'°R' },
+];
+
+const toC = { C: v=>v, F: v=>(v-32)*5/9, K: v=>v-273.15, R: v=>(v-491.67)*5/9 };
+const fromC = { C: v=>v, F: v=>v*9/5+32, K: v=>v+273.15, R: v=>(v+273.15)*9/5 };
+
+function convert() {
+  const raw = parseFloat(document.getElementById('value').value);
+  const unit = document.getElementById('unit').value;
+  if (isNaN(raw)) { document.getElementById('results').innerHTML=''; return; }
+
+  const celsius = toC[unit](raw);
+  document.getElementById('results').innerHTML = UNITS.map(u => {
+    const val = fromC[u.id](celsius);
+    const fmt = Number.isFinite(val) ? val.toFixed(4).replace(/\.?0+$/, '') : '—';
+    return `<div class="card" style="padding:14px;cursor:pointer;" onclick="useValue(${val},'${u.id}')" title="Click to use as input">
+      <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">${u.label}</div>
+      <div style="font-size:1.6rem;font-weight:700;color:var(--accent2);">${fmt}</div>
+      <div style="font-size:.85rem;color:var(--muted);">${u.symbol}</div>
+    </div>`;
+  }).join('');
+}
+
+function useValue(val, unit) {
+  document.getElementById('value').value = parseFloat(val.toFixed(6));
+  document.getElementById('unit').value = unit;
+  convert();
+}
+
+// Reference table
+const refs = [
+  ['Absolute zero',       -273.15, -459.67, 0],
+  ['Water freezes',       0,       32,      273.15],
+  ['Room temperature',    22,      71.6,    295.15],
+  ['Body temperature',    37,      98.6,    310.15],
+  ['Water boils',         100,     212,     373.15],
+  ['Oven (moderate)',     180,     356,     453.15],
+];
+document.getElementById('ref-table').innerHTML = refs.map(([name,c,f,k]) => `
+  <tr style="border-bottom:1px solid var(--border);cursor:pointer;" onclick="useValue(${c},'C')" title="Click to load">
+    <td style="padding:8px 12px;">${name}</td>
+    <td style="padding:8px 12px;text-align:center;font-family:monospace;">${c}</td>
+    <td style="padding:8px 12px;text-align:center;font-family:monospace;">${f}</td>
+    <td style="padding:8px 12px;text-align:center;font-family:monospace;">${k}</td>
+  </tr>`).join('');
+
+convert();
+</script>
+</body>
+</html>

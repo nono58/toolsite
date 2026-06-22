@@ -169,12 +169,14 @@
 
 <script>
 const TOOL_URLS = {
+  10: 'word-to-pdf.html',
   13: 'base64.html',
   14: 'url-encode.html',
   17: 'json-formatter.html',
   24: 'uuid-generator.html',
   26: 'regex-tester.html',
   27: 'hash-generator.html',
+  34: 'image-compressor.html',
   38: 'image-grayscale.html',
   40: 'image-to-base64.html',
   41: 'video-to-gif.html',
@@ -184,11 +186,14 @@ const TOOL_URLS = {
   49: 'duplicate-line-remover.html',
   52: 'lorem-ipsum.html',
   54: 'length-converter.html',
+  56: 'temperature-converter.html',
   62: 'color-converter.html',
   63: 'color-palette.html',
   64: 'emi-calculator.html',
   65: 'compound-interest.html',
+  67: 'age-calculator.html',
   69: 'percentage-calculator.html',
+  71: 'qr-code-generator.html',
 };
 
 const TOOLS = [
@@ -202,7 +207,7 @@ const TOOLS = [
   { id:7,  name:"PDF Merge Tool",                cat:"pdf",        vol:"5-8k",   priority:3 },
   { id:8,  name:"PDF Compress Tool",             cat:"pdf",        vol:"8-12k",  priority:2 },
   { id:9,  name:"PDF Watermark Remover",         cat:"pdf",        vol:"3-5k",   priority:3 },
-  { id:10, name:"PDF to Word Converter",         cat:"pdf",        vol:"6-10k",  priority:2 },
+  { id:10, name:"Word to PDF Converter",          cat:"pdf",        vol:"6-10k",  priority:2 },
   { id:11, name:"PDF to Excel Converter",        cat:"pdf",        vol:"2-4k",   priority:3 },
   { id:12, name:"PDF to CSV Converter",          cat:"pdf",        vol:"1-2k",   priority:3 },
   // ── Developer (15) ──

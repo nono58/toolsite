@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Image Compressor Online – Free | QuickTools</title>
+  <meta name="description" content="Compress images online for free. Reduce JPEG, PNG, and WebP file size without losing quality. No upload required." />
+  <link rel="stylesheet" href="tool.css" />
+  <style>
+    .drop-zone { border:2px dashed var(--border); border-radius:14px; padding:48px 24px; text-align:center; cursor:pointer; transition:all .2s; background:var(--bg3); }
+    .drop-zone:hover,.drop-zone.drag-over { border-color:var(--accent); background:#6366f110; }
+    .img-compare { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .img-compare img { width:100%; border-radius:10px; border:1px solid var(--border); display:block; }
+    .size-bar { height:8px; border-radius:999px; background:var(--accent); transition:width .4s; }
+    input[type=range] { width:100%; accent-color:var(--accent); }
+    @media(max-width:500px) { .img-compare { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Image<span>›</span>Image Compressor</div>
+  <h1>Image Compressor</h1>
+  <p class="tool-desc">Reduce image file size without losing visible quality. Works with JPEG, PNG, and WebP. Everything runs in your browser.</p>
+
+  <div class="card">
+    <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+      <div style="font-size:2.5rem;">🖼</div>
+      <div style="font-weight:700;margin-top:8px;">Drop image here or click to select</div>
+      <p>JPEG · PNG · WebP · Max 20MB</p>
+    </div>
+    <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="loadImage(this.files[0])" />
+  </div>
+
+  <div id="controls-card" class="card" style="display:none;">
+    <div class="card-title">Compression Settings</div>
+    <div style="margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:6px;">
+        <span>Quality</span><span id="quality-label" style="font-weight:700;color:var(--accent2);">80%</span>
+      </div>
+      <input type="range" id="quality" min="1" max="100" value="80" oninput="updateQuality()" />
+      <div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted);margin-top:4px;">
+        <span>Smaller file</span><span>Higher quality</span>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div>
+        <label>Output Format</label>
+        <select id="format" onchange="compress()">
+          <option value="jpeg">JPEG</option>
+          <option value="png">PNG</option>
+          <option value="webp">WebP</option>
+        </select>
+      </div>
+      <div>
+        <label>Max Width (px, 0 = original)</label>
+        <input type="number" id="max-width" value="0" min="0" max="8000" oninput="compress()" />
+      </div>
+    </div>
+  </div>
+
+  <div id="result-card" class="card" style="display:none;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <span class="card-title" style="margin-bottom:0;">Result</span>
+      <button class="btn btn-primary btn-sm" id="download-btn">⬇ Download</button>
+    </div>
+
+    <div class="stats-row" style="margin-bottom:16px;">
+      <span>Original: <strong id="orig-size">—</strong></span>
+      <span>Compressed: <strong id="comp-size">—</strong></span>
+      <span>Saved: <strong id="saved-pct" style="color:#34d399;">—</strong></span>
+    </div>
+
+    <!-- Visual size comparison -->
+    <div style="margin-bottom:16px;">
+      <div style="font-size:.8rem;color:var(--muted);margin-bottom:6px;">Original size</div>
+      <div style="background:var(--bg3);border-radius:999px;height:8px;margin-bottom:8px;">
+        <div class="size-bar" id="orig-bar" style="background:#94a3b8;width:100%;"></div>
+      </div>
+      <div style="font-size:.8rem;color:var(--muted);margin-bottom:6px;">Compressed size</div>
+      <div style="background:var(--bg3);border-radius:999px;height:8px;">
+        <div class="size-bar" id="comp-bar" style="width:0%;"></div>
+      </div>
+    </div>
+
+    <div class="img-compare">
+      <div>
+        <div style="font-size:.78rem;color:var(--muted);text-align:center;margin-bottom:6px;">Original</div>
+        <img id="orig-preview" />
+      </div>
+      <div>
+        <div style="font-size:.78rem;color:var(--muted);text-align:center;margin-bottom:6px;">Compressed</div>
+        <img id="comp-preview" />
+      </div>
+    </div>
+  </div>
+
+  <div class="related" style="margin-top:32px;">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="image-grayscale.html">Image Grayscale</a>
+      <a class="related-link" href="image-to-base64.html">Image to Base64</a>
+    </div>
+  </div>
+</div>
+<footer>© 2026 QuickTools — Free online tools. No signup required.</footer>
+<canvas id="canvas" style="display:none;"></canvas>
+<script>
+let origFile = null, origSize = 0, compBlob = null;
+
+const dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+dz.addEventListener('drop', e => {
+  e.preventDefault(); dz.classList.remove('drag-over');
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('image/')) loadImage(f);
+});
+
+function loadImage(file) {
+  if (!file) return;
+  origFile = file;
+  origSize = file.size;
+  document.getElementById('orig-preview').src = URL.createObjectURL(file);
+
+  // Auto-detect format
+  const ext = file.type.split('/')[1];
+  const fmt = ext === 'jpeg' ? 'jpeg' : ext === 'png' ? 'png' : ext === 'webp' ? 'webp' : 'jpeg';
+  document.getElementById('format').value = fmt;
+
+  document.getElementById('controls-card').style.display = 'block';
+  compress();
+}
+
+function updateQuality() {
+  document.getElementById('quality-label').textContent = document.getElementById('quality').value + '%';
+  compress();
+}
+
+function compress() {
+  if (!origFile) return;
+  const q = parseInt(document.getElementById('quality').value) / 100;
+  const fmt = document.getElementById('format').value;
+  const maxW = parseInt(document.getElementById('max-width').value) || 0;
+
+  const img = new Image();
+  img.onload = () => {
+    const canvas = document.getElementById('canvas');
+    let w = img.naturalWidth, h = img.naturalHeight;
+    if (maxW > 0 && w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, w, h);
+    // White background for JPEG (no transparency)
+    if (fmt === 'jpeg') { ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); }
+    ctx.drawImage(img, 0, 0, w, h);
+
+    canvas.toBlob(blob => {
+      compBlob = blob;
+      const compURL = URL.createObjectURL(blob);
+      document.getElementById('comp-preview').src = compURL;
+
+      const savedBytes = origSize - blob.size;
+      const savedPct = ((savedBytes / origSize) * 100).toFixed(1);
+      document.getElementById('orig-size').textContent = fmtSize(origSize);
+      document.getElementById('comp-size').textContent = fmtSize(blob.size);
+      document.getElementById('saved-pct').textContent = savedPct + '% smaller';
+
+      const ratio = Math.min(1, blob.size / origSize);
+      document.getElementById('comp-bar').style.width = (ratio * 100) + '%';
+
+      const ext = fmt === 'jpeg' ? 'jpg' : fmt;
+      document.getElementById('download-btn').onclick = () => {
+        const a = document.createElement('a');
+        a.href = compURL;
+        a.download = (origFile.name.replace(/\.[^.]+$/, '') || 'compressed') + '_compressed.' + ext;
+        a.click();
+      };
+      document.getElementById('result-card').style.display = 'block';
+    }, 'image/' + fmt, fmt === 'png' ? undefined : q);
+  };
+  img.src = URL.createObjectURL(origFile);
+}
+
+function fmtSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/1024/1024).toFixed(2) + ' MB';
+}
+</script>
+</body>
+</html>

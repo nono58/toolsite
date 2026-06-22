@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Age Calculator Online – Free | QuickTools</title>
+  <meta name="description" content="Calculate exact age in years, months, days, hours, and minutes. Find days until next birthday. Free online age calculator." />
+  <link rel="stylesheet" href="tool.css" />
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Calculator<span>›</span>Age Calculator</div>
+  <h1>Age Calculator</h1>
+  <p class="tool-desc">Calculate exact age from date of birth, or find the difference between any two dates.</p>
+
+  <div class="card">
+    <div class="grid-2">
+      <div>
+        <label>Date of Birth</label>
+        <input type="date" id="dob" />
+      </div>
+      <div>
+        <label>Age at Date</label>
+        <input type="date" id="at-date" />
+      </div>
+    </div>
+    <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="calculate()">Calculate Age</button>
+      <button class="btn btn-secondary" onclick="setToday()">Use Today</button>
+    </div>
+  </div>
+
+  <div id="result-card" class="card" style="display:none;">
+    <div class="card-title">Result</div>
+    <div id="main-result" style="font-size:2.2rem;font-weight:800;color:var(--accent2);margin-bottom:16px;"></div>
+    <div class="stats-row" id="breakdown"></div>
+    <div style="margin-top:20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;" id="extra-stats"></div>
+    <div id="birthday-msg" style="margin-top:16px;padding:12px 16px;border-radius:10px;background:var(--bg3);font-size:.9rem;"></div>
+  </div>
+
+  <div class="card" style="margin-top:8px;">
+    <div class="card-title">Zodiac Sign</div>
+    <div id="zodiac" style="font-size:1.1rem;color:var(--text);">Enter date of birth to see zodiac sign.</div>
+  </div>
+
+  <div class="related" style="margin-top:32px;">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="percentage-calculator.html">Percentage Calculator</a>
+      <a class="related-link" href="emi-calculator.html">EMI Calculator</a>
+    </div>
+  </div>
+</div>
+<footer>© 2026 QuickTools — Free online tools. No signup required.</footer>
+<script>
+function setToday() {
+  const today = new Date();
+  document.getElementById('at-date').value = today.toISOString().split('T')[0];
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  setToday();
+  const dob = document.getElementById('dob');
+  dob.max = new Date().toISOString().split('T')[0];
+});
+
+function calculate() {
+  const dobVal = document.getElementById('dob').value;
+  const atVal  = document.getElementById('at-date').value;
+  if (!dobVal || !atVal) { alert('Please select both dates.'); return; }
+
+  const dob = new Date(dobVal);
+  const at  = new Date(atVal);
+  if (dob >= at) { alert('Date of birth must be before the "Age at" date.'); return; }
+
+  // Years, months, days
+  let y = at.getFullYear() - dob.getFullYear();
+  let m = at.getMonth() - dob.getMonth();
+  let d = at.getDate() - dob.getDate();
+
+  if (d < 0) {
+    m--;
+    const prev = new Date(at.getFullYear(), at.getMonth(), 0);
+    d += prev.getDate();
+  }
+  if (m < 0) { y--; m += 12; }
+
+  // Total counts
+  const totalDays  = Math.floor((at - dob) / 86400000);
+  const totalWeeks = Math.floor(totalDays / 7);
+  const totalMonths = y * 12 + m;
+  const totalHours = totalDays * 24;
+  const totalMins  = totalHours * 60;
+
+  document.getElementById('main-result').textContent = `${y} years, ${m} months, ${d} days`;
+  document.getElementById('breakdown').innerHTML = `
+    <span>${y} years</span><span>${m} months</span><span>${d} days</span>
+  `;
+  document.getElementById('extra-stats').innerHTML = [
+    ['Total Days', totalDays.toLocaleString()],
+    ['Total Weeks', totalWeeks.toLocaleString()],
+    ['Total Months', totalMonths.toLocaleString()],
+    ['Total Hours', totalHours.toLocaleString()],
+    ['Total Minutes', totalMins.toLocaleString()],
+  ].map(([l,v]) => `<div class="card" style="padding:12px;text-align:center;">
+    <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">${l}</div>
+    <div style="font-size:1.2rem;font-weight:700;color:var(--accent2);">${v}</div>
+  </div>`).join('');
+
+  // Next birthday
+  const today = new Date();
+  let nextBday = new Date(today.getFullYear(), dob.getMonth(), dob.getDate());
+  if (nextBday <= today) nextBday.setFullYear(today.getFullYear() + 1);
+  const daysUntil = Math.ceil((nextBday - today) / 86400000);
+  const isToday = dob.getDate() === today.getDate() && dob.getMonth() === today.getMonth();
+  document.getElementById('birthday-msg').innerHTML = isToday
+    ? '🎉 <strong>Happy Birthday!</strong> Today is your birthday!'
+    : `🎂 Next birthday in <strong>${daysUntil} days</strong> (${nextBday.toDateString()})`;
+
+  // Zodiac
+  document.getElementById('zodiac').textContent = getZodiac(dob.getMonth() + 1, dob.getDate());
+  document.getElementById('result-card').style.display = 'block';
+}
+
+function getZodiac(month, day) {
+  const signs = [
+    [1,20,'Capricorn ♑'],[2,19,'Aquarius ♒'],[3,20,'Pisces ♓'],[4,20,'Aries ♈'],
+    [5,21,'Taurus ♉'],[6,21,'Gemini ♊'],[7,23,'Cancer ♋'],[8,23,'Leo ♌'],
+    [9,23,'Virgo ♍'],[10,23,'Libra ♎'],[11,22,'Scorpio ♏'],[12,22,'Sagittarius ♐'],[12,31,'Capricorn ♑']
+  ];
+  for (const [m, d, sign] of signs) {
+    if (month < m || (month === m && day <= d)) return sign;
+  }
+  return 'Capricorn ♑';
+}
+</script>
+</body>
+</html>
