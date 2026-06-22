@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Remove Extra Spaces Online – Free | QuickTools</title>
+  <meta name="description" content="Remove extra spaces, double spaces, leading/trailing whitespace, and blank lines from text. Free online tool." />
+  <link rel="stylesheet" href="tool.css" />
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Text<span>›</span>Remove Extra Spaces</div>
+  <h1>Remove Extra Spaces</h1>
+  <p class="tool-desc">Clean up messy spacing in text — collapse multiple spaces, trim lines, remove blank lines, and more.</p>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <span class="card-title" style="margin-bottom:0;">Input</span>
+      <button class="btn btn-secondary btn-sm" onclick="clearAll()">Clear</button>
+    </div>
+    <textarea id="input" placeholder="Paste text with extra spaces here…" oninput="process()" style="min-height:180px;"></textarea>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Options</div>
+    <div style="display:flex;flex-wrap:wrap;gap:14px;">
+      <label style="display:flex;align-items:center;gap:8px;margin:0;font-size:.88rem;cursor:pointer;">
+        <input type="checkbox" id="collapse-spaces" checked onchange="process()" style="width:auto;" />
+        Collapse multiple spaces
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;margin:0;font-size:.88rem;cursor:pointer;">
+        <input type="checkbox" id="trim-lines" checked onchange="process()" style="width:auto;" />
+        Trim leading/trailing spaces per line
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;margin:0;font-size:.88rem;cursor:pointer;">
+        <input type="checkbox" id="remove-blank" onchange="process()" style="width:auto;" />
+        Remove blank lines
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;margin:0;font-size:.88rem;cursor:pointer;">
+        <input type="checkbox" id="collapse-blank" onchange="process()" style="width:auto;" />
+        Collapse multiple blank lines into one
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;margin:0;font-size:.88rem;cursor:pointer;">
+        <input type="checkbox" id="remove-tabs" onchange="process()" style="width:auto;" />
+        Replace tabs with spaces
+      </label>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <span class="card-title" style="margin-bottom:0;">Output</span>
+      <button class="btn btn-secondary btn-sm" onclick="copyOutput()">Copy</button>
+    </div>
+    <div class="stats-row" id="stats" style="margin-bottom:12px;"></div>
+    <textarea id="output" class="output-area" readonly style="min-height:180px;"></textarea>
+  </div>
+
+  <div class="related" style="margin-top:32px;">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="duplicate-line-remover.html">Duplicate Line Remover</a>
+      <a class="related-link" href="word-counter.html">Word Counter</a>
+      <a class="related-link" href="text-case.html">Text Case Converter</a>
+    </div>
+  </div>
+</div>
+<footer>© 2026 QuickTools — Free online tools. No signup required.</footer>
+<script>
+function process() {
+  let text = document.getElementById('input').value;
+  const charsBefore = text.length;
+
+  if (document.getElementById('remove-tabs').checked) {
+    text = text.replace(/\t/g, ' ');
+  }
+
+  let lines = text.split('\n');
+
+  if (document.getElementById('trim-lines').checked) {
+    lines = lines.map(l => l.trim());
+  }
+
+  if (document.getElementById('collapse-spaces').checked) {
+    lines = lines.map(l => l.replace(/ {2,}/g, ' '));
+  }
+
+  if (document.getElementById('remove-blank').checked) {
+    lines = lines.filter(l => l.trim().length > 0);
+  } else if (document.getElementById('collapse-blank').checked) {
+    const newLines = [];
+    let lastBlank = false;
+    for (const line of lines) {
+      const isBlank = line.trim().length === 0;
+      if (isBlank && lastBlank) continue;
+      newLines.push(line);
+      lastBlank = isBlank;
+    }
+    lines = newLines;
+  }
+
+  const result = lines.join('\n');
+  const charsAfter = result.length;
+  const spacesRemoved = charsBefore - charsAfter;
+
+  document.getElementById('output').value = result;
+  document.getElementById('stats').innerHTML = `
+    <span>${charsBefore} chars in</span>
+    <span>${charsAfter} chars out</span>
+    <span>${Math.max(0, spacesRemoved)} chars removed</span>
+  `;
+}
+
+function copyOutput() {
+  navigator.clipboard.writeText(document.getElementById('output').value).then(() => {
+    const btn = event.target;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+function clearAll() { document.getElementById('input').value = ''; process(); }
+process();
+</script>
+</body>
+</html>

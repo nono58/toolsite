@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Remove Duplicate Lines Online – Free | QuickTools</title>
+  <meta name="description" content="Remove duplicate lines from text instantly. Case-sensitive or insensitive, sort output, keep or remove blanks. Free online tool." />
+  <link rel="stylesheet" href="tool.css" />
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Text<span>›</span>Duplicate Line Remover</div>
+  <h1>Duplicate Line Remover</h1>
+  <p class="tool-desc">Paste your text below to remove duplicate lines. Useful for cleaning lists, log files, and datasets.</p>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <span class="card-title" style="margin-bottom:0;">Input</span>
+      <button class="btn btn-secondary btn-sm" onclick="clearAll()">Clear</button>
+    </div>
+    <textarea id="input" placeholder="Paste lines here…" oninput="process()" style="min-height:180px;"></textarea>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Options</div>
+    <div style="display:flex;flex-wrap:wrap;gap:14px;">
+      <label style="display:flex;align-items:center;gap:8px;margin:0;font-size:.88rem;cursor:pointer;">
+        <input type="checkbox" id="case-insensitive" onchange="process()" style="width:auto;" />
+        Case-insensitive
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;margin:0;font-size:.88rem;cursor:pointer;">
+        <input type="checkbox" id="trim-lines" checked onchange="process()" style="width:auto;" />
+        Trim whitespace
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;margin:0;font-size:.88rem;cursor:pointer;">
+        <input type="checkbox" id="remove-blank" onchange="process()" style="width:auto;" />
+        Remove blank lines
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;margin:0;font-size:.88rem;cursor:pointer;">
+        <input type="checkbox" id="sort-output" onchange="process()" style="width:auto;" />
+        Sort output
+      </label>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <span class="card-title" style="margin-bottom:0;">Output</span>
+      <button class="btn btn-secondary btn-sm" onclick="copyOutput()">Copy</button>
+    </div>
+    <div class="stats-row" id="stats" style="margin-bottom:12px;"></div>
+    <textarea id="output" class="output-area" readonly style="min-height:180px;"></textarea>
+  </div>
+
+  <div class="related" style="margin-top:32px;">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="remove-extra-spaces.html">Remove Extra Spaces</a>
+      <a class="related-link" href="word-counter.html">Word Counter</a>
+      <a class="related-link" href="text-case.html">Text Case Converter</a>
+    </div>
+  </div>
+</div>
+<footer>© 2026 QuickTools — Free online tools. No signup required.</footer>
+<script>
+function process() {
+  const raw = document.getElementById('input').value;
+  const caseInsensitive = document.getElementById('case-insensitive').checked;
+  const trimLines = document.getElementById('trim-lines').checked;
+  const removeBlank = document.getElementById('remove-blank').checked;
+  const sortOutput = document.getElementById('sort-output').checked;
+
+  let lines = raw.split('\n');
+  const totalInput = lines.length;
+
+  if (trimLines) lines = lines.map(l => l.trim());
+  if (removeBlank) lines = lines.filter(l => l.length > 0);
+
+  const seen = new Set();
+  const unique = [];
+  for (const line of lines) {
+    const key = caseInsensitive ? line.toLowerCase() : line;
+    if (!seen.has(key)) {
+      seen.add(key);
+      unique.push(line);
+    }
+  }
+
+  if (sortOutput) unique.sort((a, b) => a.localeCompare(b));
+
+  const removed = lines.length - unique.length;
+  document.getElementById('output').value = unique.join('\n');
+  document.getElementById('stats').innerHTML = `
+    <span>${totalInput} lines in</span>
+    <span>${unique.length} unique lines</span>
+    <span>${removed} duplicates removed</span>
+  `;
+}
+
+function copyOutput() {
+  navigator.clipboard.writeText(document.getElementById('output').value).then(() => {
+    const btn = event.target;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+function clearAll() { document.getElementById('input').value = ''; process(); }
+process();
+</script>
+</body>
+</html>

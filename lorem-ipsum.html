@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lorem Ipsum Generator Online – Free | QuickTools</title>
+  <meta name="description" content="Generate Lorem Ipsum placeholder text instantly. Choose paragraphs, sentences, or words. Free online generator." />
+  <link rel="stylesheet" href="tool.css" />
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Text<span>›</span>Lorem Ipsum Generator</div>
+  <h1>Lorem Ipsum Generator</h1>
+  <p class="tool-desc">Generate Lorem Ipsum placeholder text for mockups, designs, and prototypes. Choose paragraphs, sentences, or words.</p>
+
+  <div class="card">
+    <div class="card-title">Options</div>
+    <div class="grid-2" style="margin-bottom:16px;">
+      <div>
+        <label>Type</label>
+        <select id="type" onchange="generate()">
+          <option value="paragraphs">Paragraphs</option>
+          <option value="sentences">Sentences</option>
+          <option value="words">Words</option>
+        </select>
+      </div>
+      <div>
+        <label>Count</label>
+        <input type="number" id="count" value="3" min="1" max="50" oninput="generate()" />
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <label style="display:flex;align-items:center;gap:8px;margin:0;font-size:.88rem;cursor:pointer;">
+        <input type="checkbox" id="start-lorem" checked onchange="generate()" style="width:auto;" />
+        Start with "Lorem ipsum…"
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;margin:0;font-size:.88rem;cursor:pointer;">
+        <input type="checkbox" id="html-tags" onchange="generate()" style="width:auto;" />
+        Wrap in &lt;p&gt; tags
+      </label>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <span class="card-title" style="margin-bottom:0;">Generated Text</span>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-secondary btn-sm" onclick="generate()">Regenerate</button>
+        <button class="btn btn-secondary btn-sm" onclick="copyOutput()">Copy</button>
+      </div>
+    </div>
+    <textarea id="output" class="output-area" readonly style="min-height:240px;"></textarea>
+  </div>
+
+  <div class="related" style="margin-top:32px;">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="word-counter.html">Word Counter</a>
+      <a class="related-link" href="text-case.html">Text Case Converter</a>
+    </div>
+  </div>
+</div>
+<footer>© 2026 QuickTools — Free online tools. No signup required.</footer>
+<script>
+const WORDS = ['lorem','ipsum','dolor','sit','amet','consectetur','adipiscing','elit','sed','do','eiusmod','tempor','incididunt','ut','labore','et','dolore','magna','aliqua','enim','ad','minim','veniam','quis','nostrud','exercitation','ullamco','laboris','nisi','aliquip','ex','ea','commodo','consequat','duis','aute','irure','in','reprehenderit','voluptate','velit','esse','cillum','eu','fugiat','nulla','pariatur','excepteur','sint','occaecat','cupidatat','non','proident','sunt','culpa','qui','officia','deserunt','mollit','anim','id','est','laborum','curabitur','pretium','tincidunt','lacus','nunc','pulvinar','sapien','ligula','eget','massa','volutpat','venenatis','congue','diam','quam'];
+
+function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+function genWords(n) {
+  return Array.from({length: n}, () => WORDS[Math.floor(Math.random()*WORDS.length)]);
+}
+
+function genSentence(startLorem) {
+  const len = randInt(8, 18);
+  const words = genWords(len);
+  if (startLorem) { words[0] = 'Lorem'; words[1] = 'ipsum'; }
+  words[0] = words[0][0].toUpperCase() + words[0].slice(1);
+  const punctuation = Math.random() > 0.85 ? (Math.random() > 0.5 ? '!' : '?') : '.';
+  return words.join(' ') + punctuation;
+}
+
+function genParagraph(startLorem, idx) {
+  const numSentences = randInt(3, 6);
+  return Array.from({length: numSentences}, (_, i) => genSentence(startLorem && idx === 0 && i === 0)).join(' ');
+}
+
+function generate() {
+  const type = document.getElementById('type').value;
+  const count = Math.min(50, Math.max(1, parseInt(document.getElementById('count').value) || 1));
+  const startLorem = document.getElementById('start-lorem').checked;
+  const htmlTags = document.getElementById('html-tags').checked;
+
+  let output = '';
+  if (type === 'paragraphs') {
+    const paras = Array.from({length: count}, (_, i) => genParagraph(startLorem, i));
+    output = htmlTags ? paras.map(p => `<p>${p}</p>`).join('\n\n') : paras.join('\n\n');
+  } else if (type === 'sentences') {
+    const sentences = Array.from({length: count}, (_, i) => genSentence(startLorem && i === 0));
+    output = htmlTags ? `<p>${sentences.join(' ')}</p>` : sentences.join(' ');
+  } else {
+    const words = genWords(count);
+    if (startLorem && count >= 2) { words[0] = 'Lorem'; words[1] = 'ipsum'; }
+    output = words.join(' ');
+  }
+  document.getElementById('output').value = output;
+}
+
+function copyOutput() {
+  const val = document.getElementById('output').value;
+  navigator.clipboard.writeText(val).then(() => {
+    const btn = event.target;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+generate();
+</script>
+</body>
+</html>

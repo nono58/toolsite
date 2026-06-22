@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Video to GIF Converter Online – Free | QuickTools</title>
+  <meta name="description" content="Convert video clips to animated GIF online. Trim, resize, and set frame rate. Free, no upload to server." />
+  <link rel="stylesheet" href="tool.css" />
+  <style>
+    .drop-zone {
+      border: 2px dashed var(--border); border-radius: 14px; padding: 48px 24px;
+      text-align: center; cursor: pointer; transition: all .2s; background: var(--bg3);
+    }
+    .drop-zone:hover, .drop-zone.drag-over { border-color: var(--accent); background: #6366f110; }
+    .drop-zone p { color: var(--muted); margin-top: 8px; font-size: .9rem; }
+    video { width: 100%; border-radius: 10px; display: block; background: #000; }
+    canvas { display: none; }
+    .progress-bar { height: 6px; background: var(--bg3); border-radius: 999px; overflow: hidden; margin-top: 8px; }
+    .progress-fill { height: 100%; background: var(--accent); border-radius: 999px; transition: width .1s; width: 0%; }
+    .gif-preview { max-width: 100%; border-radius: 10px; display: block; margin: 0 auto; }
+    .trim-wrap { position: relative; margin-top: 8px; }
+    input[type=range].trim { width: 100%; accent-color: var(--accent); }
+  </style>
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Video<span>›</span>Video to GIF</div>
+
+  <h1>Video to GIF Converter</h1>
+  <p class="tool-desc">Convert a video clip to an animated GIF in your browser. Set start/end time, frame rate, and width. No server upload.</p>
+
+  <!-- Upload -->
+  <div class="card">
+    <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+      <div style="font-size:2.5rem;">🎬</div>
+      <div style="font-weight:700;margin-top:8px;">Drop video here or click to select</div>
+      <p>MP4, WebM, MOV, AVI supported · Max recommended: 50MB</p>
+    </div>
+    <input type="file" id="file-input" accept="video/*" style="display:none;" onchange="loadVideo(this.files[0])" />
+  </div>
+
+  <!-- Video preview + controls -->
+  <div class="card" id="controls-card" style="display:none;">
+    <div class="card-title">Preview & Settings</div>
+    <video id="video" controls></video>
+
+    <div style="display:grid;gap:14px;margin-top:16px;">
+      <!-- Trim -->
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:4px;">
+          <span>Start Time</span><span id="start-label">0.0s</span>
+        </div>
+        <input type="range" class="trim" id="start-time" min="0" max="10" step="0.1" value="0" oninput="updateTrim()" />
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:4px;">
+          <span>End Time</span><span id="end-label">5.0s</span>
+        </div>
+        <input type="range" class="trim" id="end-time" min="0" max="10" step="0.1" value="5" oninput="updateTrim()" />
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <label>Frame Rate (fps)</label>
+          <select id="fps">
+            <option value="5">5 fps (smaller file)</option>
+            <option value="10" selected>10 fps (balanced)</option>
+            <option value="15">15 fps (smoother)</option>
+            <option value="24">24 fps (large file)</option>
+          </select>
+        </div>
+        <div>
+          <label>Width (px)</label>
+          <select id="width">
+            <option value="320">320px (small)</option>
+            <option value="480" selected>480px (medium)</option>
+            <option value="640">640px (large)</option>
+            <option value="0">Original</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px;">
+      <button class="btn btn-primary" id="convert-btn" onclick="convertToGif()">🎞 Convert to GIF</button>
+    </div>
+
+    <!-- Progress -->
+    <div id="progress-wrap" style="display:none;margin-top:16px;">
+      <div style="font-size:.85rem;color:var(--muted);margin-bottom:4px;" id="progress-label">Processing frames…</div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+  </div>
+
+  <!-- Result -->
+  <div class="card" id="result-card" style="display:none;">
+    <div class="card-title">Result</div>
+    <img id="gif-preview" class="gif-preview" />
+    <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;align-items:center;">
+      <button class="btn btn-primary" id="download-btn">⬇ Download GIF</button>
+      <span id="gif-size" style="font-size:.85rem;color:var(--muted);"></span>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px;background:#fbbf2410;border-color:#fbbf2440;">
+    <div style="font-size:.88rem;color:#fbbf24;">
+      ⚠️ <strong>Browser limitation:</strong> GIF encoding in the browser is CPU-intensive. For best results, keep clips under 5 seconds and use 10fps or lower. Longer clips may take 30–60 seconds to process.
+    </div>
+  </div>
+
+  <div class="faq" style="margin-top:40px;">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-item">
+      <div class="faq-q">Is my video uploaded to a server?</div>
+      <div class="faq-a">No. Everything runs in your browser using the Canvas API and a JavaScript GIF encoder. Your video never leaves your device.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Why is the GIF file large?</div>
+      <div class="faq-a">GIF is an older format with limited color support (256 colors max) but no efficient video compression. For smaller files, use fewer fps, lower width, or shorter duration.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Which video formats are supported?</div>
+      <div class="faq-a">Any format your browser can play: MP4 (H.264), WebM, and on some browsers MOV and AVI.</div>
+    </div>
+  </div>
+</div>
+
+<footer>© 2026 QuickTools — Free online tools. No signup required.</footer>
+
+<!-- gif.js library (pure JS GIF encoder) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
+<canvas id="canvas"></canvas>
+
+<script>
+let videoEl = document.getElementById('video');
+let duration = 0;
+
+const dropZone = document.getElementById('drop-zone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('video/')) loadVideo(file);
+});
+
+function loadVideo(file) {
+  if (!file) return;
+  const url = URL.createObjectURL(file);
+  videoEl.src = url;
+  videoEl.onloadedmetadata = () => {
+    duration = videoEl.duration;
+    const endDefault = Math.min(5, duration);
+    document.getElementById('start-time').max = duration;
+    document.getElementById('end-time').max = duration;
+    document.getElementById('start-time').value = 0;
+    document.getElementById('end-time').value = endDefault;
+    updateTrim();
+    document.getElementById('controls-card').style.display = 'block';
+    document.getElementById('result-card').style.display = 'none';
+  };
+}
+
+function updateTrim() {
+  const start = parseFloat(document.getElementById('start-time').value);
+  const end = parseFloat(document.getElementById('end-time').value);
+  document.getElementById('start-label').textContent = start.toFixed(1) + 's';
+  document.getElementById('end-label').textContent = end.toFixed(1) + 's';
+  if (start >= end) {
+    document.getElementById('end-time').value = Math.min(start + 0.5, duration);
+  }
+}
+
+async function convertToGif() {
+  const start = parseFloat(document.getElementById('start-time').value);
+  const end = parseFloat(document.getElementById('end-time').value);
+  const fps = parseInt(document.getElementById('fps').value);
+  const targetWidth = parseInt(document.getElementById('width').value);
+  const clipDuration = end - start;
+
+  if (clipDuration <= 0) { alert('End time must be greater than start time.'); return; }
+  if (clipDuration > 15) { alert('Please keep clips under 15 seconds for best results.'); return; }
+
+  const btn = document.getElementById('convert-btn');
+  btn.disabled = true;
+  btn.textContent = 'Converting…';
+  document.getElementById('progress-wrap').style.display = 'block';
+  document.getElementById('result-card').style.display = 'none';
+
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+
+  // Set canvas size
+  const vw = videoEl.videoWidth;
+  const vh = videoEl.videoHeight;
+  const w = targetWidth > 0 ? targetWidth : vw;
+  const h = Math.round(vh * w / vw);
+  canvas.width = w;
+  canvas.height = h;
+
+  const totalFrames = Math.floor(clipDuration * fps);
+  const interval = 1 / fps;
+
+  const gif = new GIF({
+    workers: 2,
+    quality: 10,
+    width: w,
+    height: h,
+    workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js'
+  });
+
+  // Capture frames
+  let frame = 0;
+  const captureFrame = () => new Promise(resolve => {
+    videoEl.currentTime = start + frame * interval;
+    videoEl.onseeked = () => {
+      ctx.drawImage(videoEl, 0, 0, w, h);
+      gif.addFrame(ctx, { copy: true, delay: 1000 / fps });
+      const pct = (frame / totalFrames * 80).toFixed(0);
+      document.getElementById('progress-fill').style.width = pct + '%';
+      document.getElementById('progress-label').textContent = `Capturing frame ${frame + 1} / ${totalFrames}…`;
+      frame++;
+      resolve();
+    };
+  });
+
+  for (let i = 0; i < totalFrames; i++) {
+    await captureFrame();
+  }
+
+  document.getElementById('progress-label').textContent = 'Encoding GIF…';
+  document.getElementById('progress-fill').style.width = '85%';
+
+  gif.on('progress', p => {
+    document.getElementById('progress-fill').style.width = (85 + p * 15).toFixed(0) + '%';
+  });
+
+  gif.on('finished', blob => {
+    const url = URL.createObjectURL(blob);
+    document.getElementById('gif-preview').src = url;
+    document.getElementById('gif-size').textContent = `File size: ${(blob.size / 1024).toFixed(0)} KB`;
+    document.getElementById('download-btn').onclick = () => {
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'quicktools-animation.gif';
+      a.click();
+    };
+    document.getElementById('result-card').style.display = 'block';
+    document.getElementById('progress-fill').style.width = '100%';
+    document.getElementById('progress-label').textContent = 'Done!';
+    btn.disabled = false;
+    btn.textContent = '🎞 Convert to GIF';
+  });
+
+  gif.render();
+}
+</script>
+</body>
+</html>
