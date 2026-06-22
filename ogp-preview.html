@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>OGP Preview – Social Media Link Preview Generator | QuickTools</title>
+<meta name="description" content="Preview how your URL looks when shared on Twitter/X, Facebook, LinkedIn, and Discord. Test Open Graph tags and generate OGP meta tag code."/>
+<link rel="stylesheet" href="tool.css"/>
+<style>
+  .ogp-layout { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  @media(max-width:720px){.ogp-layout{grid-template-columns:1fr}}
+  .field-group { margin-bottom:14px; }
+  .field-group label { display:block; font-size:.8rem; color:var(--muted); margin-bottom:4px; }
+  .field-group input,.field-group textarea,.field-group select {
+    width:100%; background:var(--bg3); color:var(--text); border:1px solid var(--border);
+    border-radius:8px; padding:8px 12px; font-size:.85rem; box-sizing:border-box;
+  }
+  .field-group textarea { resize:vertical; min-height:60px; font-family:inherit; }
+  .platform-tabs { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+  .plat-tab { padding:7px 14px; border-radius:20px; border:1px solid var(--border); background:var(--bg2); color:var(--muted); font-size:.8rem; cursor:pointer; transition:.15s; }
+  .plat-tab.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+
+  /* Twitter/X card */
+  .tw-preview { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; max-width:504px; }
+  .tw-card { border:1px solid #2f3336; border-radius:16px; overflow:hidden; background:#000; color:#e7e9ea; }
+  .tw-card-img { width:100%; aspect-ratio:1.91/1; object-fit:cover; background:#2f3336; display:flex; align-items:center; justify-content:center; font-size:3rem; }
+  .tw-card-body { padding:12px; border-top:1px solid #2f3336; }
+  .tw-card-domain { font-size:.78rem; color:#71767b; }
+  .tw-card-title { font-size:.95rem; font-weight:700; margin:2px 0; }
+  .tw-card-desc { font-size:.82rem; color:#71767b; }
+
+  /* Facebook */
+  .fb-preview { font-family:Helvetica,Arial,sans-serif; max-width:504px; }
+  .fb-card { background:#fff; color:#050505; overflow:hidden; }
+  .fb-card-img { width:100%; aspect-ratio:1.91/1; background:#e4e6eb; display:flex; align-items:center; justify-content:center; font-size:3rem; }
+  .fb-card-body { background:#f0f2f5; padding:10px 12px; border:1px solid #dddfe2; }
+  .fb-card-domain { font-size:.75rem; color:#65676b; text-transform:uppercase; letter-spacing:.04em; }
+  .fb-card-title { font-size:.9rem; font-weight:700; margin:2px 0; }
+  .fb-card-desc { font-size:.82rem; color:#65676b; }
+
+  /* LinkedIn */
+  .li-preview { font-family:system-ui,-apple-system,sans-serif; max-width:504px; }
+  .li-card { background:#fff; border:1px solid rgba(0,0,0,.08); border-radius:2px; overflow:hidden; color:#000; }
+  .li-card-img { width:100%; aspect-ratio:1.91/1; background:#eef3f8; display:flex; align-items:center; justify-content:center; font-size:3rem; }
+  .li-card-body { padding:12px 14px; background:#eef3f8; border-top:1px solid rgba(0,0,0,.08); }
+  .li-card-title { font-size:.95rem; font-weight:600; margin:0 0 4px; }
+  .li-card-domain { font-size:.78rem; color:#666; }
+
+  /* Discord */
+  .dc-preview { font-family:Whitney,'Helvetica Neue',Helvetica,Arial,sans-serif; max-width:440px; }
+  .dc-embed { background:#2b2d31; border-radius:4px; border-left:4px solid var(--accent); padding:8px 16px 16px; }
+  .dc-provider { font-size:.75rem; color:#dbdee1; font-weight:500; margin-bottom:8px; }
+  .dc-title { font-size:.95rem; font-weight:700; color:#00a8fc; margin-bottom:6px; }
+  .dc-desc { font-size:.85rem; color:#dbdee1; line-height:1.4; margin-bottom:10px; }
+  .dc-img { width:100%; border-radius:4px; aspect-ratio:1.91/1; background:#1e1f22; display:flex; align-items:center; justify-content:center; font-size:3rem; }
+
+  .img-preview { width:100%; aspect-ratio:1.91/1; object-fit:cover; display:block; }
+  .code-out { background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:14px; font-family:monospace; font-size:.73rem; color:var(--text); white-space:pre; overflow-x:auto; line-height:1.7; margin-top:12px; max-height:280px; overflow-y:auto; }
+</style>
+</head>
+<body>
+<header><a class="logo" href="index.html">⚡ Quick<span>Tools</span></a></header>
+<main>
+  <h1 class="tool-title">OGP Preview</h1>
+  <p class="tool-desc">See how your link looks when shared on Twitter/X, Facebook, LinkedIn, and Discord. Generate the meta tag code.</p>
+
+  <div class="card">
+    <div class="ogp-layout">
+      <!-- Input -->
+      <div>
+        <div class="field-group">
+          <label>Page URL</label>
+          <input type="url" id="og-url" value="https://example.com/my-article" placeholder="https://example.com/page"/>
+        </div>
+        <div class="field-group">
+          <label>Title</label>
+          <input type="text" id="og-title" value="My Amazing Article — Read This Now"/>
+        </div>
+        <div class="field-group">
+          <label>Description</label>
+          <textarea id="og-desc">A compelling description that explains what this page is about and entices users to click through.</textarea>
+        </div>
+        <div class="field-group">
+          <label>Image URL (1200×630 recommended)</label>
+          <input type="url" id="og-image" placeholder="https://example.com/image.jpg" value=""/>
+        </div>
+        <div class="field-group">
+          <label>Site Name</label>
+          <input type="text" id="og-site" value="My Website"/>
+        </div>
+        <div class="field-group">
+          <label>Twitter card type</label>
+          <select id="tw-card-type">
+            <option value="summary_large_image">summary_large_image (large card)</option>
+            <option value="summary">summary (small card)</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label>Twitter @username</label>
+          <input type="text" id="tw-site" value="@mywebsite"/>
+        </div>
+
+        <button class="btn-primary" id="copy-meta-btn" style="width:100%;margin-top:4px">📋 Copy Meta Tags</button>
+        <div class="code-out" id="meta-code"></div>
+      </div>
+
+      <!-- Preview -->
+      <div>
+        <div class="platform-tabs">
+          <div class="plat-tab active" data-plat="twitter">𝕏 Twitter</div>
+          <div class="plat-tab" data-plat="facebook">Facebook</div>
+          <div class="plat-tab" data-plat="linkedin">LinkedIn</div>
+          <div class="plat-tab" data-plat="discord">Discord</div>
+        </div>
+
+        <!-- Twitter -->
+        <div id="prev-twitter" class="tw-preview">
+          <div class="tw-card">
+            <div class="tw-card-img" id="tw-img-wrap">🖼</div>
+            <div class="tw-card-body">
+              <div class="tw-card-domain" id="tw-domain">example.com</div>
+              <div class="tw-card-title" id="tw-title-p">My Amazing Article</div>
+              <div class="tw-card-desc" id="tw-desc-p">A compelling description...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Facebook -->
+        <div id="prev-facebook" class="fb-preview" style="display:none">
+          <div class="fb-card">
+            <div class="fb-card-img" id="fb-img-wrap">🖼</div>
+            <div class="fb-card-body">
+              <div class="fb-card-domain" id="fb-domain">example.com</div>
+              <div class="fb-card-title" id="fb-title-p">My Amazing Article</div>
+              <div class="fb-card-desc" id="fb-desc-p">A compelling description...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LinkedIn -->
+        <div id="prev-linkedin" class="li-preview" style="display:none">
+          <div class="li-card">
+            <div class="li-card-img" id="li-img-wrap">🖼</div>
+            <div class="li-card-body">
+              <div class="li-card-title" id="li-title-p">My Amazing Article</div>
+              <div class="li-card-domain" id="li-domain">example.com</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Discord -->
+        <div id="prev-discord" class="dc-preview" style="display:none">
+          <div class="dc-embed">
+            <div class="dc-provider" id="dc-site">My Website</div>
+            <div class="dc-title" id="dc-title-p">My Amazing Article</div>
+            <div class="dc-desc" id="dc-desc-p">A compelling description...</div>
+            <div class="dc-img" id="dc-img-wrap">🖼</div>
+          </div>
+        </div>
+
+        <div style="margin-top:14px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px;font-size:.78rem;color:var(--muted)">
+          <strong style="color:var(--text)">Tips:</strong> Image should be 1200×630px. Title: max ~60 chars. Description: max ~155 chars. Facebook caches OGP — use <a href="https://developers.facebook.com/tools/debug/" target="_blank" style="color:var(--accent2)">Sharing Debugger</a> to force refresh.
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+function getDomain(url) {
+  try { return new URL(url).hostname.replace('www.',''); } catch { return url; }
+}
+
+function truncate(str, n) { return str.length > n ? str.slice(0,n-1)+'…' : str; }
+
+function setImgWrap(id, src) {
+  const el = document.getElementById(id);
+  if(src) {
+    el.innerHTML = `<img class="img-preview" src="${src}" onerror="this.parentElement.innerHTML='🖼'; this.parentElement.style.fontSize='3rem';"/>`;
+    el.style.fontSize='';
+  } else {
+    el.innerHTML = '🖼';
+    el.style.fontSize='3rem';
+  }
+}
+
+function update() {
+  const url   = document.getElementById('og-url').value;
+  const title = document.getElementById('og-title').value;
+  const desc  = document.getElementById('og-desc').value;
+  const image = document.getElementById('og-image').value;
+  const site  = document.getElementById('og-site').value;
+  const twCard= document.getElementById('tw-card-type').value;
+  const twSite= document.getElementById('tw-site').value;
+  const domain= getDomain(url);
+
+  // Twitter
+  document.getElementById('tw-domain').textContent = domain;
+  document.getElementById('tw-title-p').textContent = truncate(title,70);
+  document.getElementById('tw-desc-p').textContent = truncate(desc,125);
+  setImgWrap('tw-img-wrap', image);
+
+  // Facebook
+  document.getElementById('fb-domain').textContent = domain.toUpperCase();
+  document.getElementById('fb-title-p').textContent = truncate(title,80);
+  document.getElementById('fb-desc-p').textContent = truncate(desc,155);
+  setImgWrap('fb-img-wrap', image);
+
+  // LinkedIn
+  document.getElementById('li-title-p').textContent = truncate(title,120);
+  document.getElementById('li-domain').textContent = domain;
+  setImgWrap('li-img-wrap', image);
+
+  // Discord
+  document.getElementById('dc-site').textContent = site;
+  document.getElementById('dc-title-p').textContent = truncate(title,255);
+  document.getElementById('dc-desc-p').textContent = truncate(desc,300);
+  setImgWrap('dc-img-wrap', image);
+
+  // Meta code
+  const code =
+`<!-- Primary Meta Tags -->
+<title>${title}</title>
+<meta name="title" content="${title}" />
+<meta name="description" content="${desc}" />
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website" />
+<meta property="og:url" content="${url}" />
+<meta property="og:title" content="${title}" />
+<meta property="og:description" content="${desc}" />${image?`\n<meta property="og:image" content="${image}" />`:''}
+<meta property="og:site_name" content="${site}" />
+
+<!-- Twitter -->
+<meta name="twitter:card" content="${twCard}" />
+<meta name="twitter:url" content="${url}" />
+<meta name="twitter:title" content="${title}" />
+<meta name="twitter:description" content="${desc}" />${image?`\n<meta name="twitter:image" content="${image}" />`:''}
+<meta name="twitter:site" content="${twSite}" />`;
+
+  document.getElementById('meta-code').textContent = code;
+}
+
+document.querySelectorAll('.plat-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.plat-tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    ['twitter','facebook','linkedin','discord'].forEach(p=>document.getElementById('prev-'+p).style.display='none');
+    document.getElementById('prev-'+tab.dataset.plat).style.display='';
+  });
+});
+
+['og-url','og-title','og-desc','og-image','og-site','tw-card-type','tw-site'].forEach(id=>
+  document.getElementById(id).addEventListener('input', update)
+);
+
+document.getElementById('copy-meta-btn').addEventListener('click', () => {
+  navigator.clipboard.writeText(document.getElementById('meta-code').textContent);
+  const btn = document.getElementById('copy-meta-btn');
+  btn.textContent='✅ Copied!'; setTimeout(()=>btn.textContent='📋 Copy Meta Tags',2000);
+});
+
+update();
+</script>
+</body>
+</html>

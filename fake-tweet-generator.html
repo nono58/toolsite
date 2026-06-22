@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Fake Tweet Generator – Create Realistic Tweet Screenshots | QuickTools</title>
+<meta name="description" content="Generate realistic fake tweet screenshots online for free. Customize name, handle, avatar, likes, retweets, and theme. Download as PNG."/>
+<link rel="stylesheet" href="tool.css"/>
+<style>
+  .layout { display:grid; grid-template-columns:340px 1fr; gap:20px; }
+  @media(max-width:700px){.layout{grid-template-columns:1fr}}
+  .ctrl label { display:block; font-size:.8rem; color:var(--muted); margin-top:12px; margin-bottom:3px; }
+  .ctrl input[type=text],.ctrl textarea,.ctrl input[type=number] {
+    width:100%; background:var(--bg3); color:var(--text); border:1px solid var(--border);
+    border-radius:8px; padding:8px 12px; font-size:.88rem; box-sizing:border-box;
+  }
+  .ctrl textarea { resize:vertical; min-height:80px; font-family:inherit; }
+  .ctrl input[type=color] { width:44px; height:36px; border:none; border-radius:6px; cursor:pointer; }
+  .theme-row { display:flex; gap:8px; margin-top:6px; }
+  .theme-btn { flex:1; padding:8px; border-radius:8px; border:1px solid var(--border); background:var(--bg2); color:var(--muted); font-size:.8rem; cursor:pointer; transition:.15s; }
+  .theme-btn.active { border-color:var(--accent); color:var(--text); }
+
+  /* Tweet card */
+  #tweet-wrap { display:flex; align-items:center; justify-content:center; padding:20px; }
+  .tweet-card {
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    width:598px; padding:16px 16px 12px; border-radius:16px;
+    border:1px solid; box-sizing:border-box;
+  }
+  .tweet-card.light { background:#fff; border-color:#e1e8ed; color:#0f1419; }
+  .tweet-card.dark  { background:#15202b; border-color:#38444d; color:#fff; }
+  .tweet-card.black { background:#000; border-color:#2f3336; color:#fff; }
+  .tw-header { display:flex; align-items:flex-start; gap:12px; margin-bottom:10px; }
+  .tw-avatar { width:48px; height:48px; border-radius:50%; flex-shrink:0; object-fit:cover; background:#8b5cf6; display:flex; align-items:center; justify-content:center; font-size:1.5rem; }
+  .tw-namerow { display:flex; flex-direction:column; }
+  .tw-name { font-weight:700; font-size:.97rem; line-height:1.2; display:flex; align-items:center; gap:4px; }
+  .tw-verified { color:#1d9bf0; font-size:.85rem; }
+  .tw-handle { font-size:.875rem; }
+  .tweet-card.light .tw-handle { color:#536471; }
+  .tweet-card.dark  .tw-handle, .tweet-card.black .tw-handle { color:#8b98a5; }
+  .tw-logo { margin-left:auto; }
+  .tw-logo svg { width:24px; height:24px; }
+  .tweet-card.light .tw-logo svg { fill:#1d9bf0; }
+  .tweet-card.dark  .tw-logo svg,.tweet-card.black .tw-logo svg { fill:#1d9bf0; }
+  .tw-body { font-size:1.05rem; line-height:1.5; margin-bottom:14px; white-space:pre-wrap; word-break:break-word; }
+  .tw-body .hashtag { color:#1d9bf0; }
+  .tw-time { font-size:.875rem; margin-bottom:12px; }
+  .tweet-card.light .tw-time { color:#536471; }
+  .tweet-card.dark  .tw-time,.tweet-card.black .tw-time { color:#8b98a5; }
+  .tw-divider { border:none; border-top:1px solid; margin:0 0 12px; }
+  .tweet-card.light .tw-divider { border-color:#e1e8ed; }
+  .tweet-card.dark  .tw-divider,.tweet-card.black .tw-divider { border-color:#38444d; }
+  .tw-stats { display:flex; gap:24px; font-size:.9rem; margin-bottom:12px; }
+  .tw-stat strong { font-weight:700; }
+  .tweet-card.light .tw-stat span { color:#536471; }
+  .tweet-card.dark  .tw-stat span,.tweet-card.black .tw-stat span { color:#8b98a5; }
+  .tw-actions { display:flex; justify-content:space-between; max-width:420px; }
+  .tw-action { display:flex; align-items:center; gap:6px; font-size:.875rem; cursor:pointer; }
+  .tweet-card.light .tw-action { color:#536471; }
+  .tweet-card.dark  .tw-action,.tweet-card.black .tw-action { color:#8b98a5; }
+  .tw-action svg { width:18px; height:18px; fill:currentColor; }
+</style>
+</head>
+<body>
+<header><a class="logo" href="index.html">⚡ Quick<span>Tools</span></a></header>
+<main>
+  <h1 class="tool-title">Fake Tweet Generator</h1>
+  <p class="tool-desc">Create a realistic tweet screenshot for fun, presentations, or social media. Download as PNG.</p>
+  <p style="font-size:.78rem;color:var(--muted);margin-top:-8px">⚠️ For entertainment and educational use only. Do not use to spread misinformation.</p>
+
+  <div class="card">
+    <div class="layout">
+      <div class="ctrl">
+        <label>Display name</label>
+        <input type="text" id="tw-name" value="Elon Musk"/>
+        <label>@handle</label>
+        <input type="text" id="tw-handle" value="elonmusk"/>
+        <label>Tweet text</label>
+        <textarea id="tw-body">The thing I love most about the internet is that anyone can say anything. #freedom</textarea>
+        <label>Avatar emoji (or leave blank for initials)</label>
+        <input type="text" id="tw-avatar" value="🚀" maxlength="4"/>
+        <label>Date & Time</label>
+        <input type="text" id="tw-time" value="10:42 AM · Jun 22, 2026"/>
+        <label>Replies</label>
+        <input type="number" id="tw-replies" value="2.4K" style="display:none"/>
+        <input type="text" id="tw-replies-t" value="2.4K"/>
+        <label>Reposts</label>
+        <input type="text" id="tw-retweets" value="18.7K"/>
+        <label>Likes</label>
+        <input type="text" id="tw-likes" value="142K"/>
+        <label>Views</label>
+        <input type="text" id="tw-views" value="9.2M"/>
+        <label>Verified badge</label>
+        <select id="tw-verified" style="width:100%;background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:.85rem;">
+          <option value="blue">✅ Blue (paid)</option>
+          <option value="gold">🟡 Gold (org)</option>
+          <option value="none">None</option>
+        </select>
+        <label>Theme</label>
+        <div class="theme-row">
+          <button class="theme-btn active" data-theme="light">☀️ Light</button>
+          <button class="theme-btn" data-theme="dark">🌙 Dark</button>
+          <button class="theme-btn" data-theme="black">⬛ Black</button>
+        </div>
+        <button class="btn-primary" id="dl-btn" style="width:100%;margin-top:16px">⬇ Download PNG</button>
+      </div>
+
+      <div>
+        <div id="tweet-wrap">
+          <div class="tweet-card light" id="tweet-card">
+            <div class="tw-header">
+              <div class="tw-avatar" id="card-avatar">🚀</div>
+              <div class="tw-namerow">
+                <div class="tw-name">
+                  <span id="card-name">Elon Musk</span>
+                  <span class="tw-verified" id="card-verified">✓</span>
+                </div>
+                <div class="tw-handle" id="card-handle">@elonmusk</div>
+              </div>
+              <div class="tw-logo">
+                <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.264 5.633L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>
+              </div>
+            </div>
+            <div class="tw-body" id="card-body">The thing I love most about the internet is that anyone can say anything. <span class="hashtag">#freedom</span></div>
+            <div class="tw-time" id="card-time">10:42 AM · Jun 22, 2026</div>
+            <hr class="tw-divider"/>
+            <div class="tw-stats">
+              <div class="tw-stat"><strong id="s-retweets">18.7K</strong> <span>Reposts</span></div>
+              <div class="tw-stat"><strong id="s-likes">142K</strong> <span>Likes</span></div>
+              <div class="tw-stat"><strong id="s-views">9.2M</strong> <span>Views</span></div>
+            </div>
+            <hr class="tw-divider"/>
+            <div class="tw-actions">
+              <div class="tw-action"><svg viewBox="0 0 24 24"><path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 7.501 3.58 7.501 8 0 4.76-3.43 8.35-8.996 8.95-.1.01-.2.01-.29.01a1 1 0 01-.96-.69l-.37-1.07c-.22-.65.23-1.32.93-1.37C16.57 15.3 19 12.63 19 10c0-2.93-2.1-5-5.379-5H9.756C7.072 5 4.75 7.11 4.75 10c0 2.12.97 3.83 2.59 4.83a1 1 0 01.36 1.34l-.45.8a1 1 0 01-1.36.36C3.65 15.83 1.751 13.2 1.751 10z"/></svg><span id="s-replies">2.4K</span></div>
+              <div class="tw-action"><svg viewBox="0 0 24 24"><path d="M4.5 3.88l4.432 4.14-1.364 1.46L5.5 7.55V16c0 1.1.896 2 2 2H13v2H7.5c-2.209 0-4-1.79-4-4V7.55L1.432 9.48.068 8.02 4.5 3.88zM16.5 6H11V4h5.5c2.209 0 4 1.79 4 4v8.45l2.068-1.93 1.364 1.46-4.432 4.14-4.432-4.14 1.364-1.46 2.068 1.93V8c0-1.1-.896-2-2-2z"/></svg><span id="s-retweets2">18.7K</span></div>
+              <div class="tw-action"><svg viewBox="0 0 24 24"><path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"/></svg></div>
+              <div class="tw-action"><svg viewBox="0 0 24 24"><path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z"/></svg><span id="s-views2">9.2M</span></div>
+              <div class="tw-action"><svg viewBox="0 0 24 24"><path d="M12 2.59l5.7 5.7-1.41 1.42L13 6.41V16h-2V6.41l-3.3 3.3-1.41-1.42L12 2.59zM21 15l-.02 3.51c0 1.38-1.12 2.49-2.5 2.49H5.5C4.11 21 3 19.88 3 18.5V15h2v3.5c0 .28.22.5.5.5h12.98c.28 0 .5-.22.5-.5L19 15h2z"/></svg></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+function update() {
+  const name     = document.getElementById('tw-name').value;
+  const handle   = document.getElementById('tw-handle').value;
+  const body     = document.getElementById('tw-body').value;
+  const avatar   = document.getElementById('tw-avatar').value;
+  const time     = document.getElementById('tw-time').value;
+  const retweets = document.getElementById('tw-retweets').value;
+  const likes    = document.getElementById('tw-likes').value;
+  const views    = document.getElementById('tw-views').value;
+  const replies  = document.getElementById('tw-replies-t').value;
+  const verified = document.getElementById('tw-verified').value;
+
+  document.getElementById('card-name').textContent = name;
+  document.getElementById('card-handle').textContent = '@' + handle.replace(/^@/,'');
+  // Color hashtags/mentions
+  const bodyHtml = body.replace(/(#\w+)/g,'<span class="hashtag">$1</span>').replace(/(@\w+)/g,'<span class="hashtag">$1</span>');
+  document.getElementById('card-body').innerHTML = bodyHtml;
+  document.getElementById('card-avatar').textContent = avatar || name.charAt(0).toUpperCase();
+  document.getElementById('card-time').textContent = time;
+  document.getElementById('s-retweets').textContent = retweets;
+  document.getElementById('s-retweets2').textContent = retweets;
+  document.getElementById('s-likes').textContent = likes;
+  document.getElementById('s-views').textContent = views;
+  document.getElementById('s-views2').textContent = views;
+  document.getElementById('s-replies').textContent = replies;
+
+  const verEl = document.getElementById('card-verified');
+  if(verified==='blue')  { verEl.textContent='✓'; verEl.style.color='#1d9bf0'; verEl.style.display=''; }
+  else if(verified==='gold') { verEl.textContent='✓'; verEl.style.color='#f4a900'; verEl.style.display=''; }
+  else { verEl.style.display='none'; }
+}
+
+document.querySelectorAll('.theme-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.theme-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const card = document.getElementById('tweet-card');
+    card.className = 'tweet-card ' + btn.dataset.theme;
+  });
+});
+
+['tw-name','tw-handle','tw-body','tw-avatar','tw-time','tw-retweets','tw-likes','tw-views','tw-replies-t','tw-verified']
+  .forEach(id => document.getElementById(id).addEventListener('input', update));
+
+document.getElementById('dl-btn').addEventListener('click', () => {
+  const card = document.getElementById('tweet-card');
+  html2canvas(card, { scale:3, backgroundColor:null, useCORS:true }).then(canvas => {
+    const a = document.createElement('a'); a.download='tweet.png'; a.href=canvas.toDataURL('image/png'); a.click();
+  });
+});
+
+update();
+</script>
+</body>
+</html>

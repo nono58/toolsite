@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Sleep Calculator – Best Bedtime & Wake-Up Time | QuickTools</title>
+<meta name="description" content="Calculate the best time to wake up or go to sleep based on sleep cycles. Avoid grogginess by waking between REM cycles. Free sleep calculator."/>
+<link rel="stylesheet" href="tool.css"/>
+<style>
+  .mode-tabs { display:flex; gap:10px; margin-bottom:24px; }
+  .mode-tab { flex:1; padding:12px; border-radius:10px; border:1px solid var(--border); background:var(--bg2); color:var(--muted); font-size:.88rem; font-weight:600; cursor:pointer; text-align:center; transition:.2s; }
+  .mode-tab.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .time-input-wrap { text-align:center; margin-bottom:24px; }
+  .time-input-wrap input[type=time] {
+    font-size:3rem; font-weight:800; background:var(--bg2); border:2px solid var(--border);
+    border-radius:14px; color:var(--text); padding:14px 24px; text-align:center;
+    letter-spacing:.04em; cursor:pointer; width:100%; max-width:300px; box-sizing:border-box;
+  }
+  .time-input-wrap input[type=time]:focus { outline:none; border-color:var(--accent); }
+  .hint { font-size:.82rem; color:var(--muted); text-align:center; margin-bottom:16px; }
+  .results-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:12px; margin-top:8px; }
+  .result-card { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:16px; text-align:center; transition:.2s; }
+  .result-card:hover { border-color:var(--accent); transform:translateY(-2px); }
+  .result-time { font-size:1.6rem; font-weight:800; color:var(--text); }
+  .result-cycles { font-size:.75rem; color:var(--accent2); font-weight:600; margin-top:2px; }
+  .result-dur { font-size:.8rem; color:var(--muted); margin-top:4px; }
+  .result-card.best { border-color:var(--accent); background:rgba(99,102,241,.08); }
+  .result-card.best .result-time { color:var(--accent2); }
+  .best-badge { font-size:.65rem; text-transform:uppercase; letter-spacing:.08em; background:var(--accent); color:#fff; border-radius:4px; padding:2px 6px; margin-bottom:4px; display:inline-block; }
+  .sleep-info { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:20px; margin-top:20px; }
+  .cycle-visual { display:flex; gap:4px; margin:12px 0; align-items:flex-end; }
+  .cycle-bar { flex:1; border-radius:4px 4px 0 0; background:linear-gradient(to top, var(--accent), var(--accent2)); min-height:8px; }
+  .cycle-label { font-size:.68rem; color:var(--muted); text-align:center; margin-top:4px; }
+</style>
+</head>
+<body>
+<header><a class="logo" href="index.html">⚡ Quick<span>Tools</span></a></header>
+<main>
+  <h1 class="tool-title">Sleep Calculator</h1>
+  <p class="tool-desc">Wake up refreshed by timing your sleep with 90-minute cycles. Pick your mode below.</p>
+
+  <div class="card">
+    <div class="mode-tabs">
+      <div class="mode-tab active" data-mode="wake">😴 I want to wake up at…</div>
+      <div class="mode-tab" data-mode="sleep">🛏 I need to sleep at…</div>
+      <div class="mode-tab" data-mode="now">⚡ Sleep right now</div>
+    </div>
+
+    <div id="panel-wake">
+      <div class="time-input-wrap">
+        <div style="font-size:.85rem;color:var(--muted);margin-bottom:8px">Wake-up time</div>
+        <input type="time" id="wake-time" value="07:00"/>
+      </div>
+      <p class="hint">You should go to bed at one of these times (+ ~14 min to fall asleep):</p>
+      <div class="results-grid" id="wake-results"></div>
+    </div>
+
+    <div id="panel-sleep" style="display:none">
+      <div class="time-input-wrap">
+        <div style="font-size:.85rem;color:var(--muted);margin-bottom:8px">Bedtime</div>
+        <input type="time" id="sleep-time" value="23:00"/>
+      </div>
+      <p class="hint">Set your alarm for one of these times:</p>
+      <div class="results-grid" id="sleep-results"></div>
+    </div>
+
+    <div id="panel-now" style="display:none">
+      <p class="hint" style="margin-top:0">If you fall asleep now (+14 min), set your alarm for:</p>
+      <div class="results-grid" id="now-results"></div>
+    </div>
+
+    <div class="sleep-info">
+      <h3 style="margin:0 0 10px;font-size:.95rem">🧠 Why 90-minute cycles?</h3>
+      <p style="font-size:.83rem;color:var(--muted);margin:0 0 10px">Sleep occurs in cycles of roughly 90 minutes, each containing light sleep, deep sleep, and REM. Waking mid-cycle causes grogginess (sleep inertia). Waking at the <em>end</em> of a cycle feels natural.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;font-size:.78rem;">
+        <div style="background:var(--bg3);border-radius:8px;padding:10px"><strong>💤 NREM 1</strong><br/><span style="color:var(--muted)">Light sleep, ~5 min</span></div>
+        <div style="background:var(--bg3);border-radius:8px;padding:10px"><strong>💤 NREM 2</strong><br/><span style="color:var(--muted)">Body temp drops, ~20 min</span></div>
+        <div style="background:var(--bg3);border-radius:8px;padding:10px"><strong>🔵 NREM 3</strong><br/><span style="color:var(--muted)">Deep sleep, most restorative</span></div>
+        <div style="background:var(--bg3);border-radius:8px;padding:10px"><strong>🌈 REM</strong><br/><span style="color:var(--muted)">Dreams, memory consolidation</span></div>
+      </div>
+      <p style="font-size:.8rem;color:var(--muted);margin:10px 0 0">Adults need 5–6 cycles (7.5–9 hours). Teens need 6–7 cycles.</p>
+    </div>
+  </div>
+</main>
+
+<script>
+const FALL_ASLEEP = 14; // average minutes to fall asleep
+const CYCLE = 90;
+
+function fmt12(h,m) {
+  const ampm = h>=12?'PM':'AM';
+  const hh = h%12||12;
+  return `${hh}:${String(m).padStart(2,'0')} ${ampm}`;
+}
+
+function totalMinutes(timeStr) {
+  const [h,m] = timeStr.split(':').map(Number);
+  return h*60+m;
+}
+
+function minutesToHM(mins) {
+  const t = ((mins % 1440) + 1440) % 1440;
+  return { h: Math.floor(t/60), m: t%60 };
+}
+
+function buildCards(times, bestIdx, labelFn) {
+  return times.map((t,i) => {
+    const best = i===bestIdx;
+    return `<div class="result-card${best?' best':''}">
+      ${best?'<div class="best-badge">⭐ Best</div>':''}
+      <div class="result-time">${fmt12(t.h,t.m)}</div>
+      <div class="result-cycles">${t.cycles} cycle${t.cycles>1?'s':''} · ${Math.round(t.cycles*CYCLE/60*10)/10}h</div>
+      <div class="result-dur">${labelFn(t)}</div>
+    </div>`;
+  }).join('');
+}
+
+function calcWake() {
+  const wakeMin = totalMinutes(document.getElementById('wake-time').value);
+  const times = [];
+  for(let cycles=6;cycles>=2;cycles--) {
+    const bedMin = wakeMin - cycles*CYCLE - FALL_ASLEEP;
+    const {h,m} = minutesToHM(bedMin);
+    times.push({h,m,cycles,wakeMin});
+  }
+  // Best = 5 or 6 cycles (index 0 or 1)
+  document.getElementById('wake-results').innerHTML = buildCards(times, 1, t=>`${t.cycles} × 90 min cycles`);
+}
+
+function calcSleep() {
+  const sleepMin = totalMinutes(document.getElementById('sleep-time').value) + FALL_ASLEEP;
+  const times = [];
+  for(let cycles=2;cycles<=6;cycles++) {
+    const wakeMin = sleepMin + cycles*CYCLE;
+    const {h,m} = minutesToHM(wakeMin);
+    times.push({h,m,cycles});
+  }
+  document.getElementById('sleep-results').innerHTML = buildCards(times, 3, t=>`${t.cycles} cycles · ${Math.round(t.cycles*CYCLE/60*10)/10}h sleep`);
+}
+
+function calcNow() {
+  const now = new Date();
+  const nowMin = now.getHours()*60 + now.getMinutes() + FALL_ASLEEP;
+  const times = [];
+  for(let cycles=2;cycles<=6;cycles++) {
+    const wakeMin = nowMin + cycles*CYCLE;
+    const {h,m} = minutesToHM(wakeMin);
+    times.push({h,m,cycles});
+  }
+  document.getElementById('now-results').innerHTML = buildCards(times, 3, t=>`${t.cycles} cycles · ${Math.round(t.cycles*CYCLE/60*10)/10}h sleep`);
+}
+
+let mode = 'wake';
+
+document.querySelectorAll('.mode-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    mode = tab.dataset.mode;
+    document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    ['wake','sleep','now'].forEach(m=>document.getElementById('panel-'+m).style.display='none');
+    document.getElementById('panel-'+mode).style.display='';
+    if(mode==='now') calcNow();
+  });
+});
+
+document.getElementById('wake-time').addEventListener('input', calcWake);
+document.getElementById('sleep-time').addEventListener('input', calcSleep);
+
+calcWake();
+calcSleep();
+calcNow();
+</script>
+</body>
+</html>
