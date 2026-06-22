@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aspect Ratio Calculator Online – Free | QuickTools</title>
+  <meta name="description" content="Calculate and convert aspect ratios. Find missing dimensions, compare ratios, and explore common screen resolutions. Free online tool." />
+  <link rel="stylesheet" href="tool.css" />
+  <style>
+    .ratio-box { aspect-ratio:var(--r,16/9); background:var(--bg3); border:1.5px solid var(--border); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:.85rem; color:var(--muted); max-width:320px; margin:0 auto; }
+    .preset-chip { padding:6px 14px; border-radius:999px; border:1.5px solid var(--border); background:var(--bg3); color:var(--muted); font-size:.82rem; cursor:pointer; font-family:monospace; transition:all .2s; }
+    .preset-chip:hover { border-color:var(--accent); color:var(--text); }
+  </style>
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Calculator<span>›</span>Aspect Ratio Calculator</div>
+  <h1>Aspect Ratio Calculator</h1>
+  <p class="tool-desc">Calculate missing dimensions, find the aspect ratio of any size, and convert between resolutions while maintaining the correct ratio.</p>
+
+  <div class="card">
+    <div class="card-title">Calculate Missing Dimension</div>
+    <p style="font-size:.85rem;color:var(--muted);margin-bottom:16px;">Fill in 3 of the 4 fields and the missing value will be calculated.</p>
+    <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin-bottom:16px;">
+      <div>
+        <label>Original Width</label>
+        <input type="number" id="ow" placeholder="1920" oninput="calc()" />
+      </div>
+      <div style="text-align:center;color:var(--muted);font-size:1.2rem;">×</div>
+      <div>
+        <label>Original Height</label>
+        <input type="number" id="oh" placeholder="1080" oninput="calc()" />
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;">
+      <div>
+        <label>New Width</label>
+        <input type="number" id="nw" placeholder="1280" oninput="calc()" />
+      </div>
+      <div style="text-align:center;color:var(--muted);font-size:1.2rem;">×</div>
+      <div>
+        <label>New Height</label>
+        <input type="number" id="nh" placeholder="?" oninput="calc()" />
+      </div>
+    </div>
+    <div id="calc-result" style="margin-top:16px;display:none;">
+      <div class="stats-row" id="calc-stats"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Ratio Simplifier</div>
+    <div style="display:grid;grid-template-columns:1fr auto 1fr auto;gap:12px;align-items:flex-end;flex-wrap:wrap;">
+      <div><label>Width</label><input type="number" id="sw" placeholder="1920" oninput="simplify()" /></div>
+      <div style="text-align:center;padding-bottom:8px;color:var(--muted);">:</div>
+      <div><label>Height</label><input type="number" id="sh" placeholder="1080" oninput="simplify()" /></div>
+      <div><label>&nbsp;</label><button class="btn btn-secondary" onclick="simplify()">Simplify</button></div>
+    </div>
+    <div id="simplify-result" style="margin-top:14px;display:none;">
+      <div id="ratio-display" style="font-size:1.8rem;font-weight:800;color:var(--accent2);text-align:center;margin-bottom:12px;"></div>
+      <div class="ratio-box" id="ratio-visual">Preview</div>
+      <div class="stats-row" id="ratio-stats" style="margin-top:12px;"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Common Presets</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;">
+      <button class="preset-chip" onclick="loadPreset(16,9)">16:9</button>
+      <button class="preset-chip" onclick="loadPreset(4,3)">4:3</button>
+      <button class="preset-chip" onclick="loadPreset(21,9)">21:9</button>
+      <button class="preset-chip" onclick="loadPreset(1,1)">1:1</button>
+      <button class="preset-chip" onclick="loadPreset(3,2)">3:2</button>
+      <button class="preset-chip" onclick="loadPreset(5,4)">5:4</button>
+      <button class="preset-chip" onclick="loadPreset(9,16)">9:16 (Portrait)</button>
+      <button class="preset-chip" onclick="loadPreset(2,1)">2:1 (Cinema)</button>
+    </div>
+    <div class="card-title" style="font-size:.78rem;margin-bottom:8px;">Common Resolutions</div>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:.82rem;">
+        <thead><tr style="border-bottom:1px solid var(--border);">
+          <th style="padding:6px 10px;text-align:left;color:var(--muted);">Name</th>
+          <th style="padding:6px 10px;color:var(--muted);">Resolution</th>
+          <th style="padding:6px 10px;color:var(--muted);">Ratio</th>
+          <th style="padding:6px 10px;color:var(--muted);">Megapixels</th>
+        </tr></thead>
+        <tbody id="res-table"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="related" style="margin-top:32px;">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="image-resizer.html">Image Resizer</a>
+      <a class="related-link" href="percentage-calculator.html">Percentage Calculator</a>
+    </div>
+  </div>
+</div>
+<footer>© 2026 QuickTools — Free online tools. No signup required.</footer>
+<script>
+function gcd(a,b){return b===0?a:gcd(b,a%b);}
+
+function calc() {
+  const ow=parseFloat(document.getElementById('ow').value);
+  const oh=parseFloat(document.getElementById('oh').value);
+  const nw=parseFloat(document.getElementById('nw').value);
+  const nh=parseFloat(document.getElementById('nh').value);
+  const filled=[ow,oh,nw,nh].filter(v=>!isNaN(v)&&v>0).length;
+  if(filled<3){document.getElementById('calc-result').style.display='none';return;}
+
+  let result='';
+  if(isNaN(nh)||!nh){
+    const v=Math.round(nw*oh/ow);
+    document.getElementById('nh').value=v;
+    result=`New Height = ${v}px`;
+  } else if(isNaN(nw)||!nw){
+    const v=Math.round(nh*ow/oh);
+    document.getElementById('nw').value=v;
+    result=`New Width = ${v}px`;
+  } else if(isNaN(oh)||!oh){
+    const v=Math.round(oh*nw/ow);
+    result=`Computed`;
+  }
+
+  const owF=parseFloat(document.getElementById('ow').value);
+  const ohF=parseFloat(document.getElementById('oh').value);
+  const nwF=parseFloat(document.getElementById('nw').value);
+  const nhF=parseFloat(document.getElementById('nh').value);
+  const g=gcd(owF,ohF);
+  const scale=((nwF/owF)*100).toFixed(1);
+  document.getElementById('calc-stats').innerHTML=`
+    <span>Original: ${owF}×${ohF}px</span>
+    <span>New: ${nwF}×${nhF}px</span>
+    <span>Scale: ${scale}%</span>
+    <span>Ratio: ${owF/g}:${ohF/g}</span>
+  `;
+  document.getElementById('calc-result').style.display='block';
+}
+
+function simplify() {
+  const w=parseInt(document.getElementById('sw').value);
+  const h=parseInt(document.getElementById('sh').value);
+  if(!w||!h){document.getElementById('simplify-result').style.display='none';return;}
+  const g=gcd(w,h);
+  const rw=w/g, rh=h/g;
+  document.getElementById('ratio-display').textContent=`${rw} : ${rh}`;
+  document.getElementById('ratio-visual').style.setProperty('--r',`${rw}/${rh}`);
+  document.getElementById('ratio-visual').textContent=`${rw}:${rh}`;
+  const dec=(w/h).toFixed(4);
+  document.getElementById('ratio-stats').innerHTML=`
+    <span>Simplified: ${rw}:${rh}</span>
+    <span>Decimal: ${dec}</span>
+    <span>Pixels: ${(w*h/1000000).toFixed(2)}MP</span>
+  `;
+  document.getElementById('simplify-result').style.display='block';
+}
+
+function loadPreset(rw,rh) {
+  document.getElementById('sw').value=rw;
+  document.getElementById('sh').value=rh;
+  simplify();
+  document.getElementById('ow').value=rw*100;
+  document.getElementById('oh').value=rh*100;
+  document.getElementById('nw').value=rw*80;
+  document.getElementById('nh').value='';
+  calc();
+}
+
+const RESOLUTIONS=[
+  ['HD',1280,720,'16:9',0.92],['Full HD',1920,1080,'16:9',2.07],
+  ['2K QHD',2560,1440,'16:9',3.69],['4K UHD',3840,2160,'16:9',8.29],
+  ['8K',7680,4320,'16:9',33.18],['1080p Vertical',1080,1920,'9:16',2.07],
+  ['Instagram Square',1080,1080,'1:1',1.17],['4:3 XGA',1024,768,'4:3',0.79],
+  ['MacBook 16"',3456,2234,'3:2',7.72],['iPhone 15 Pro',2556,1179,'195:90',3.01],
+];
+document.getElementById('res-table').innerHTML=RESOLUTIONS.map(([n,w,h,r,mp])=>
+  `<tr style="border-bottom:1px solid var(--border);cursor:pointer;" onclick="document.getElementById('sw').value=${w};document.getElementById('sh').value=${h};simplify();" title="Click to load">
+    <td style="padding:6px 10px;">${n}</td>
+    <td style="padding:6px 10px;text-align:center;font-family:monospace;">${w}×${h}</td>
+    <td style="padding:6px 10px;text-align:center;color:var(--accent2);">${r}</td>
+    <td style="padding:6px 10px;text-align:center;color:var(--muted);">${mp}MP</td>
+  </tr>`).join('');
+
+loadPreset(16,9);
+</script>
+</body>
+</html>

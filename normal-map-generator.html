@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Normal Map Generator Online – Free | QuickTools</title>
+  <meta name="description" content="Generate normal maps from grayscale or color textures. Adjust strength and blur. Download PNG. Free online normal map generator." />
+  <link rel="stylesheet" href="tool.css" />
+  <style>
+    .drop-zone { border:2px dashed var(--border); border-radius:14px; padding:48px 24px; text-align:center; cursor:pointer; transition:all .2s; background:var(--bg3); }
+    .drop-zone:hover,.drop-zone.drag-over { border-color:var(--accent); background:#6366f110; }
+    .preview-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .preview-grid canvas, .preview-grid img { width:100%; border-radius:10px; display:block; border:1px solid var(--border); }
+    input[type=range] { width:100%; accent-color:var(--accent); }
+    @media(max-width:560px){.preview-grid{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Image<span>›</span>Normal Map Generator</div>
+  <h1>Normal Map Generator</h1>
+  <p class="tool-desc">Convert any texture or heightmap image into a normal map for 3D rendering, game development, and materials. Adjust strength and smoothing in real time.</p>
+
+  <div class="card">
+    <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+      <div style="font-size:2.5rem;">🗺</div>
+      <div style="font-weight:700;margin-top:8px;">Drop image here or click to select</div>
+      <p>PNG · JPG · WebP · BMP — works best with grayscale heightmaps</p>
+    </div>
+    <input type="file" id="file-input" accept="image/*" style="display:none;" onchange="loadImg(this.files[0])" />
+  </div>
+
+  <div id="controls" class="card" style="display:none;">
+    <div class="card-title">Settings</div>
+    <div style="display:grid;gap:14px;">
+      <div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+          <label style="margin:0;">Strength</label><span id="strength-val" style="color:var(--accent2);font-weight:700;">3.0</span>
+        </div>
+        <input type="range" id="strength" min="0.5" max="20" step="0.5" value="3" oninput="document.getElementById('strength-val').textContent=this.value;generate()" />
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+          <label style="margin:0;">Blur (smoothing)</label><span id="blur-val" style="color:var(--accent2);font-weight:700;">1</span>
+        </div>
+        <input type="range" id="blur" min="0" max="10" step="1" value="1" oninput="document.getElementById('blur-val').textContent=this.value;generate()" />
+      </div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.9rem;margin:0;">
+          <input type="checkbox" id="invert-height" onchange="generate()" style="width:auto;" /> Invert height
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.9rem;margin:0;">
+          <input type="checkbox" id="flip-y" onchange="generate()" style="width:auto;" /> Flip Y (DirectX style)
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div id="preview-card" class="card" style="display:none;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <span class="card-title" style="margin-bottom:0;">Preview</span>
+      <button class="btn btn-primary btn-sm" onclick="download()">⬇ Download Normal Map</button>
+    </div>
+    <div class="preview-grid">
+      <div>
+        <div style="font-size:.75rem;color:var(--muted);text-align:center;margin-bottom:6px;text-transform:uppercase;">Original</div>
+        <img id="orig-preview" />
+      </div>
+      <div>
+        <div style="font-size:.75rem;color:var(--muted);text-align:center;margin-bottom:6px;text-transform:uppercase;">Normal Map</div>
+        <canvas id="normal-canvas"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:8px;">
+    <div class="card-title">How it works</div>
+    <p style="font-size:.88rem;color:var(--muted);line-height:1.6;">Normal maps encode surface direction as RGB colors. Red = X axis, Green = Y axis, Blue = Z axis. The flat/neutral color is <span style="font-family:monospace;color:#8080ff;">#8080FF</span>. This tool uses Sobel operator edge detection on the luminance channel to compute surface gradients and convert them to tangent-space normals.</p>
+  </div>
+
+  <div class="related" style="margin-top:32px;">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="image-grayscale.html">Image Grayscale</a>
+      <a class="related-link" href="image-compressor.html">Image Compressor</a>
+    </div>
+  </div>
+</div>
+<footer>© 2026 QuickTools — Free online tools. No signup required.</footer>
+<canvas id="work-canvas" style="display:none;"></canvas>
+<script>
+let origImg = null;
+
+const dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover', e=>{e.preventDefault();dz.classList.add('drag-over');});
+dz.addEventListener('dragleave', ()=>dz.classList.remove('drag-over'));
+dz.addEventListener('drop', e=>{e.preventDefault();dz.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f&&f.type.startsWith('image/'))loadImg(f);});
+
+function loadImg(file) {
+  const url = URL.createObjectURL(file);
+  document.getElementById('orig-preview').src = url;
+  const img = new Image();
+  img.onload = () => {
+    origImg = img;
+    document.getElementById('controls').style.display='block';
+    document.getElementById('preview-card').style.display='block';
+    generate();
+  };
+  img.src = url;
+}
+
+function getGrayscale(data, w, h) {
+  const g = new Float32Array(w * h);
+  for (let i = 0; i < w * h; i++) {
+    const r = data[i*4], gr = data[i*4+1], b = data[i*4+2];
+    g[i] = (0.299*r + 0.587*gr + 0.114*b) / 255;
+  }
+  return g;
+}
+
+function boxBlur(g, w, h, radius) {
+  if (radius === 0) return g;
+  const out = new Float32Array(w * h);
+  const r = Math.floor(radius);
+  // Horizontal pass
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      let sum = 0, count = 0;
+      for (let dx = -r; dx <= r; dx++) {
+        const nx = Math.max(0, Math.min(w-1, x+dx));
+        sum += g[y*w+nx]; count++;
+      }
+      out[y*w+x] = sum/count;
+    }
+  }
+  const out2 = new Float32Array(w * h);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      let sum = 0, count = 0;
+      for (let dy = -r; dy <= r; dy++) {
+        const ny = Math.max(0, Math.min(h-1, y+dy));
+        sum += out[ny*w+x]; count++;
+      }
+      out2[y*w+x] = sum/count;
+    }
+  }
+  return out2;
+}
+
+function generate() {
+  if (!origImg) return;
+  const strength = parseFloat(document.getElementById('strength').value);
+  const blurR = parseInt(document.getElementById('blur').value);
+  const invertH = document.getElementById('invert-height').checked;
+  const flipY = document.getElementById('flip-y').checked;
+
+  const work = document.getElementById('work-canvas');
+  const w = origImg.naturalWidth, h = origImg.naturalHeight;
+  work.width = w; work.height = h;
+  const ctx = work.getContext('2d');
+  ctx.drawImage(origImg, 0, 0);
+  const imgData = ctx.getImageData(0, 0, w, h);
+
+  let gray = getGrayscale(imgData.data, w, h);
+  if (invertH) gray = gray.map(v => 1-v);
+  if (blurR > 0) gray = boxBlur(gray, w, h, blurR);
+
+  // Sobel operator
+  const out = ctx.createImageData(w, h);
+  const S = strength;
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const tl = gray[Math.max(0,y-1)*w+Math.max(0,x-1)];
+      const tc = gray[Math.max(0,y-1)*w+x];
+      const tr = gray[Math.max(0,y-1)*w+Math.min(w-1,x+1)];
+      const ml = gray[y*w+Math.max(0,x-1)];
+      const mr = gray[y*w+Math.min(w-1,x+1)];
+      const bl = gray[Math.min(h-1,y+1)*w+Math.max(0,x-1)];
+      const bc = gray[Math.min(h-1,y+1)*w+x];
+      const br = gray[Math.min(h-1,y+1)*w+Math.min(w-1,x+1)];
+
+      let dX = (tr + 2*mr + br) - (tl + 2*ml + bl);
+      let dY = (bl + 2*bc + br) - (tl + 2*tc + tr);
+      if (flipY) dY = -dY;
+
+      // Normal vector
+      const nx = -dX * S;
+      const ny = -dY * S;
+      const nz = 1.0;
+      const len = Math.sqrt(nx*nx + ny*ny + nz*nz);
+      const i = (y*w+x)*4;
+      out.data[i]   = Math.round((nx/len * 0.5 + 0.5) * 255);
+      out.data[i+1] = Math.round((ny/len * 0.5 + 0.5) * 255);
+      out.data[i+2] = Math.round((nz/len * 0.5 + 0.5) * 255);
+      out.data[i+3] = 255;
+    }
+  }
+  const nc = document.getElementById('normal-canvas');
+  nc.width = w; nc.height = h;
+  nc.getContext('2d').putImageData(out, 0, 0);
+}
+
+function download() {
+  const a = document.createElement('a');
+  a.download = 'normal_map.png';
+  a.href = document.getElementById('normal-canvas').toDataURL('image/png');
+  a.click();
+}
+</script>
+</body>
+</html>

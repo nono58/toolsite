@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EXIF Viewer Online – Free | QuickTools</title>
+  <meta name="description" content="View EXIF metadata from photos. See camera model, GPS location, date taken, shutter speed, ISO, and more. Free online EXIF viewer." />
+  <link rel="stylesheet" href="tool.css" />
+  <style>
+    .drop-zone { border:2px dashed var(--border); border-radius:14px; padding:48px 24px; text-align:center; cursor:pointer; transition:all .2s; background:var(--bg3); }
+    .drop-zone:hover,.drop-zone.drag-over { border-color:var(--accent); background:#6366f110; }
+    .exif-section { margin-bottom:16px; }
+    .exif-section-title { font-size:.72rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:var(--accent2); margin-bottom:8px; }
+    .exif-row { display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px solid var(--border); font-size:.85rem; flex-wrap:wrap; gap:4px; }
+    .exif-row:last-child { border-bottom:none; }
+    .exif-key { color:var(--muted); min-width:160px; }
+    .exif-val { color:var(--text); font-family:monospace; font-size:.82rem; word-break:break-all; }
+    #map-link { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; background:var(--accent); color:#fff; border-radius:8px; text-decoration:none; font-size:.85rem; font-weight:700; margin-top:8px; }
+  </style>
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Image<span>›</span>EXIF Viewer</div>
+  <h1>EXIF Metadata Viewer</h1>
+  <p class="tool-desc">Upload a photo to view its embedded EXIF metadata — camera model, lens, exposure settings, GPS coordinates, and more. Your image never leaves your device.</p>
+
+  <div class="card">
+    <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+      <div style="font-size:2.5rem;">📷</div>
+      <div style="font-weight:700;margin-top:8px;">Drop image here or click to select</div>
+      <p>JPEG files contain the most EXIF data · PNG and WebP have limited metadata</p>
+    </div>
+    <input type="file" id="file-input" accept="image/*" style="display:none;" onchange="loadFile(this.files[0])" />
+  </div>
+
+  <div id="result" style="display:none;">
+    <div class="card" style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;">
+      <img id="thumb" style="max-width:180px;max-height:180px;border-radius:10px;border:1px solid var(--border);" />
+      <div>
+        <div id="file-info"></div>
+        <div id="gps-section" style="margin-top:12px;display:none;">
+          <div class="exif-section-title">📍 Location</div>
+          <div id="gps-coords" style="font-family:monospace;font-size:.88rem;color:var(--text);margin-bottom:6px;"></div>
+          <a id="map-link" href="#" target="_blank">🗺 Open in Google Maps</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div id="exif-data"></div>
+      <div id="no-exif" style="display:none;color:var(--muted);font-size:.9rem;">No EXIF data found in this image. Try a JPEG taken with a camera or smartphone.</div>
+    </div>
+  </div>
+
+  <div class="card" style="background:#3b82f620;border-color:#3b82f640;">
+    <div style="font-size:.85rem;color:#93c5fd;">🔒 <strong>Privacy note:</strong> All processing happens in your browser. Your images are never uploaded to any server. However, be aware that EXIF data in your photos may contain sensitive information like GPS location before sharing images online.</div>
+  </div>
+
+  <div class="related" style="margin-top:32px;">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="image-compressor.html">Image Compressor</a>
+      <a class="related-link" href="image-resizer.html">Image Resizer</a>
+    </div>
+  </div>
+</div>
+<footer>© 2026 QuickTools — Free online tools. No signup required.</footer>
+<script>
+const dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f&&f.type.startsWith('image/'))loadFile(f);});
+
+function loadFile(file) {
+  document.getElementById('thumb').src = URL.createObjectURL(file);
+  document.getElementById('file-info').innerHTML = `
+    <div style="font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:4px;">File Info</div>
+    <div style="font-size:.9rem;"><strong>${file.name}</strong></div>
+    <div style="color:var(--muted);font-size:.82rem;margin-top:4px;">${fmtSize(file.size)} · ${file.type}</div>
+  `;
+  const reader = new FileReader();
+  reader.onload = e => parseExif(e.target.result, file);
+  reader.readAsArrayBuffer(file);
+  document.getElementById('result').style.display='block';
+}
+
+function parseExif(buffer, file) {
+  const view = new DataView(buffer);
+  // Check JPEG marker
+  if (view.getUint16(0) !== 0xFFD8) {
+    showNoExif(); return;
+  }
+  let offset = 2;
+  let exifData = null;
+  while (offset < view.byteLength - 1) {
+    const marker = view.getUint16(offset);
+    if (marker === 0xFFE1) { // APP1
+      const len = view.getUint16(offset+2);
+      const exifHeader = String.fromCharCode(...new Uint8Array(buffer, offset+4, 4));
+      if (exifHeader === 'Exif') {
+        exifData = new DataView(buffer, offset+10, len-8);
+        break;
+      }
+    }
+    if (marker === 0xFFDA) break; // SOS - no more metadata
+    if ((marker & 0xFF00) !== 0xFF00) break;
+    offset += 2 + view.getUint16(offset+2);
+  }
+  if (!exifData) { showNoExif(); return; }
+  try { renderExif(exifData); }
+  catch(e) { showNoExif(); }
+}
+
+const TAGS = {
+  0x010F:'Make', 0x0110:'Model', 0x0112:'Orientation', 0x011A:'XResolution',
+  0x011B:'YResolution', 0x0128:'ResolutionUnit', 0x0131:'Software', 0x0132:'DateTime',
+  0x013B:'Artist', 0x013E:'WhitePoint', 0x013F:'PrimaryChromaticities',
+  0x0213:'YCbCrPositioning', 0x8769:'ExifIFDPointer', 0x8825:'GPSIFDPointer',
+  0x8827:'ISOSpeedRatings', 0x9000:'ExifVersion', 0x9003:'DateTimeOriginal',
+  0x9004:'DateTimeDigitized', 0x9201:'ShutterSpeedValue', 0x9202:'ApertureValue',
+  0x9204:'ExposureBiasValue', 0x9207:'MeteringMode', 0x9208:'LightSource',
+  0x9209:'Flash', 0x920A:'FocalLength', 0x9291:'SubSecTimeOriginal',
+  0xA001:'ColorSpace', 0xA002:'PixelXDimension', 0xA003:'PixelYDimension',
+  0xA005:'InteroperabilityIFDPointer', 0xA20E:'FocalPlaneXResolution',
+  0xA20F:'FocalPlaneYResolution', 0xA210:'FocalPlaneResolutionUnit',
+  0xA300:'FileSource', 0xA301:'SceneType', 0xA402:'ExposureMode',
+  0xA403:'WhiteBalance', 0xA404:'DigitalZoomRatio', 0xA405:'FocalLengthIn35mmFilm',
+  0xA406:'SceneCaptureType', 0xA408:'Contrast', 0xA409:'Saturation', 0xA40A:'Sharpness',
+  0x829A:'ExposureTime', 0x829D:'FNumber', 0x8822:'ExposureProgram',
+  0x9205:'MaxApertureValue', 0x9206:'SubjectDistance', 0x9210:'SensingMethod',
+};
+
+const GPS_TAGS = {
+  0x0001:'GPSLatitudeRef', 0x0002:'GPSLatitude', 0x0003:'GPSLongitudeRef',
+  0x0004:'GPSLongitude', 0x0005:'GPSAltitudeRef', 0x0006:'GPSAltitude',
+  0x0007:'GPSTimeStamp', 0x0012:'GPSMapDatum', 0x001D:'GPSDateStamp',
+};
+
+function readIFD(view, offset, le, tagMap) {
+  const entries = {};
+  const count = view.getUint16(offset, le);
+  for (let i=0;i<count;i++) {
+    const off=offset+2+i*12;
+    const tag=view.getUint16(off,le);
+    const type=view.getUint16(off+2,le);
+    const n=view.getUint32(off+4,le);
+    const valOff=off+8;
+    let val;
+    try {
+      if(type===2){ // ASCII
+        const strOff = n>4 ? view.getUint32(valOff,le) : valOff;
+        let s='';
+        for(let j=0;j<n-1;j++) s+=String.fromCharCode(view.getUint8(strOff+j));
+        val=s;
+      } else if(type===3){ val=view.getUint16(valOff,le); }
+      else if(type===4){ val=view.getUint32(valOff,le); }
+      else if(type===5){ // Rational
+        const rOff=view.getUint32(valOff,le);
+        val=[view.getUint32(rOff,le),view.getUint32(rOff+4,le)];
+      } else if(type===10){ // SRational
+        const rOff=view.getUint32(valOff,le);
+        val=[view.getInt32(rOff,le),view.getInt32(rOff+4,le)];
+      }
+    } catch(e){}
+    const name = tagMap[tag];
+    if(name&&val!=null) entries[name]=val;
+  }
+  return entries;
+}
+
+function fmtRat(r){return Array.isArray(r)?r[1]===0?'0':(r[0]/r[1]).toFixed(4):r;}
+function dmsToDecimal(dms,ref){
+  if(!Array.isArray(dms)||dms.length<3)return null;
+  // Each element might be a rational
+  const toN=r=>Array.isArray(r)?r[0]/r[1]:r;
+  const dec=toN(dms[0])+toN(dms[1])/60+toN(dms[2])/3600;
+  return (ref==='S'||ref==='W')?-dec:dec;
+}
+function fmtSize(b){return b<1048576?(b/1024).toFixed(1)+' KB':(b/1048576).toFixed(2)+' MB';}
+
+function renderExif(view) {
+  const le=view.getUint16(0)===0x4949;
+  const ifdOff=view.getUint32(4,le);
+  const ifd=readIFD(view,ifdOff,le,TAGS);
+
+  // Sub-IFDs
+  let exif={}, gps={};
+  if(ifd.ExifIFDPointer){try{exif=readIFD(view,ifd.ExifIFDPointer,le,TAGS);}catch(e){}}
+  if(ifd.GPSIFDPointer){try{gps=readIFD(view,ifd.GPSIFDPointer,le,GPS_TAGS);}catch(e){}}
+
+  const all={...ifd,...exif};
+  delete all.ExifIFDPointer; delete all.GPSIFDPointer;
+
+  if(!Object.keys(all).length&&!Object.keys(gps).length){showNoExif();return;}
+
+  const sections={
+    'Camera':['Make','Model','Software','LensModel'],
+    'Capture':['DateTimeOriginal','DateTime','ExposureTime','FNumber','ExposureProgram','ISOSpeedRatings','ShutterSpeedValue','ApertureValue','FocalLength','FocalLengthIn35mmFilm','Flash','WhiteBalance','ExposureMode','MeteringMode'],
+    'Image':['PixelXDimension','PixelYDimension','ColorSpace','Orientation','XResolution','YResolution'],
+    'Other':Object.keys(all).filter(k=>!['Make','Model','Software','LensModel','DateTimeOriginal','DateTime','ExposureTime','FNumber','ExposureProgram','ISOSpeedRatings','ShutterSpeedValue','ApertureValue','FocalLength','FocalLengthIn35mmFilm','Flash','WhiteBalance','ExposureMode','MeteringMode','PixelXDimension','PixelYDimension','ColorSpace','Orientation','XResolution','YResolution'].includes(k)),
+  };
+
+  let html='';
+  for(const [sec,keys] of Object.entries(sections)){
+    const rows=keys.filter(k=>all[k]!=null).map(k=>{
+      let v=all[k];
+      if(k==='ExposureTime'&&Array.isArray(v)) v=`${v[0]}/${v[1]}s`;
+      else if(k==='FNumber'&&Array.isArray(v)) v=`f/${(v[0]/v[1]).toFixed(1)}`;
+      else if(k==='FocalLength'&&Array.isArray(v)) v=`${(v[0]/v[1]).toFixed(1)}mm`;
+      else if(Array.isArray(v)) v=fmtRat(v);
+      return `<div class="exif-row"><span class="exif-key">${k}</span><span class="exif-val">${esc(String(v))}</span></div>`;
+    });
+    if(rows.length) html+=`<div class="exif-section"><div class="exif-section-title">${sec}</div>${rows.join('')}</div>`;
+  }
+
+  // GPS
+  const lat=dmsToDecimal(gps.GPSLatitude,gps.GPSLatitudeRef);
+  const lon=dmsToDecimal(gps.GPSLongitude,gps.GPSLongitudeRef);
+  if(lat!=null&&lon!=null){
+    document.getElementById('gps-coords').textContent=`${lat.toFixed(6)}, ${lon.toFixed(6)}`;
+    document.getElementById('map-link').href=`https://www.google.com/maps?q=${lat},${lon}`;
+    document.getElementById('gps-section').style.display='block';
+  }
+
+  document.getElementById('exif-data').innerHTML=html||'';
+  document.getElementById('no-exif').style.display=html?'none':'block';
+}
+
+function showNoExif(){
+  document.getElementById('exif-data').innerHTML='';
+  document.getElementById('no-exif').style.display='block';
+  document.getElementById('gps-section').style.display='none';
+}
+function esc(s){return String(s).replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+</script>
+</body>
+</html>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cron Expression Builder & Validator – Free | QuickTools</title>
+  <meta name="description" content="Build and validate cron expressions visually. Understand cron syntax with human-readable descriptions. Free online cron builder." />
+  <link rel="stylesheet" href="tool.css" />
+  <style>
+    .cron-display { font-family:monospace; font-size:1.8rem; font-weight:800; color:var(--accent2); letter-spacing:.1em; text-align:center; padding:20px; background:var(--bg3); border-radius:12px; cursor:pointer; user-select:all; }
+    .cron-part { display:flex; flex-direction:column; align-items:center; gap:4px; }
+    .cron-part label { font-size:.72rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:700; }
+    .cron-part input[type=text] { text-align:center; font-family:monospace; font-size:1rem; width:100%; }
+    .preset-btn { padding:8px 14px; border-radius:8px; border:1.5px solid var(--border); background:var(--bg3); color:var(--text); font-size:.82rem; cursor:pointer; transition:all .2s; text-align:left; }
+    .preset-btn:hover { border-color:var(--accent); background:var(--accent)10; }
+    .next-run { padding:6px 12px; background:var(--bg3); border-radius:6px; font-family:monospace; font-size:.82rem; }
+  </style>
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Developer<span>›</span>Cron Builder</div>
+  <h1>Cron Expression Builder</h1>
+  <p class="tool-desc">Build, validate, and understand cron expressions. See human-readable descriptions and upcoming run times.</p>
+
+  <div class="card">
+    <div class="cron-display" id="cron-display" onclick="copyCron()" title="Click to copy">* * * * *</div>
+    <div id="cron-desc" style="text-align:center;margin-top:10px;font-size:1rem;color:var(--text);font-weight:600;"></div>
+    <div id="cron-error" style="text-align:center;margin-top:6px;font-size:.85rem;color:#f87171;display:none;"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Fields</div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;">
+      <div class="cron-part"><label>Minute</label><input type="text" id="f-min" value="*" oninput="update()" /><span style="font-size:.7rem;color:var(--muted);">0–59</span></div>
+      <div class="cron-part"><label>Hour</label><input type="text" id="f-hour" value="*" oninput="update()" /><span style="font-size:.7rem;color:var(--muted);">0–23</span></div>
+      <div class="cron-part"><label>Day</label><input type="text" id="f-dom" value="*" oninput="update()" /><span style="font-size:.7rem;color:var(--muted);">1–31</span></div>
+      <div class="cron-part"><label>Month</label><input type="text" id="f-mon" value="*" oninput="update()" /><span style="font-size:.7rem;color:var(--muted);">1–12</span></div>
+      <div class="cron-part"><label>Weekday</label><input type="text" id="f-dow" value="*" oninput="update()" /><span style="font-size:.7rem;color:var(--muted);">0–6 (Sun=0)</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Manual Input</div>
+    <div style="display:flex;gap:8px;">
+      <input type="text" id="manual" placeholder="e.g. 0 9 * * 1-5" oninput="fromManual()" style="font-family:monospace;" />
+      <button class="btn btn-secondary btn-sm" onclick="fromManual()">Parse</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Common Presets</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;" id="presets"></div>
+  </div>
+
+  <div class="card" id="next-runs-card">
+    <div class="card-title">Next 5 Run Times</div>
+    <div id="next-runs" style="display:flex;flex-direction:column;gap:6px;"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Quick Reference</div>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:.82rem;">
+        <thead><tr style="border-bottom:1px solid var(--border);">
+          <th style="text-align:left;padding:6px 10px;color:var(--muted);">Symbol</th>
+          <th style="text-align:left;padding:6px 10px;color:var(--muted);">Meaning</th>
+          <th style="text-align:left;padding:6px 10px;color:var(--muted);">Example</th>
+        </tr></thead>
+        <tbody>${[
+          ['*','Any value','* = every minute/hour/etc'],
+          [',','List separator','1,15,30 = at 1, 15, and 30'],
+          ['-','Range','1-5 = 1 through 5'],
+          ['/','Step values','*/15 = every 15 units'],
+          ['?','No specific value','Day or weekday only'],
+        ].map(([s,m,e])=>`<tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:6px 10px;font-family:monospace;color:var(--accent2);font-size:1rem;">${s}</td>
+          <td style="padding:6px 10px;">${m}</td>
+          <td style="padding:6px 10px;color:var(--muted);font-family:monospace;font-size:.8rem;">${e}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="related" style="margin-top:32px;">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="timestamp-converter.html">Timestamp Converter</a>
+      <a class="related-link" href="regex-tester.html">Regex Tester</a>
+    </div>
+  </div>
+</div>
+<footer>© 2026 QuickTools — Free online tools. No signup required.</footer>
+<script>
+const PRESETS = [
+  { label:'Every minute',          cron:'* * * * *' },
+  { label:'Every 5 minutes',       cron:'*/5 * * * *' },
+  { label:'Every 15 minutes',      cron:'*/15 * * * *' },
+  { label:'Every hour',            cron:'0 * * * *' },
+  { label:'Every 6 hours',         cron:'0 */6 * * *' },
+  { label:'Daily at midnight',     cron:'0 0 * * *' },
+  { label:'Daily at 9am',          cron:'0 9 * * *' },
+  { label:'Weekdays at 9am',       cron:'0 9 * * 1-5' },
+  { label:'Weekly (Mon midnight)', cron:'0 0 * * 1' },
+  { label:'Monthly (1st at 9am)',  cron:'0 9 1 * *' },
+  { label:'Yearly (Jan 1 midnight)',cron:'0 0 1 1 *' },
+  { label:'Every 30 min, 9-17',    cron:'*/30 9-17 * * 1-5' },
+];
+
+document.getElementById('presets').innerHTML = PRESETS.map(p =>
+  `<button class="preset-btn" onclick="loadPreset('${p.cron}')"><strong style="font-family:monospace;color:var(--accent2);">${p.cron}</strong><br><span style="color:var(--muted);">${p.label}</span></button>`
+).join('');
+
+function getFields() {
+  return [
+    document.getElementById('f-min').value.trim(),
+    document.getElementById('f-hour').value.trim(),
+    document.getElementById('f-dom').value.trim(),
+    document.getElementById('f-mon').value.trim(),
+    document.getElementById('f-dow').value.trim(),
+  ];
+}
+
+function setFields(parts) {
+  ['f-min','f-hour','f-dom','f-mon','f-dow'].forEach((id,i)=>{
+    document.getElementById(id).value = parts[i]||'*';
+  });
+}
+
+function update() {
+  const parts = getFields();
+  const expr = parts.join(' ');
+  document.getElementById('cron-display').textContent = expr;
+  document.getElementById('manual').value = expr;
+  describe(parts);
+  nextRuns(parts);
+}
+
+function fromManual() {
+  const val = document.getElementById('manual').value.trim();
+  const parts = val.split(/\s+/);
+  if (parts.length === 5) { setFields(parts); describe(parts); nextRuns(parts); document.getElementById('cron-display').textContent=val; }
+}
+
+function loadPreset(cron) {
+  document.getElementById('manual').value = cron;
+  const parts = cron.split(' ');
+  setFields(parts);
+  document.getElementById('cron-display').textContent = cron;
+  describe(parts);
+  nextRuns(parts);
+}
+
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+function describeField(val, unit, names) {
+  if (val === '*') return `every ${unit}`;
+  if (val.startsWith('*/')) return `every ${val.slice(2)} ${unit}s`;
+  if (val.includes('-')) {
+    const [a,b] = val.split('-');
+    const na = names?names[parseInt(a)]:a, nb = names?names[parseInt(b)]:b;
+    return `${unit}s ${na}–${nb}`;
+  }
+  if (val.includes(',')) {
+    const items = val.split(',').map(v=>names?names[parseInt(v)]:v);
+    return `at ${unit}s ${items.join(', ')}`;
+  }
+  return `at ${unit} ${names?names[parseInt(val)]:val}`;
+}
+
+function describe(parts) {
+  const [min,hr,dom,mon,dow] = parts;
+  let desc = 'Runs ';
+  if (min==='*'&&hr==='*') desc += 'every minute';
+  else if (min.startsWith('*/')) desc += `every ${min.slice(2)} minutes`;
+  else if (hr==='*') desc += `at minute ${min} of every hour`;
+  else desc += `at ${hr.padStart(2,'0')}:${String(min).padStart(2,'0')}`;
+
+  if (dom!=='*') desc += `, on day ${dom} of the month`;
+  if (mon!=='*') desc += `, in ${describeField(mon,'month',MONTHS)}`;
+  if (dow!=='*') desc += `, on ${describeField(dow,'weekday',DAYS)}`;
+
+  document.getElementById('cron-desc').textContent = desc;
+}
+
+function matchField(val, n, max) {
+  if (val==='*'||val==='?') return true;
+  if (val.startsWith('*/')) return n % parseInt(val.slice(2)) === 0;
+  if (val.includes('-')) { const [a,b]=val.split('-').map(Number); return n>=a&&n<=b; }
+  if (val.includes(',')) return val.split(',').map(Number).includes(n);
+  return parseInt(val)===n;
+}
+
+function nextRuns(parts) {
+  const [min,hr,dom,mon,dow] = parts;
+  const runs = [];
+  let d = new Date();
+  d.setSeconds(0,0);
+  d.setMinutes(d.getMinutes()+1);
+  let tries = 0;
+  while (runs.length < 5 && tries < 50000) {
+    tries++;
+    if (matchField(mon, d.getMonth()+1, 12) &&
+        matchField(dom, d.getDate(), 31) &&
+        matchField(dow, d.getDay(), 7) &&
+        matchField(hr, d.getHours(), 23) &&
+        matchField(min, d.getMinutes(), 59)) {
+      runs.push(d.toLocaleString());
+    }
+    d = new Date(d.getTime() + 60000);
+  }
+  document.getElementById('next-runs').innerHTML = runs.map(r=>`<div class="next-run">${r}</div>`).join('') || '<div style="color:var(--muted);">Could not compute — expression may be too infrequent</div>';
+}
+
+function copyCron() {
+  navigator.clipboard.writeText(document.getElementById('cron-display').textContent).then(()=>{
+    const el=document.getElementById('cron-display');
+    el.style.color='#34d399';setTimeout(()=>el.style.color='',800);
+  });
+}
+
+update();
+</script>
+</body>
+</html>

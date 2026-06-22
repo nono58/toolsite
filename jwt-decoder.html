@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JWT Decoder & Validator Online – Free | QuickTools</title>
+  <meta name="description" content="Decode and inspect JWT tokens. View header, payload, claims, and expiry. Free online JWT decoder tool." />
+  <link rel="stylesheet" href="tool.css" />
+  <style>
+    .jwt-part { border-radius:10px; padding:16px; margin-bottom:10px; }
+    .jwt-header-box  { background:#6366f115; border:1.5px solid #6366f140; }
+    .jwt-payload-box { background:#8b5cf615; border:1.5px solid #8b5cf640; }
+    .jwt-sig-box     { background:#06b6d415; border:1.5px solid #06b6d440; }
+    .jwt-label { font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; margin-bottom:10px; }
+    .jwt-header-box  .jwt-label { color:#818cf8; }
+    .jwt-payload-box .jwt-label { color:#a78bfa; }
+    .jwt-sig-box     .jwt-label { color:#22d3ee; }
+    pre { background:var(--bg2); border-radius:8px; padding:14px; font-size:.82rem; overflow-x:auto; line-height:1.5; white-space:pre-wrap; word-break:break-all; }
+    .claim-row { display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--border); font-size:.85rem; flex-wrap:wrap; gap:4px; }
+    .claim-key { color:var(--accent2); font-family:monospace; }
+    .claim-val { color:var(--text); }
+    .badge { padding:3px 10px; border-radius:999px; font-size:.75rem; font-weight:700; }
+    .badge-ok  { background:#34d39920; color:#34d399; }
+    .badge-exp { background:#f8717120; color:#f87171; }
+    .badge-warn{ background:#fbbf2420; color:#fbbf24; }
+    .token-colored { font-family:monospace; font-size:.85rem; word-break:break-all; line-height:1.8; }
+  </style>
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Developer<span>›</span>JWT Decoder</div>
+  <h1>JWT Decoder & Inspector</h1>
+  <p class="tool-desc">Paste a JWT token to decode its header, payload, and claims. Checks expiry and standard claims. Nothing is sent to any server.</p>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <span class="card-title" style="margin-bottom:0;">JWT Token</span>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-secondary btn-sm" onclick="loadSample()">Sample</button>
+        <button class="btn btn-secondary btn-sm" onclick="clearAll()">Clear</button>
+      </div>
+    </div>
+    <textarea id="jwt-input" placeholder="Paste JWT token here… eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.signature" oninput="decode()" style="min-height:100px;font-family:monospace;font-size:.85rem;"></textarea>
+    <div id="token-colored-wrap" style="margin-top:10px;display:none;">
+      <div class="token-colored" id="token-colored"></div>
+    </div>
+  </div>
+
+  <div id="result" style="display:none;">
+    <div class="jwt-part jwt-header-box">
+      <div class="jwt-label">Header</div>
+      <pre id="header-pre"></pre>
+    </div>
+
+    <div class="jwt-part jwt-payload-box">
+      <div class="jwt-label">Payload</div>
+      <div id="claims-list" style="margin-bottom:12px;"></div>
+      <pre id="payload-pre"></pre>
+    </div>
+
+    <div class="jwt-part jwt-sig-box">
+      <div class="jwt-label">Signature</div>
+      <p style="font-size:.85rem;color:var(--muted);">Signature verification requires the secret key and cannot be done client-side without it. This tool only decodes the token — it does not validate the signature.</p>
+      <div id="sig-raw" style="font-family:monospace;font-size:.8rem;word-break:break-all;color:#22d3ee;"></div>
+    </div>
+  </div>
+
+  <div id="error-card" class="card" style="display:none;background:#f8717120;border-color:#f8717140;">
+    <div style="color:#f87171;" id="error-msg"></div>
+  </div>
+
+  <div class="related" style="margin-top:32px;">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="base64.html">Base64 Encoder</a>
+      <a class="related-link" href="hash-generator.html">Hash Generator</a>
+    </div>
+  </div>
+</div>
+<footer>© 2026 QuickTools — Free online tools. No signup required.</footer>
+<script>
+function b64decode(str) {
+  str = str.replace(/-/g, '+').replace(/_/g, '/');
+  while (str.length % 4) str += '=';
+  return atob(str);
+}
+
+function fmtTime(ts) {
+  const d = new Date(ts * 1000);
+  const now = Date.now() / 1000;
+  const diff = ts - now;
+  const abs = Math.abs(diff);
+  let relative;
+  if (abs < 60) relative = diff > 0 ? 'in a few seconds' : 'just now';
+  else if (abs < 3600) relative = (diff>0?'in ':'') + Math.round(abs/60) + ' min' + (diff<0?' ago':'');
+  else if (abs < 86400) relative = (diff>0?'in ':'') + Math.round(abs/3600) + ' hr' + (diff<0?' ago':'');
+  else relative = (diff>0?'in ':'') + Math.round(abs/86400) + ' day' + (diff<0?' ago':'');
+  return `${d.toUTCString()} (${relative})`;
+}
+
+const CLAIM_NAMES = {
+  sub:'Subject', iss:'Issuer', aud:'Audience', exp:'Expires At', iat:'Issued At',
+  nbf:'Not Before', jti:'JWT ID', name:'Name', email:'Email', role:'Role', scope:'Scope',
+};
+
+function decode() {
+  const token = document.getElementById('jwt-input').value.trim();
+  document.getElementById('error-card').style.display='none';
+  document.getElementById('result').style.display='none';
+  document.getElementById('token-colored-wrap').style.display='none';
+
+  if (!token) return;
+  const parts = token.split('.');
+  if (parts.length !== 3) {
+    document.getElementById('error-msg').textContent = 'Invalid JWT: expected 3 parts separated by "."';
+    document.getElementById('error-card').style.display='block'; return;
+  }
+
+  let header, payload;
+  try { header = JSON.parse(b64decode(parts[0])); }
+  catch(e) { document.getElementById('error-msg').textContent='Invalid header: '+e.message; document.getElementById('error-card').style.display='block'; return; }
+  try { payload = JSON.parse(b64decode(parts[1])); }
+  catch(e) { document.getElementById('error-msg').textContent='Invalid payload: '+e.message; document.getElementById('error-card').style.display='block'; return; }
+
+  // Colored token display
+  document.getElementById('token-colored').innerHTML =
+    `<span style="color:#818cf8">${parts[0]}</span><span style="color:#64748b">.</span><span style="color:#a78bfa">${parts[1]}</span><span style="color:#64748b">.</span><span style="color:#22d3ee">${parts[2]}</span>`;
+  document.getElementById('token-colored-wrap').style.display='block';
+
+  document.getElementById('header-pre').textContent = JSON.stringify(header, null, 2);
+
+  // Claims
+  const now = Date.now()/1000;
+  const claimRows = Object.entries(payload).map(([k, v]) => {
+    const name = CLAIM_NAMES[k] || k;
+    let display = v;
+    let badge = '';
+    if (k === 'exp') {
+      display = fmtTime(v);
+      badge = v < now
+        ? '<span class="badge badge-exp">EXPIRED</span>'
+        : '<span class="badge badge-ok">VALID</span>';
+    } else if (k === 'iat' || k === 'nbf') {
+      display = fmtTime(v);
+    } else if (typeof v === 'object') {
+      display = JSON.stringify(v);
+    }
+    return `<div class="claim-row"><span class="claim-key">${k} <span style="color:var(--muted);font-weight:400;font-family:sans-serif;">(${name})</span></span><span class="claim-val">${esc(String(display))} ${badge}</span></div>`;
+  });
+  document.getElementById('claims-list').innerHTML = claimRows.join('');
+  document.getElementById('payload-pre').textContent = JSON.stringify(payload, null, 2);
+  document.getElementById('sig-raw').textContent = parts[2];
+  document.getElementById('result').style.display='block';
+}
+
+function clearAll() { document.getElementById('jwt-input').value=''; decode(); }
+function esc(s){return s.replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function loadSample() {
+  // A real-looking JWT (HS256, expired for demo purposes)
+  document.getElementById('jwt-input').value = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJqb2huQGV4YW1wbGUuY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNDI2MjJ9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+  decode();
+}
+loadSample();
+</script>
+</body>
+</html>

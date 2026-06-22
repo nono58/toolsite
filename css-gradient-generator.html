@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CSS Gradient Generator Online – Free | QuickTools</title>
+  <meta name="description" content="Generate beautiful CSS gradients visually. Linear, radial, and conic gradients. Copy CSS code instantly. Free online gradient generator." />
+  <link rel="stylesheet" href="tool.css" />
+  <style>
+    .gradient-preview { height:200px; border-radius:12px; border:1.5px solid var(--border); transition:background .15s; }
+    .stop-row { display:flex; gap:8px; align-items:center; padding:8px 0; border-bottom:1px solid var(--border); }
+    .stop-row:last-child { border-bottom:none; }
+    .stop-color { width:44px; height:36px; border:none; border-radius:8px; cursor:pointer; background:none; padding:0; }
+    .stop-pos { width:70px; }
+    .type-btn { padding:8px 18px; border-radius:999px; border:1.5px solid var(--border); background:transparent; color:var(--muted); font-size:.85rem; cursor:pointer; transition:all .2s; }
+    .type-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+    .preset-swatch { height:48px; border-radius:8px; cursor:pointer; border:2px solid transparent; transition:border-color .15s; }
+    .preset-swatch:hover { border-color:var(--accent); }
+    .css-output { font-family:monospace; font-size:.82rem; padding:14px; background:var(--bg3); border-radius:10px; word-break:break-all; line-height:1.6; cursor:pointer; }
+  </style>
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Developer<span>›</span>CSS Gradient Generator</div>
+  <h1>CSS Gradient Generator</h1>
+  <p class="tool-desc">Create stunning CSS gradients visually. Linear, radial, and conic styles. Copy ready-to-use CSS with one click.</p>
+
+  <div class="card">
+    <div class="gradient-preview" id="preview"></div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+      <button class="type-btn active" data-type="linear" onclick="setType(this)">Linear</button>
+      <button class="type-btn" data-type="radial" onclick="setType(this)">Radial</button>
+      <button class="type-btn" data-type="conic" onclick="setType(this)">Conic</button>
+    </div>
+
+    <div id="linear-opts">
+      <label>Angle</label>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <input type="range" id="angle" min="0" max="360" value="135" oninput="document.getElementById('angle-val').value=this.value;generate()" style="flex:1;accent-color:var(--accent);" />
+        <input type="number" id="angle-val" value="135" min="0" max="360" oninput="document.getElementById('angle').value=this.value;generate()" style="width:70px;" />
+        <span style="color:var(--muted);">°</span>
+      </div>
+    </div>
+    <div id="radial-opts" style="display:none;">
+      <div class="grid-2">
+        <div><label>Shape</label><select id="radial-shape" onchange="generate()"><option value="ellipse">Ellipse</option><option value="circle">Circle</option></select></div>
+        <div><label>Size</label><select id="radial-size" onchange="generate()"><option value="farthest-corner">Farthest corner</option><option value="closest-corner">Closest corner</option><option value="farthest-side">Farthest side</option><option value="closest-side">Closest side</option></select></div>
+      </div>
+    </div>
+    <div id="conic-opts" style="display:none;">
+      <label>Start Angle</label>
+      <input type="range" id="conic-angle" min="0" max="360" value="0" oninput="generate()" style="width:100%;accent-color:var(--accent);" />
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <span class="card-title" style="margin-bottom:0;">Color Stops</span>
+      <button class="btn btn-secondary btn-sm" onclick="addStop()">+ Add Stop</button>
+    </div>
+    <div id="stops-list"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Presets</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;" id="presets"></div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <span class="card-title" style="margin-bottom:0;">CSS Output</span>
+      <button class="btn btn-primary btn-sm" onclick="copyCss()">Copy CSS</button>
+    </div>
+    <div class="css-output" id="css-output" onclick="copyCss()" title="Click to copy"></div>
+  </div>
+
+  <div class="related" style="margin-top:32px;">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="color-converter.html">Color Converter</a>
+      <a class="related-link" href="color-palette.html">Color Palette Generator</a>
+    </div>
+  </div>
+</div>
+<footer>© 2026 QuickTools — Free online tools. No signup required.</footer>
+<script>
+let gradType = 'linear';
+let stops = [
+  {color:'#6366f1', pos:0},
+  {color:'#8b5cf6', pos:50},
+  {color:'#ec4899', pos:100},
+];
+
+const PRESETS = [
+  {name:'Sunset',    stops:['#ff6b6b','#feca57','#ff9ff3']},
+  {name:'Ocean',     stops:['#0099f7','#f11712']},
+  {name:'Forest',    stops:['#134e5e','#71b280']},
+  {name:'Purple',    stops:['#6366f1','#8b5cf6','#d946ef']},
+  {name:'Candy',     stops:['#fd1d1d','#fcb045']},
+  {name:'Midnight',  stops:['#0f0c29','#302b63','#24243e']},
+  {name:'Mint',      stops:['#00b09b','#96c93d']},
+  {name:'Fire',      stops:['#f12711','#f5af19']},
+  {name:'Sky',       stops:['#2980b9','#6dd5fa','#ffffff']},
+  {name:'Peach',     stops:['#ed8966','#ffb347']},
+];
+
+document.getElementById('presets').innerHTML = PRESETS.map((p,i) => {
+  const g = `linear-gradient(135deg, ${p.stops.join(',')})`;
+  return `<div class="preset-swatch" style="background:${g}" onclick="loadPreset(${i})" title="${p.name}"></div>`;
+}).join('');
+
+function loadPreset(i) {
+  const p = PRESETS[i];
+  const n = p.stops.length;
+  stops = p.stops.map((c,j) => ({color:c, pos:Math.round(j/(n-1)*100)}));
+  renderStops();
+  generate();
+}
+
+function setType(btn) {
+  gradType = btn.dataset.type;
+  document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  ['linear-opts','radial-opts','conic-opts'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById(gradType+'-opts').style.display='';
+  generate();
+}
+
+function renderStops() {
+  document.getElementById('stops-list').innerHTML = stops.map((s,i) => `
+    <div class="stop-row">
+      <input type="color" class="stop-color" value="${s.color}" onchange="stops[${i}].color=this.value;generate()" />
+      <span style="font-family:monospace;font-size:.85rem;min-width:70px;">${s.color}</span>
+      <input type="range" min="0" max="100" value="${s.pos}" oninput="stops[${i}].pos=parseInt(this.value);document.getElementById('pos-val-${i}').value=this.value;generate()" style="flex:1;accent-color:var(--accent);" />
+      <input type="number" id="pos-val-${i}" value="${s.pos}" min="0" max="100" style="width:60px;" oninput="stops[${i}].pos=parseInt(this.value)||0;generate()" />
+      <span style="color:var(--muted);">%</span>
+      ${stops.length>2?`<button onclick="stops.splice(${i},1);renderStops();generate()" style="background:none;border:none;color:#f87171;cursor:pointer;font-size:1rem;">✕</button>`:''}
+    </div>`).join('');
+}
+
+function addStop() {
+  stops.push({color:'#ffffff',pos:100});
+  stops.sort((a,b)=>a.pos-b.pos);
+  renderStops();
+  generate();
+}
+
+function getStopStr() {
+  return [...stops].sort((a,b)=>a.pos-b.pos).map(s=>`${s.color} ${s.pos}%`).join(', ');
+}
+
+function generate() {
+  let css;
+  if (gradType==='linear') {
+    const angle = document.getElementById('angle').value;
+    css = `linear-gradient(${angle}deg, ${getStopStr()})`;
+  } else if (gradType==='radial') {
+    const shape=document.getElementById('radial-shape').value;
+    const size=document.getElementById('radial-size').value;
+    css = `radial-gradient(${shape} ${size} at center, ${getStopStr()})`;
+  } else {
+    const a=document.getElementById('conic-angle').value;
+    css = `conic-gradient(from ${a}deg, ${getStopStr()})`;
+  }
+  document.getElementById('preview').style.background=css;
+  const full = `background: ${css};\nbackground: -webkit-${css};`;
+  document.getElementById('css-output').textContent = full;
+}
+
+function copyCss() {
+  navigator.clipboard.writeText(document.getElementById('css-output').textContent).then(()=>{
+    const b=document.querySelector('.btn-primary');
+    b.textContent='Copied!';setTimeout(()=>b.textContent='Copy CSS',1500);
+  });
+}
+
+renderStops();
+generate();
+</script>
+</body>
+</html>

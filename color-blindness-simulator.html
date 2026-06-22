@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Color Blindness Simulator Online – Free | QuickTools</title>
+  <meta name="description" content="Simulate how images appear to people with color blindness. Protanopia, deuteranopia, tritanopia, and more. Free online tool." />
+  <link rel="stylesheet" href="tool.css" />
+  <style>
+    .drop-zone { border:2px dashed var(--border); border-radius:14px; padding:48px 24px; text-align:center; cursor:pointer; transition:all .2s; background:var(--bg3); }
+    .drop-zone:hover,.drop-zone.drag-over { border-color:var(--accent); background:#6366f110; }
+    .sim-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+    .sim-card { border-radius:10px; overflow:hidden; border:1.5px solid var(--border); }
+    .sim-label { padding:8px 12px; background:var(--bg3); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); }
+    .sim-card canvas { width:100%; display:block; }
+  </style>
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Image<span>›</span>Color Blindness Simulator</div>
+  <h1>Color Blindness Simulator</h1>
+  <p class="tool-desc">Upload an image to see how it appears to people with different types of color vision deficiency. Essential for accessibility design.</p>
+
+  <div class="card">
+    <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+      <div style="font-size:2.5rem;">👁</div>
+      <div style="font-weight:700;margin-top:8px;">Drop image here or click to select</div>
+      <p>PNG · JPG · WebP</p>
+    </div>
+    <input type="file" id="file-input" accept="image/*" style="display:none;" onchange="loadImg(this.files[0])" />
+  </div>
+
+  <div id="result" style="display:none;">
+    <div class="card">
+      <div class="card-title">Simulations</div>
+      <p style="font-size:.85rem;color:var(--muted);margin-bottom:16px;">All simulations are approximations based on the Brettel/Viénot color transformation matrices.</p>
+      <div class="sim-grid" id="sim-grid"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">About Color Blindness Types</div>
+      <div style="display:grid;gap:8px;font-size:.85rem;">
+        <div><strong style="color:var(--accent2);">Protanopia</strong> — Red-blind. ~1% of males. Red and green appear similar, reds look dark.</div>
+        <div><strong style="color:var(--accent2);">Deuteranopia</strong> — Green-blind. ~1% of males. Most common form. Reds and greens are confused.</div>
+        <div><strong style="color:var(--accent2);">Tritanopia</strong> — Blue-blind. Very rare (~0.01%). Blues and greens, yellows and reds confused.</div>
+        <div><strong style="color:var(--accent2);">Protanomaly</strong> — Reduced red sensitivity. ~1% of males.</div>
+        <div><strong style="color:var(--accent2);">Deuteranomaly</strong> — Reduced green sensitivity. ~5% of males. Most common color deficiency.</div>
+        <div><strong style="color:var(--accent2);">Achromatopsia</strong> — Total color blindness. Sees only in grayscale. Very rare.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="related" style="margin-top:32px;">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="color-converter.html">Color Converter</a>
+      <a class="related-link" href="image-grayscale.html">Image Grayscale</a>
+    </div>
+  </div>
+</div>
+<footer>© 2026 QuickTools — Free online tools. No signup required.</footer>
+<canvas id="src-canvas" style="display:none;"></canvas>
+<script>
+// Color blindness transformation matrices (LMS space)
+const TRANSFORMS = {
+  'Normal Vision':    [1,0,0, 0,1,0, 0,0,1],
+  'Protanopia':       [0.152286,1.052583,-0.204868, 0.114503,0.786281,0.099216, -0.003882,-0.048116,1.051998],
+  'Deuteranopia':     [0.367322,0.860646,-0.227968, 0.280085,0.672501,0.047413, -0.011820,0.042940,0.968881],
+  'Tritanopia':       [1.255528,-0.076749,-0.178779, -0.078411,0.930809,0.147602, 0.004733,0.691367,0.303900],
+  'Protanomaly':      [0.458064,0.679578,-0.137642, 0.092785,0.846313,0.060902, -0.007494,-0.016807,1.024301],
+  'Deuteranomaly':    [0.547494,0.607765,-0.155259, 0.181692,0.781361,0.036948, -0.010410,0.027275,0.983136],
+  'Achromatopsia':    [0.299,0.587,0.114, 0.299,0.587,0.114, 0.299,0.587,0.114],
+};
+
+// sRGB <-> linearRGB
+function toLinear(c) { c/=255; return c<=0.04045?c/12.92:Math.pow((c+0.055)/1.055,2.4); }
+function toSRGB(c) { c=c<0?0:c>1?1:c; return Math.round((c<=0.0031308?c*12.92:1.055*Math.pow(c,1/2.4)-0.055)*255); }
+
+function applyMatrix(r,g,b,m) {
+  return [
+    m[0]*r+m[1]*g+m[2]*b,
+    m[3]*r+m[4]*g+m[5]*b,
+    m[6]*r+m[7]*g+m[8]*b,
+  ];
+}
+
+function simulate(srcData, w, h, matrix) {
+  const out = new Uint8ClampedArray(srcData.length);
+  for (let i=0;i<srcData.length;i+=4){
+    const lr=toLinear(srcData[i]),lg=toLinear(srcData[i+1]),lb=toLinear(srcData[i+2]);
+    const [nr,ng,nb] = applyMatrix(lr,lg,lb,matrix);
+    out[i]=toSRGB(nr); out[i+1]=toSRGB(ng); out[i+2]=toSRGB(nb); out[i+3]=srcData[i+3];
+  }
+  return out;
+}
+
+let srcImageData = null;
+
+const dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f&&f.type.startsWith('image/'))loadImg(f);});
+
+function loadImg(file) {
+  const img = new Image();
+  img.onload = () => {
+    const MAX = 600;
+    let w=img.naturalWidth, h=img.naturalHeight;
+    if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}
+    const sc = document.getElementById('src-canvas');
+    sc.width=w; sc.height=h;
+    sc.getContext('2d').drawImage(img,0,0,w,h);
+    srcImageData = sc.getContext('2d').getImageData(0,0,w,h);
+    renderAll(w,h);
+  };
+  img.src = URL.createObjectURL(file);
+}
+
+function renderAll(w,h) {
+  const grid = document.getElementById('sim-grid');
+  grid.innerHTML = '';
+  for (const [name, matrix] of Object.entries(TRANSFORMS)) {
+    const card = document.createElement('div');
+    card.className = 'sim-card';
+    const label = document.createElement('div');
+    label.className = 'sim-label';
+    label.textContent = name;
+    const cv = document.createElement('canvas');
+    cv.width=w; cv.height=h;
+    const ctx = cv.getContext('2d');
+    const simData = simulate(srcImageData.data,w,h,matrix);
+    ctx.putImageData(new ImageData(simData,w,h),0,0);
+    const dl = document.createElement('button');
+    dl.className='btn btn-secondary btn-sm';
+    dl.style.cssText='margin:8px;';
+    dl.textContent='⬇ Download';
+    dl.onclick=()=>{const a=document.createElement('a');a.download=name.toLowerCase().replace(/\s/g,'-')+'.png';a.href=cv.toDataURL();a.click();};
+    card.appendChild(label);card.appendChild(cv);card.appendChild(dl);
+    grid.appendChild(card);
+  }
+  document.getElementById('result').style.display='block';
+}
+</script>
+</body>
+</html>

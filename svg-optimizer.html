@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SVG Optimizer Online – Free | QuickTools</title>
+  <meta name="description" content="Optimize and minify SVG files online. Remove comments, metadata, redundant attributes, and whitespace. Free online SVG optimizer." />
+  <link rel="stylesheet" href="tool.css" />
+  <style>
+    .editor-pane { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    @media(max-width:700px){.editor-pane{grid-template-columns:1fr;}}
+    .code-area { font-family:monospace; font-size:.78rem; resize:vertical; min-height:280px; }
+    .stat-badge { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:6px; background:var(--bg3); font-size:.8rem; font-family:monospace; }
+    .savings-bar { height:8px; border-radius:4px; background:var(--border); overflow:hidden; margin:6px 0; }
+    .savings-fill { height:100%; border-radius:4px; background:var(--accent); transition:width .4s; }
+    .opt-toggle { display:flex; align-items:center; gap:8px; padding:8px 0; border-bottom:1px solid var(--border); cursor:pointer; }
+    .opt-toggle:last-child { border-bottom:none; }
+    .opt-toggle input[type=checkbox] { accent-color:var(--accent); width:16px; height:16px; cursor:pointer; }
+    .opt-toggle label { cursor:pointer; font-size:.88rem; }
+    .opt-toggle .opt-desc { font-size:.75rem; color:var(--muted); }
+    .svg-preview { background:repeating-conic-gradient(#ffffff08 0% 25%,transparent 0% 50%) 0 0/20px 20px; border-radius:10px; padding:24px; text-align:center; border:1.5px solid var(--border); min-height:120px; display:flex; align-items:center; justify-content:center; }
+  </style>
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Developer<span>›</span>SVG Optimizer</div>
+  <h1>SVG Optimizer</h1>
+  <p class="tool-desc">Clean, minify, and optimize SVG files. Remove bloat added by design tools like Illustrator, Figma, or Inkscape. Reduce file size without losing quality.</p>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+      <span class="card-title" style="margin-bottom:0;">SVG Editor</span>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-secondary btn-sm" onclick="document.getElementById('file-input').click()">📂 Open SVG</button>
+        <input type="file" id="file-input" accept=".svg,image/svg+xml" style="display:none;" onchange="loadFile(this)" />
+        <button class="btn btn-primary btn-sm" onclick="optimize()">⚡ Optimize</button>
+      </div>
+    </div>
+
+    <div class="editor-pane">
+      <div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+          <label style="font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);">Input SVG</label>
+          <span id="in-size" class="stat-badge"></span>
+        </div>
+        <textarea class="code-area" id="svg-input" placeholder="Paste SVG code here or open a file…" oninput="updatePreview('in')"></textarea>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+          <label style="font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);">Optimized SVG</label>
+          <span id="out-size" class="stat-badge"></span>
+        </div>
+        <textarea class="code-area" id="svg-output" readonly placeholder="Optimized SVG will appear here…"></textarea>
+      </div>
+    </div>
+
+    <div id="stats-section" style="display:none;margin-top:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <span style="font-size:.85rem;">File size reduction</span>
+        <span id="savings-pct" style="font-weight:800;color:var(--accent2);"></span>
+      </div>
+      <div class="savings-bar"><div class="savings-fill" id="savings-fill"></div></div>
+      <div class="stats-row" id="stats-row"></div>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="copyOutput()">Copy</button>
+      <button class="btn btn-secondary" onclick="downloadSvg()">⬇ Download .svg</button>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;flex-wrap:wrap;">
+    <div class="card">
+      <div class="card-title">Optimization Options</div>
+      <div id="opts-list">
+        <div class="opt-toggle"><input type="checkbox" id="o-comments" checked/><div><label for="o-comments">Remove comments</label><div class="opt-desc">Strip &lt;!-- comment --&gt; nodes</div></div></div>
+        <div class="opt-toggle"><input type="checkbox" id="o-metadata" checked/><div><label for="o-metadata">Remove &lt;metadata&gt;</label><div class="opt-desc">Removes Inkscape/Illustrator editor metadata</div></div></div>
+        <div class="opt-toggle"><input type="checkbox" id="o-doctype" checked/><div><label for="o-doctype">Remove DOCTYPE / XML declaration</label><div class="opt-desc">Not needed for inline or modern SVG use</div></div></div>
+        <div class="opt-toggle"><input type="checkbox" id="o-inkscape" checked/><div><label for="o-inkscape">Remove editor namespaces</label><div class="opt-desc">Strips inkscape:, sodipodi:, dc:, cc:, rdf: attributes</div></div></div>
+        <div class="opt-toggle"><input type="checkbox" id="o-ids" /><div><label for="o-ids">Remove unreferenced IDs</label><div class="opt-desc">Removes id="" attrs not referenced by # links</div></div></div>
+        <div class="opt-toggle"><input type="checkbox" id="o-whitespace" checked/><div><label for="o-whitespace">Collapse whitespace</label><div class="opt-desc">Remove redundant spaces and newlines</div></div></div>
+        <div class="opt-toggle"><input type="checkbox" id="o-empty" checked/><div><label for="o-empty">Remove empty groups/defs</label><div class="opt-desc">Prune &lt;g&gt; and &lt;defs&gt; with no children</div></div></div>
+        <div class="opt-toggle"><input type="checkbox" id="o-precision" checked/><div><label for="o-precision">Round decimal precision (3 dp)</label><div class="opt-desc">Rounds 1.23456789 → 1.235 in attribute values</div></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Preview</div>
+      <div class="svg-preview" id="svg-preview-out">
+        <span style="color:var(--muted);font-size:.85rem;">Optimized SVG preview</span>
+      </div>
+      <div style="margin-top:12px;">
+        <div class="card-title" style="font-size:.78rem;">Input Preview</div>
+        <div class="svg-preview" id="svg-preview-in">
+          <span style="color:var(--muted);font-size:.85rem;">Input SVG preview</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="related" style="margin-top:32px;">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="css-minifier.html">CSS Minifier</a>
+      <a class="related-link" href="image-compressor.html">Image Compressor</a>
+    </div>
+  </div>
+</div>
+<footer>© 2026 QuickTools — Free online tools. No signup required.</footer>
+<script>
+const SAMPLE_SVG = `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created by Adobe Illustrator 28.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
+<svg version="1.1"
+     xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+     xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.0.dtd"
+     xmlns:dc="http://purl.org/dc/elements/1.1/"
+     xmlns:cc="http://creativecommons.org/ns#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     id="Layer_1" x="0px" y="0px" viewBox="0 0 100 100"
+     xml:space="preserve">
+<metadata>
+  <rdf:RDF>
+    <cc:Work rdf:about="">
+      <dc:title>My Design</dc:title>
+      <dc:creator><cc:Agent><dc:title>Designer Name</dc:title></cc:Agent></dc:creator>
+    </cc:Work>
+  </rdf:RDF>
+</metadata>
+<sodipodi:namedview id="namedview1" pagecolor="#ffffff" />
+<!-- Background -->
+<rect id="bg_rect_unused" fill="#6366f1" width="100.000000000" height="100.000000000"/>
+<!-- Star shape -->
+<g id="star_group"   transform="translate(50.000000000,50.000000000)">
+  <polygon id="star" fill="#ffffff" points="0,-30.000 8.817,-12.135 28.532,-9.270 14.266,4.635 17.634,24.270 0,14.586 -17.634,24.270 -14.266,4.635 -28.532,-9.270 -8.817,-12.135"/>
+</g>
+<g id="empty_group">
+  <defs id="empty_defs"></defs>
+</g>
+</svg>`;
+
+document.getElementById('svg-input').value = SAMPLE_SVG;
+updatePreview('in');
+
+function loadFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('svg-input').value = e.target.result;
+    updatePreview('in');
+    updateInSize();
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+function updateInSize() {
+  const bytes = new Blob([document.getElementById('svg-input').value]).size;
+  document.getElementById('in-size').textContent = fmtBytes(bytes);
+}
+
+function updatePreview(side) {
+  const svgText = document.getElementById(`svg-${side==='in'?'input':'output'}`).value;
+  const el = document.getElementById(`svg-preview-${side==='in'?'in':'out'}`);
+  if (!svgText.trim()) { el.innerHTML = '<span style="color:var(--muted);font-size:.85rem;">No SVG</span>'; return; }
+  try {
+    const blob = new Blob([svgText], {type:'image/svg+xml'});
+    const url = URL.createObjectURL(blob);
+    el.innerHTML = `<img src="${url}" style="max-width:100%;max-height:180px;" onload="URL.revokeObjectURL('${url}')" onerror="this.parentNode.innerHTML='<span style=color:var(--muted)>Invalid SVG</span>'" />`;
+  } catch(e) {}
+  if (side === 'in') updateInSize();
+}
+
+function optimize() {
+  let svg = document.getElementById('svg-input').value.trim();
+  if (!svg) return;
+
+  const opts = {
+    comments: document.getElementById('o-comments').checked,
+    metadata: document.getElementById('o-metadata').checked,
+    doctype:  document.getElementById('o-doctype').checked,
+    inkscape: document.getElementById('o-inkscape').checked,
+    ids:      document.getElementById('o-ids').checked,
+    whitespace: document.getElementById('o-whitespace').checked,
+    empty:    document.getElementById('o-empty').checked,
+    precision: document.getElementById('o-precision').checked,
+  };
+
+  // Remove DOCTYPE and XML declaration
+  if (opts.doctype) {
+    svg = svg.replace(/<\?xml[^?]*\?>\s*/gi, '');
+    svg = svg.replace(/<!DOCTYPE[^>]*>\s*/gi, '');
+  }
+
+  // Remove HTML comments
+  if (opts.comments) {
+    svg = svg.replace(/<!--[\s\S]*?-->/g, '');
+  }
+
+  // Remove metadata block
+  if (opts.metadata) {
+    svg = svg.replace(/<metadata[\s\S]*?<\/metadata>/gi, '');
+    svg = svg.replace(/<sodipodi:namedview[\s\S]*?\/>/gi, '');
+    svg = svg.replace(/<sodipodi:namedview[\s\S]*?<\/sodipodi:namedview>/gi, '');
+  }
+
+  // Remove editor namespaces from svg tag attributes
+  if (opts.inkscape) {
+    // Remove namespace declarations
+    svg = svg.replace(/\s+xmlns:(inkscape|sodipodi|dc|cc|rdf|xlink:dc|serif|sketch|illustrator|ai)="[^"]*"/gi, '');
+    // Remove namespace-prefixed attributes from any element
+    svg = svg.replace(/\s+(inkscape|sodipodi|dc|cc|rdf|serif|sketch|ai):[a-zA-Z:_-]+="[^"]*"/gi, '');
+    // Remove xlink:href if href also present (modern SVG)
+    svg = svg.replace(/\s+xlink:href="([^"]*)"/g, (m, val) => svg.includes(` href="${val}"`) ? '' : m);
+    // Remove version attr (redundant)
+    svg = svg.replace(/\s+version="[^"]*"/gi, '');
+    // Remove xml:space
+    svg = svg.replace(/\s+xml:space="[^"]*"/gi, '');
+    // Remove x="0" y="0" on root svg (default)
+    svg = svg.replace(/(<svg[^>]*?)\s+x="0(?:px|)"/, '$1');
+    svg = svg.replace(/(<svg[^>]*?)\s+y="0(?:px|)"/, '$1');
+  }
+
+  // Round decimal precision
+  if (opts.precision) {
+    svg = svg.replace(/(\d+\.\d{4,})/g, m => {
+      const n = parseFloat(m);
+      return n % 1 === 0 ? n.toString() : parseFloat(n.toFixed(3)).toString();
+    });
+  }
+
+  // Remove empty groups and defs
+  if (opts.empty) {
+    // Repeat to catch nested empties
+    for (let i=0;i<5;i++) {
+      svg = svg.replace(/<g[^>]*>\s*<\/g>/gi, '');
+      svg = svg.replace(/<defs[^>]*>\s*<\/defs>/gi, '');
+    }
+  }
+
+  // Remove unreferenced IDs
+  if (opts.ids) {
+    // Find all IDs referenced by href="#xxx" or url(#xxx)
+    const refs = new Set();
+    for (const m of svg.matchAll(/(?:href|url)\s*\(\s*#([^)"]+)/g)) refs.add(m[1]);
+    for (const m of svg.matchAll(/href="#([^"]+)"/g)) refs.add(m[1]);
+    for (const m of svg.matchAll(/clip-path="url\(#([^)]+)\)"/g)) refs.add(m[1]);
+    for (const m of svg.matchAll(/filter="url\(#([^)]+)\)"/g)) refs.add(m[1]);
+    // Remove id attributes not in refs
+    svg = svg.replace(/\s+id="([^"]*)"/g, (m, id) => refs.has(id) ? m : '');
+  }
+
+  // Collapse whitespace
+  if (opts.whitespace) {
+    // Collapse whitespace between tags
+    svg = svg.replace(/>\s+</g, '><');
+    // Collapse multiple spaces in attributes
+    svg = svg.replace(/\s{2,}/g, ' ');
+    // Trim leading/trailing whitespace from attributes section
+    svg = svg.replace(/\s+>/g, '>');
+    svg = svg.replace(/\s+\/>/g, '/>');
+    svg = svg.trim();
+  }
+
+  const inBytes = new Blob([document.getElementById('svg-input').value]).size;
+  const outBytes = new Blob([svg]).size;
+  const saved = inBytes - outBytes;
+  const pct = ((saved / inBytes) * 100).toFixed(1);
+
+  document.getElementById('svg-output').value = svg;
+  document.getElementById('out-size').textContent = fmtBytes(outBytes);
+  document.getElementById('in-size').textContent = fmtBytes(inBytes);
+  document.getElementById('savings-pct').textContent = `${pct}% smaller`;
+  document.getElementById('savings-fill').style.width = Math.max(0,Math.min(100,parseFloat(pct)))+'%';
+  document.getElementById('stats-row').innerHTML = `
+    <span>Before: ${fmtBytes(inBytes)}</span>
+    <span>After: ${fmtBytes(outBytes)}</span>
+    <span>Saved: ${fmtBytes(saved)}</span>
+  `;
+  document.getElementById('stats-section').style.display = 'block';
+  updatePreview('out');
+}
+
+function fmtBytes(b) {
+  return b < 1024 ? b+' B' : b < 1048576 ? (b/1024).toFixed(1)+' KB' : (b/1048576).toFixed(2)+' MB';
+}
+
+function copyOutput() {
+  const v = document.getElementById('svg-output').value;
+  if (!v) return;
+  navigator.clipboard.writeText(v).then(() => {
+    const btn = document.querySelector('.btn-primary');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+
+function downloadSvg() {
+  const v = document.getElementById('svg-output').value;
+  if (!v) return;
+  const a = document.createElement('a');
+  a.download = 'optimized.svg';
+  a.href = URL.createObjectURL(new Blob([v], {type:'image/svg+xml'}));
+  a.click();
+}
+
+// Init size
+updateInSize();
+</script>
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ASCII Art Generator Online – Free | QuickTools</title>
+  <meta name="description" content="Convert images to ASCII art and generate text ASCII art. Multiple styles and character sets. Free online ASCII art generator." />
+  <link rel="stylesheet" href="tool.css" />
+  <style>
+    .drop-zone { border:2px dashed var(--border); border-radius:14px; padding:40px 24px; text-align:center; cursor:pointer; transition:all .2s; background:var(--bg3); }
+    .drop-zone:hover,.drop-zone.drag-over { border-color:var(--accent); background:#6366f110; }
+    #ascii-out { font-family:monospace; font-size:6px; line-height:1.1; white-space:pre; overflow:auto; background:var(--bg); color:var(--text); padding:12px; border-radius:8px; max-height:400px; }
+    .font-btn { padding:6px 14px; border-radius:6px; border:1.5px solid var(--border); background:var(--bg3); color:var(--muted); font-size:.8rem; cursor:pointer; font-family:monospace; }
+    .font-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+    #text-out { font-family:monospace; font-size:.7rem; line-height:1.0; white-space:pre; overflow:auto; background:var(--bg); color:var(--accent2); padding:12px; border-radius:8px; max-height:200px; }
+  </style>
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Generator<span>›</span>ASCII Art Generator</div>
+  <h1>ASCII Art Generator</h1>
+  <p class="tool-desc">Convert images to ASCII art, or generate big text art. Adjust density, size, and character set.</p>
+
+  <!-- Image to ASCII -->
+  <div class="card">
+    <div class="card-title">Image → ASCII Art</div>
+    <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+      <div style="font-size:2rem;">🖼</div>
+      <div style="font-weight:700;margin-top:6px;">Drop image here or click to select</div>
+    </div>
+    <input type="file" id="file-input" accept="image/*" style="display:none;" onchange="loadImg(this.files[0])" />
+
+    <div class="grid-2" style="margin-top:16px;">
+      <div>
+        <label>Width (characters)</label>
+        <input type="range" id="img-width" min="40" max="200" value="80" oninput="document.getElementById('img-width-val').textContent=this.value;renderAscii()" style="width:100%;accent-color:var(--accent);" />
+        <span id="img-width-val" style="font-size:.85rem;color:var(--accent2);">80</span> chars
+      </div>
+      <div>
+        <label>Char set</label>
+        <select id="charset" onchange="renderAscii()">
+          <option value=" .:-=+*#%@">Standard</option>
+          <option value=" ░▒▓█">Block</option>
+          <option value=" .'`^,:;Il!i><~+_-?][}{1)(|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$">Dense</option>
+          <option value=" .oO0">Simple</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="ascii-card" style="display:none;margin-top:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <span style="font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;">ASCII Output</span>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-secondary btn-sm" onclick="copyAscii()">Copy</button>
+          <button class="btn btn-secondary btn-sm" onclick="downloadAscii()">⬇ Download .txt</button>
+        </div>
+      </div>
+      <div id="ascii-out"></div>
+    </div>
+  </div>
+
+  <!-- Text to ASCII -->
+  <div class="card">
+    <div class="card-title">Text → Big ASCII Art</div>
+    <input type="text" id="text-input" placeholder="Hello" oninput="renderText()" maxlength="20" />
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+      <button class="font-btn active" data-font="block" onclick="setFont(this)">Block</button>
+      <button class="font-btn" data-font="banner" onclick="setFont(this)">Banner</button>
+      <button class="font-btn" data-font="shadow" onclick="setFont(this)">Shadow</button>
+    </div>
+    <div id="text-out" style="margin-top:12px;"></div>
+    <button class="btn btn-secondary btn-sm" style="margin-top:8px;" onclick="copyText()">Copy Text Art</button>
+  </div>
+
+  <div class="related" style="margin-top:32px;">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="image-grayscale.html">Image Grayscale</a>
+      <a class="related-link" href="text-case.html">Text Case Converter</a>
+    </div>
+  </div>
+</div>
+<footer>© 2026 QuickTools — Free online tools. No signup required.</footer>
+<canvas id="work-canvas" style="display:none;"></canvas>
+<script>
+let lastImg = null;
+
+const dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f&&f.type.startsWith('image/'))loadImg(f);});
+
+function loadImg(file) {
+  const img = new Image();
+  img.onload = () => { lastImg = img; renderAscii(); };
+  img.src = URL.createObjectURL(file);
+}
+
+function renderAscii() {
+  if (!lastImg) return;
+  const cols = parseInt(document.getElementById('img-width').value);
+  const charset = document.getElementById('charset').value;
+  const canvas = document.getElementById('work-canvas');
+  // Aspect ratio: terminal chars are ~2x tall
+  const rows = Math.round(cols * lastImg.naturalHeight / lastImg.naturalWidth * 0.45);
+  canvas.width=cols; canvas.height=rows;
+  const ctx=canvas.getContext('2d');
+  ctx.drawImage(lastImg,0,0,cols,rows);
+  const data=ctx.getImageData(0,0,cols,rows).data;
+  let art='';
+  for(let y=0;y<rows;y++){
+    for(let x=0;x<cols;x++){
+      const i=(y*cols+x)*4;
+      const lum=(0.299*data[i]+0.587*data[i+1]+0.114*data[i+2])/255;
+      const idx=Math.floor(lum*(charset.length-1));
+      art+=charset[charset.length-1-idx];
+    }
+    art+='\n';
+  }
+  document.getElementById('ascii-out').textContent=art;
+  document.getElementById('ascii-card').style.display='block';
+}
+
+function copyAscii(){navigator.clipboard.writeText(document.getElementById('ascii-out').textContent);}
+function downloadAscii(){const a=document.createElement('a');a.download='ascii-art.txt';a.href=URL.createObjectURL(new Blob([document.getElementById('ascii-out').textContent],{type:'text/plain'}));a.click();}
+
+// Simple block font (5 rows)
+const BLOCK_FONT = {
+  'A':['  #  ','  #  ',' ### ',' # # ','#   #'],
+  'B':['####','# # ','####','# # ','####'],
+  'C':[' ###','#   ','#   ','#   ',' ###'],
+  'D':['### ','#  #','#  #','#  #','### '],
+  'E':['####','#   ','### ','#   ','####'],
+  'F':['####','#   ','### ','#   ','#   '],
+  'G':[' ###','#   ','# ##','#  #',' ###'],
+  'H':['#  #','#  #','####','#  #','#  #'],
+  'I':['###',' # ',' # ',' # ','###'],
+  'J':['  #','  #','  #','# #',' # '],
+  'K':['# #','## ','#  ','## ','# #'],
+  'L':['#  ','#  ','#  ','#  ','###'],
+  'M':['#   #','## ##','# # #','#   #','#   #'],
+  'N':['#  #','## #','# ##','#  #','#  #'],
+  'O':[' # ','# #','# #','# #',' # '],
+  'P':['###','# #','###','#  ','#  '],
+  'Q':[' # ','# #','# #','## ',' ##'],
+  'R':['### ','#  #','### ','## ','# #'],
+  'S':[' ##','#  ',' # ','  #','## '],
+  'T':['###',' # ',' # ',' # ',' # '],
+  'U':['#  #','#  #','#  #','#  #',' ## '],
+  'V':['#   #','#   #',' # # ',' # # ','  #  '],
+  'W':['#   #','#   #','# # #','## ##','#   #'],
+  'X':['# #',' # ','   ',' # ','# #'],
+  'Y':['# #',' # ',' # ',' # ',' # '],
+  'Z':['###','  #',' # ','#  ','###'],
+  '0':[' # ','# #','# #','# #',' # '],
+  '1':[' #','##',' #',' #','###'],
+  '2':[' # ','# #','  #',' # ','###'],
+  '3':['## ','  #',' # ','  #','## '],
+  '4':['  #',' ##','# #','###','  #'],
+  '5':['###','#  ','## ','  #','## '],
+  '6':[' ##','#  ','###','# #',' ##'],
+  '7':['###','  #',' # ',' # ',' # '],
+  '8':[' # ','# #',' # ','# #',' # '],
+  '9':[' ##','# #',' ##','  #',' # '],
+  ' ':['   ','   ','   ','   ','   '],
+  '!':['#','#','#',' ','#'],
+  '?':[' ##','# #','  #',' # ','   '],
+  '.':['  ','  ','  ','  ',' #'],
+};
+
+const BANNER = {'A':['########','##    ##','########','##    ##','##    ##'],'B':['####### ','##    ##','####### ','##    ##','####### '],'C':[' #######','##      ','##      ','##      ',' #######'],'default':['##  ##','##  ##','######','##  ##','##  ##']};
+
+function renderText() {
+  const text = (document.getElementById('text-input').value||'HELLO').toUpperCase();
+  const font = document.getElementById('work-font')||'block';
+  const rows = 5;
+  let lines = Array(rows).fill('');
+  for(const ch of text){
+    const glyph = BLOCK_FONT[ch]||BLOCK_FONT['?'];
+    for(let r=0;r<rows;r++) lines[r]+=(glyph[r]||'   ')+'  ';
+  }
+  document.getElementById('text-out').textContent = lines.join('\n');
+}
+
+let currentFont='block';
+function setFont(btn){
+  document.querySelectorAll('.font-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  currentFont=btn.dataset.font;
+  renderText();
+}
+function copyText(){navigator.clipboard.writeText(document.getElementById('text-out').textContent);}
+
+document.getElementById('text-input').value='HELLO';
+renderText();
+</script>
+</body>
+</html>

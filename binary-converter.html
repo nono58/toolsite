@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Binary Hex Octal Converter Online – Free | QuickTools</title>
+  <meta name="description" content="Convert numbers between binary, octal, decimal, and hexadecimal instantly. Also converts text to binary. Free online base converter." />
+  <link rel="stylesheet" href="tool.css" />
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Developer<span>›</span>Binary/Hex/Octal Converter</div>
+  <h1>Binary / Hex / Octal Converter</h1>
+  <p class="tool-desc">Convert numbers between binary (base 2), octal (base 8), decimal (base 10), and hexadecimal (base 16). Also convert text to binary.</p>
+
+  <div class="card">
+    <div class="card-title">Number Base Converter</div>
+    <p style="font-size:.85rem;color:var(--muted);margin-bottom:16px;">Edit any field — others update automatically.</p>
+    <div style="display:grid;gap:12px;">
+      <div>
+        <label>Decimal (Base 10)</label>
+        <input type="text" id="dec" placeholder="e.g. 255" oninput="fromBase(this,'10')" style="font-family:monospace;" />
+      </div>
+      <div>
+        <label>Binary (Base 2)</label>
+        <input type="text" id="bin" placeholder="e.g. 11111111" oninput="fromBase(this,'2')" style="font-family:monospace;" />
+      </div>
+      <div>
+        <label>Octal (Base 8)</label>
+        <input type="text" id="oct" placeholder="e.g. 377" oninput="fromBase(this,'8')" style="font-family:monospace;" />
+      </div>
+      <div>
+        <label>Hexadecimal (Base 16)</label>
+        <input type="text" id="hex" placeholder="e.g. FF" oninput="fromBase(this,'16')" style="font-family:monospace;" />
+      </div>
+    </div>
+    <div id="num-info" style="margin-top:16px;display:none;">
+      <div class="stats-row" id="num-stats"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Text ↔ Binary</div>
+    <div class="grid-2">
+      <div>
+        <label>Text</label>
+        <textarea id="txt-input" placeholder="Hello" oninput="textToBin()" rows="4" style="font-size:.9rem;"></textarea>
+      </div>
+      <div>
+        <label>Binary</label>
+        <textarea id="bin-output" placeholder="01001000 01100101…" oninput="binToText()" rows="4" style="font-family:monospace;font-size:.82rem;"></textarea>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:10px;">
+      <button class="btn btn-secondary btn-sm" onclick="copyBin()">Copy Binary</button>
+      <button class="btn btn-secondary btn-sm" onclick="copyTxt()">Copy Text</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Bitwise Calculator</div>
+    <div class="grid-2">
+      <div><label>A (decimal)</label><input type="number" id="bw-a" placeholder="42" oninput="bitwise()" /></div>
+      <div><label>B (decimal)</label><input type="number" id="bw-b" placeholder="27" oninput="bitwise()" /></div>
+    </div>
+    <div id="bw-result" style="margin-top:12px;display:grid;gap:6px;"></div>
+  </div>
+
+  <div class="related" style="margin-top:32px;">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="hash-generator.html">Hash Generator</a>
+      <a class="related-link" href="base64.html">Base64 Encoder</a>
+    </div>
+  </div>
+</div>
+<footer>© 2026 QuickTools — Free online tools. No signup required.</footer>
+<script>
+let updating = false;
+
+function fromBase(el, base) {
+  if (updating) return;
+  const raw = el.value.trim().toUpperCase().replace(/\s/g,'');
+  if (!raw) { clearAll(); return; }
+  const n = parseInt(raw, parseInt(base));
+  if (isNaN(n) || n < 0) { el.style.borderColor='#f87171'; return; }
+  el.style.borderColor='';
+  updating = true;
+  document.getElementById('dec').value = base !== '10' ? n.toString(10) : raw;
+  document.getElementById('bin').value = base !== '2'  ? n.toString(2)  : raw;
+  document.getElementById('oct').value = base !== '8'  ? n.toString(8)  : raw;
+  document.getElementById('hex').value = base !== '16' ? n.toString(16).toUpperCase() : raw;
+  ['dec','bin','oct','hex'].forEach(id=>document.getElementById(id).style.borderColor='');
+  // Info
+  const bits = n.toString(2).length;
+  document.getElementById('num-stats').innerHTML = `
+    <span>Value: ${n}</span>
+    <span>Bits: ${bits}</span>
+    <span>Bytes: ${Math.ceil(bits/8)}</span>
+    <span>Signed: ${n > 2147483647 ? 'overflow' : n}</span>
+  `;
+  document.getElementById('num-info').style.display='block';
+  updating = false;
+}
+
+function clearAll() {
+  ['dec','bin','oct','hex'].forEach(id=>{document.getElementById(id).value='';document.getElementById(id).style.borderColor='';});
+  document.getElementById('num-info').style.display='none';
+}
+
+function textToBin() {
+  const txt = document.getElementById('txt-input').value;
+  document.getElementById('bin-output').value = txt.split('').map(c=>c.charCodeAt(0).toString(2).padStart(8,'0')).join(' ');
+}
+
+function binToText() {
+  const bin = document.getElementById('bin-output').value.trim();
+  try {
+    const txt = bin.split(/\s+/).filter(Boolean).map(b=>String.fromCharCode(parseInt(b,2))).join('');
+    document.getElementById('txt-input').value = txt;
+  } catch(e) {}
+}
+
+function copyBin(){navigator.clipboard.writeText(document.getElementById('bin-output').value);}
+function copyTxt(){navigator.clipboard.writeText(document.getElementById('txt-input').value);}
+
+function bitwise() {
+  const a = parseInt(document.getElementById('bw-a').value)||0;
+  const b = parseInt(document.getElementById('bw-b').value)||0;
+  const ops = [
+    ['AND (a & b)', a & b],
+    ['OR  (a | b)', a | b],
+    ['XOR (a ^ b)', a ^ b],
+    ['NOT (~a)',    ~a],
+    ['Left shift (a << 1)', a << 1],
+    ['Right shift (a >> 1)', a >> 1],
+  ];
+  document.getElementById('bw-result').innerHTML = ops.map(([l,v])=>
+    `<div style="display:flex;justify-content:space-between;padding:6px 12px;background:var(--bg3);border-radius:6px;font-size:.85rem;gap:8px;">
+      <span style="color:var(--muted);">${l}</span>
+      <span style="font-family:monospace;color:var(--accent2);">${v} <span style="color:var(--muted);font-size:.78rem;">(${(v>>>0).toString(2).replace(/(.{4})/g,'$1 ').trim()})</span></span>
+    </div>`
+  ).join('');
+}
+
+// Sample
+document.getElementById('dec').value='255';
+fromBase(document.getElementById('dec'),'10');
+document.getElementById('txt-input').value='Hello';
+textToBin();
+document.getElementById('bw-a').value=42;
+document.getElementById('bw-b').value=27;
+bitwise();
+</script>
+</body>
+</html>
