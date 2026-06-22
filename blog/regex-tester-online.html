@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Regex Tester Online – Test Regular Expressions Instantly | QuickTools</title>
+  <meta name="description" content="Test and debug regular expressions online for free. Real-time match highlighting, capture groups, flags, and a regex quick reference." />
+  <meta name="keywords" content="regex tester online, regular expression tester, regex validator, test regex online, regex debugger" />
+  <link rel="canonical" href="https://toolsite-xn828584.vercel.app/blog/regex-tester-online.html" />
+  <meta property="og:title" content="Regex Tester Online – Test Regular Expressions Instantly" />
+  <meta property="og:description" content="Test and debug regular expressions online for free. Real-time match highlighting, capture groups, flags, and a regex quick reference." />
+  <meta property="og:type" content="article" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Regex Tester Online – Test Regular Expressions Instantly",
+    "description": "Test and debug regular expressions online for free. Real-time match highlighting, capture groups, flags, and a regex quick reference.",
+    "author": {"@type": "Organization", "name": "QuickTools"},
+    "publisher": {"@type": "Organization", "name": "QuickTools", "url": "https://toolsite-xn828584.vercel.app/"},
+    "datePublished": "2026-06-22",
+    "dateModified": "2026-06-22"
+  }
+  </script>
+  <link rel="stylesheet" href="blog.css" />
+</head>
+<body>
+<header>
+  <a class="logo" href="../index.html">⚡ Quick<span>Tools</span></a>
+  <a class="nav-blog" href="index.html">📝 Blog</a>
+</header>
+<div class="container">
+  <div class="breadcrumb"><a href="../index.html">Home</a> › <a href="index.html">Blog</a> › Developer Tools</div>
+  <h1>Regex Tester Online — Debug Regular Expressions in Real Time</h1>
+  <div class="meta"><span>June 22, 2026</span><span>5 min read</span><span>Developer Tools</span></div>
+  <div class="article-body">
+    <p>Regular expressions (regex) are powerful but notoriously hard to write correctly. This guide explains how to test regex patterns online and covers the most useful syntax.</p>
+    <div class="cta-box">
+      <h3>⚡ Try It Free — No Signup</h3>
+      <p>Works instantly in your browser. No account, no install, no upload.</p>
+      <a class="btn-cta" href="../regex-tester.html">Open Regex Tester →</a>
+    </div>
+    <h2>Regular Expression Basics</h2>
+    <p>A regular expression is a sequence of characters that defines a search pattern. Used for validating input, finding text, extracting data, and replacing strings.</p>
+    <h2>Essential Regex Syntax</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:.85rem;margin-bottom:20px;">
+      <thead><tr style="border-bottom:1px solid var(--border);"><th style="padding:8px;text-align:left;color:var(--muted);">Pattern</th><th style="padding:8px;text-align:left;color:var(--muted);">Meaning</th><th style="padding:8px;text-align:left;color:var(--muted);">Example</th></tr></thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--border);"><td style="padding:8px;font-family:monospace;">.</td><td style="padding:8px;">Any character</td><td style="padding:8px;font-family:monospace;">a.c → "abc", "a1c"</td></tr>
+        <tr style="border-bottom:1px solid var(--border);"><td style="padding:8px;font-family:monospace;">*</td><td style="padding:8px;">0 or more</td><td style="padding:8px;font-family:monospace;">ab* → "a", "ab", "abb"</td></tr>
+        <tr style="border-bottom:1px solid var(--border);"><td style="padding:8px;font-family:monospace;">+</td><td style="padding:8px;">1 or more</td><td style="padding:8px;font-family:monospace;">ab+ → "ab", "abb"</td></tr>
+        <tr style="border-bottom:1px solid var(--border);"><td style="padding:8px;font-family:monospace;">?</td><td style="padding:8px;">0 or 1</td><td style="padding:8px;font-family:monospace;">colou?r → "color", "colour"</td></tr>
+        <tr style="border-bottom:1px solid var(--border);"><td style="padding:8px;font-family:monospace;">\d</td><td style="padding:8px;">Any digit</td><td style="padding:8px;font-family:monospace;">\d+ → "123"</td></tr>
+        <tr style="border-bottom:1px solid var(--border);"><td style="padding:8px;font-family:monospace;">\w</td><td style="padding:8px;">Word character</td><td style="padding:8px;font-family:monospace;">\w+ → "hello"</td></tr>
+        <tr style="border-bottom:1px solid var(--border);"><td style="padding:8px;font-family:monospace;">^</td><td style="padding:8px;">Start of string</td><td style="padding:8px;font-family:monospace;">^Hello</td></tr>
+        <tr><td style="padding:8px;font-family:monospace;">$</td><td style="padding:8px;">End of string</td><td style="padding:8px;font-family:monospace;">world$</td></tr>
+      </tbody>
+    </table>
+    <h2>Common Regex Patterns</h2>
+    <pre><code># Email validation
+^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+
+# URL
+https?://[^\s/$.?#].[^\s]*
+
+# Phone number (US)
+\+?1?\s?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}
+
+# IPv4 address
+(?:\d{1,3}\.){3}\d{1,3}
+
+# Hex color
+#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})</code></pre>
+    <h2>Regex Flags</h2>
+    <ul>
+      <li><code>g</code> — Global: find all matches (not just the first)</li>
+      <li><code>i</code> — Case-insensitive</li>
+      <li><code>m</code> — Multiline: ^ and $ match line boundaries</li>
+      <li><code>s</code> — Dot-all: . matches newlines</li>
+    </ul>
+    <div class="faq">
+      <h2>Frequently Asked Questions</h2>
+      <div class="faq-item">
+        <div class="faq-q">What regex flavor does the tester use?</div>
+        <div class="faq-a">JavaScript (ECMAScript) regex, which is the same engine used in all modern browsers and Node.js.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">How do I match a literal dot?</div>
+        <div class="faq-a">Escape it with a backslash: <code>\.</code> matches a literal dot. Without the backslash, <code>.</code> matches any character.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">What are capture groups?</div>
+        <div class="faq-a">Parentheses <code>()</code> create capture groups that extract specific parts of a match. For example, <code>(\d{4})-(\d{2})-(\d{2})</code> on a date string captures year, month, and day separately.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Why does my regex work in Python but not JavaScript?</div>
+        <div class="faq-a">Different languages use slightly different regex flavors. Python supports lookbehind with variable length; JavaScript doesn't (pre-ES2018). Always test in the environment you'll use.</div>
+      </div>
+    </div>
+    <div class="cta-box">
+      <h3>Ready to try it?</h3>
+      <p>Free, instant, and runs entirely in your browser.</p>
+      <a class="btn-cta" href="../regex-tester.html">Open Regex Tester →</a>
+    </div>
+  </div>
+  <div class="related-articles">
+    <h2>Related Tools & Articles</h2>
+    <div class="related-grid">
+      <a class="related-card" href="../regex-tester.html">⚡ Regex Tester</a>
+      <a class="related-card" href="../json-formatter.html">JSON Formatter</a>
+      <a class="related-card" href="../diff-checker.html">Diff Checker</a>
+      <a class="related-card" href="json-formatter-online.html">JSON Guide</a>
+    </div>
+  </div>
+</div>
+<footer>© 2026 QuickTools — Free online tools. No signup required. · <a href="../index.html">All Tools</a></footer>
+</body>
+</html>

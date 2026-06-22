@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JWT Decoder Online – Decode JSON Web Tokens Instantly | QuickTools</title>
+  <meta name="description" content="Decode and inspect JWT (JSON Web Token) header, payload, and signature online for free. Check expiry, claims, and algorithm. No signup." />
+  <meta name="keywords" content="jwt decoder online, decode jwt, json web token decoder, jwt parser, inspect jwt token" />
+  <link rel="canonical" href="https://toolsite-xn828584.vercel.app/blog/jwt-decoder-online.html" />
+  <meta property="og:title" content="JWT Decoder Online – Decode JSON Web Tokens Instantly" />
+  <meta property="og:description" content="Decode and inspect JWT (JSON Web Token) header, payload, and signature online for free. Check expiry, claims, and algorithm. No signup." />
+  <meta property="og:type" content="article" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "JWT Decoder Online – Decode JSON Web Tokens Instantly",
+    "description": "Decode and inspect JWT (JSON Web Token) header, payload, and signature online for free. Check expiry, claims, and algorithm. No signup.",
+    "author": {"@type": "Organization", "name": "QuickTools"},
+    "publisher": {"@type": "Organization", "name": "QuickTools", "url": "https://toolsite-xn828584.vercel.app/"},
+    "datePublished": "2026-06-22",
+    "dateModified": "2026-06-22"
+  }
+  </script>
+  <link rel="stylesheet" href="blog.css" />
+</head>
+<body>
+<header>
+  <a class="logo" href="../index.html">⚡ Quick<span>Tools</span></a>
+  <a class="nav-blog" href="index.html">📝 Blog</a>
+</header>
+<div class="container">
+  <div class="breadcrumb"><a href="../index.html">Home</a> › <a href="index.html">Blog</a> › Developer Tools</div>
+  <h1>JWT Decoder Online — Inspect JSON Web Tokens Instantly</h1>
+  <div class="meta"><span>June 22, 2026</span><span>5 min read</span><span>Developer Tools</span></div>
+  <div class="article-body">
+    <p>JSON Web Tokens (JWTs) are used everywhere in modern authentication. This guide explains the JWT structure and how to decode and inspect tokens safely online.</p>
+    <div class="cta-box">
+      <h3>⚡ Try It Free — No Signup</h3>
+      <p>Works instantly in your browser. No account, no install.</p>
+      <a class="btn-cta" href="../jwt-decoder.html">Open JWT Decoder →</a>
+    </div>
+    <h2>What Is a JWT?</h2>
+    <p>A JSON Web Token is a compact, URL-safe token format used for authentication and information exchange. JWTs are signed so their contents can be verified, but they are <strong>not encrypted by default</strong> — anyone can read the payload.</p>
+    <h2>JWT Structure</h2>
+    <p>A JWT has three Base64URL-encoded parts separated by dots:</p>
+    <pre><code>header.payload.signature
+
+Example:
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.
+eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4iLCJpYXQiOjE1MTYyMzkwMjJ9.
+SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c</code></pre>
+    <h2>JWT Claims (Payload Fields)</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:.85rem;margin-bottom:20px;">
+      <thead><tr style="border-bottom:1px solid var(--border);"><th style="padding:8px;text-align:left;color:var(--muted);">Claim</th><th style="padding:8px;text-align:left;color:var(--muted);">Meaning</th></tr></thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--border);"><td style="padding:8px;font-family:monospace;">sub</td><td style="padding:8px;">Subject (user ID)</td></tr>
+        <tr style="border-bottom:1px solid var(--border);"><td style="padding:8px;font-family:monospace;">iss</td><td style="padding:8px;">Issuer (who created the token)</td></tr>
+        <tr style="border-bottom:1px solid var(--border);"><td style="padding:8px;font-family:monospace;">exp</td><td style="padding:8px;">Expiration time (Unix timestamp)</td></tr>
+        <tr style="border-bottom:1px solid var(--border);"><td style="padding:8px;font-family:monospace;">iat</td><td style="padding:8px;">Issued at (Unix timestamp)</td></tr>
+        <tr><td style="padding:8px;font-family:monospace;">aud</td><td style="padding:8px;">Audience (intended recipient)</td></tr>
+      </tbody>
+    </table>
+    <h2>Security Warning</h2>
+    <p>Never paste production JWTs into untrusted online tools — a JWT may contain sensitive claims and is sufficient to authenticate as that user until it expires. Our tool processes JWTs entirely in your browser; nothing is sent to any server.</p>
+    <div class="faq">
+      <h2>Frequently Asked Questions</h2>
+      <div class="faq-item">
+        <div class="faq-q">Can anyone read my JWT payload?</div>
+        <div class="faq-a">Yes — the payload is Base64URL encoded, not encrypted. Anyone with the token can decode it. Never store sensitive data (passwords, credit cards) in a JWT payload.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Does decoding verify the signature?</div>
+        <div class="faq-a">Our decoder shows the decoded contents but does not verify the signature (that requires the secret key). To verify, use your backend library.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">What's the difference between HS256 and RS256?</div>
+        <div class="faq-a">HS256 uses a shared secret (HMAC). RS256 uses a public/private key pair (RSA). RS256 is preferred for distributed systems since you can share the public key for verification without exposing the signing key.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">How long should a JWT last?</div>
+        <div class="faq-a">Access tokens: 15 minutes to 1 hour. Refresh tokens: days to weeks. Short-lived tokens minimize damage from theft.</div>
+      </div>
+    </div>
+    <div class="cta-box">
+      <h3>Ready to try it?</h3>
+      <p>Free, instant, and runs entirely in your browser.</p>
+      <a class="btn-cta" href="../jwt-decoder.html">Open JWT Decoder →</a>
+    </div>
+  </div>
+  <div class="related-articles">
+    <h2>Related Tools & Articles</h2>
+    <div class="related-grid">
+      <a class="related-card" href="../jwt-decoder.html">⚡ JWT Decoder</a>
+      <a class="related-card" href="../base64.html">Base64 Encoder</a>
+      <a class="related-card" href="../hash-generator.html">Hash Generator</a>
+      <a class="related-card" href="base64-encode-decode.html">Base64 Guide</a>
+    </div>
+  </div>
+</div>
+<footer>© 2026 QuickTools — Free online tools. No signup required. · <a href="../index.html">All Tools</a></footer>
+</body>
+</html>

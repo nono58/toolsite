@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Normal Map Generator Online – Create Normal Maps from Images | QuickTools</title>
+  <meta name="description" content="Generate normal maps from grayscale or color images online for free. Adjust strength, blur, and axis orientation. Download as PNG. No signup." />
+  <meta name="keywords" content="normal map generator online, create normal map, heightmap to normal map, normal map from image, texture normal map" />
+  <link rel="canonical" href="https://toolsite-xn828584.vercel.app/blog/normal-map-generator-online.html" />
+  <meta property="og:title" content="Normal Map Generator Online – Create Normal Maps from Images" />
+  <meta property="og:description" content="Generate normal maps from grayscale or color images online for free. Adjust strength, blur, and axis orientation. Download as PNG. No signup." />
+  <meta property="og:type" content="article" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Normal Map Generator Online – Create Normal Maps from Images",
+    "description": "Generate normal maps from grayscale or color images online for free. Adjust strength, blur, and axis orientation. Download as PNG. No signup.",
+    "author": {"@type": "Organization", "name": "QuickTools"},
+    "publisher": {"@type": "Organization", "name": "QuickTools", "url": "https://toolsite-xn828584.vercel.app/"},
+    "datePublished": "2026-06-22",
+    "dateModified": "2026-06-22"
+  }
+  </script>
+  <link rel="stylesheet" href="blog.css" />
+</head>
+<body>
+<header>
+  <a class="logo" href="../index.html">⚡ Quick<span>Tools</span></a>
+  <a class="nav-blog" href="index.html">📝 Blog</a>
+</header>
+<div class="container">
+  <div class="breadcrumb"><a href="../index.html">Home</a> › <a href="index.html">Blog</a> › Image Tools</div>
+  <h1>Normal Map Generator Online — Convert Images to Normal Maps</h1>
+  <div class="meta"><span>June 22, 2026</span><span>5 min read</span><span>Image Tools</span></div>
+  <div class="article-body">
+    <p>Normal maps are essential for 3D graphics and game development, adding surface detail without extra polygons. This guide explains what normal maps are and how to generate them from any image online.</p>
+    <div class="cta-box">
+      <h3>⚡ Try It Free — No Signup</h3>
+      <p>Works instantly in your browser. No account, no install.</p>
+      <a class="btn-cta" href="../normal-map-generator.html">Generate Normal Map Free →</a>
+    </div>
+    <h2>What Is a Normal Map?</h2>
+    <p>A normal map is a texture that stores surface orientation information encoded as RGB colors. The RGB channels represent X, Y, Z direction vectors (normals) of a surface. When applied in a 3D renderer, normal maps simulate fine surface detail — bumps, grooves, scratches — using lighting calculations, without adding geometric complexity.</p>
+    <p>The neutral (flat surface) color of a normal map is <strong>#8080FF</strong> — a medium blue-purple.</p>
+    <h2>Normal Map Color Meaning</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:.85rem;margin-bottom:20px;">
+      <thead><tr style="border-bottom:1px solid var(--border);"><th style="padding:8px;text-align:left;color:var(--muted);">Channel</th><th style="padding:8px;text-align:left;color:var(--muted);">Direction</th><th style="padding:8px;text-align:left;color:var(--muted);">Value Range</th></tr></thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--border);"><td style="padding:8px;">Red (R)</td><td style="padding:8px;">X axis (left/right)</td><td style="padding:8px;">0–255 (128 = neutral)</td></tr>
+        <tr style="border-bottom:1px solid var(--border);"><td style="padding:8px;">Green (G)</td><td style="padding:8px;">Y axis (up/down)</td><td style="padding:8px;">0–255 (128 = neutral)</td></tr>
+        <tr><td style="padding:8px;">Blue (B)</td><td style="padding:8px;">Z axis (depth)</td><td style="padding:8px;">128–255 (always positive)</td></tr>
+      </tbody>
+    </table>
+    <h2>OpenGL vs DirectX Normal Maps</h2>
+    <p>There are two conventions for the Y-axis direction:</p>
+    <ul>
+      <li><strong>OpenGL</strong>: Green = up (used in Blender, Unity with certain settings, most game engines)</li>
+      <li><strong>DirectX</strong>: Green = down / Y flipped (used in DirectX, some older tools)</li>
+    </ul>
+    <p>The tool has a "Flip Y" toggle to switch between conventions. If your normal map looks inverted, try toggling this.</p>
+    <h2>How Normal Maps Are Generated</h2>
+    <p>Our generator uses the <strong>Sobel operator</strong> — a gradient-detection filter that computes rate of change in X and Y directions across the heightmap. Bright areas are treated as raised surfaces; dark areas as recessed. The gradients are normalized to tangent-space RGB.</p>
+    <div class="faq">
+      <h2>Frequently Asked Questions</h2>
+      <div class="faq-item">
+        <div class="faq-q">What image should I use as input?</div>
+        <div class="faq-a">Grayscale heightmaps work best — white = high, black = low. You can also use color images; the tool converts them to luminance first.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">What's the Strength setting?</div>
+        <div class="faq-a">Strength controls how pronounced the surface detail appears. Low values (1–3) give subtle bumps; high values (10–20) give dramatic surface relief.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">What file format should I download?</div>
+        <div class="faq-a">PNG — it's lossless, which is important for normal maps. JPEG compression would corrupt the precise color values that encode surface directions.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Can I use this for Blender or Unity?</div>
+        <div class="faq-a">Yes. For Blender, use the OpenGL convention. For Unity's HDRP/URP, also use OpenGL. For older Unity or DirectX applications, use the DirectX (Flip Y) setting.</div>
+      </div>
+    </div>
+    <div class="cta-box">
+      <h3>Ready to try it?</h3>
+      <p>Free, instant, and runs entirely in your browser.</p>
+      <a class="btn-cta" href="../normal-map-generator.html">Generate Normal Map Free →</a>
+    </div>
+  </div>
+  <div class="related-articles">
+    <h2>Related Tools & Articles</h2>
+    <div class="related-grid">
+      <a class="related-card" href="../normal-map-generator.html">⚡ Normal Map Generator</a>
+      <a class="related-card" href="../image-compressor.html">Image Compressor</a>
+      <a class="related-card" href="../color-blindness-simulator.html">Color Blindness Simulator</a>
+      <a class="related-card" href="exif-viewer-online.html">EXIF Viewer Guide</a>
+    </div>
+  </div>
+</div>
+<footer>© 2026 QuickTools — Free online tools. No signup required. · <a href="../index.html">All Tools</a></footer>
+</body>
+</html>
