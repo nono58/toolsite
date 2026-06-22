@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Color Palette from Image – Extract Colors Online Free | QuickTools</title>
+<meta name="description" content="Extract a color palette from any image online for free. Get dominant colors as HEX, RGB, and HSL. Copy CSS variables instantly. No signup."/>
+<link rel="stylesheet" href="tool.css"/>
+<style>
+  .upload-zone { border:2px dashed var(--border); border-radius:14px; padding:48px 20px; text-align:center; cursor:pointer; transition:.2s; background:var(--bg2); }
+  .upload-zone:hover,.upload-zone.drag { border-color:var(--accent); background:var(--bg3); }
+  .upload-icon { font-size:2.8rem; margin-bottom:10px; }
+  .preview-img { max-width:100%; max-height:320px; border-radius:10px; display:block; margin:0 auto; }
+  .palette-strip { display:flex; gap:0; border-radius:12px; overflow:hidden; height:64px; margin:16px 0; }
+  .strip-color { flex:1; cursor:pointer; transition:flex .2s; }
+  .strip-color:hover { flex:2; }
+  .swatches-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:12px; margin-top:12px; }
+  .swatch-card { background:var(--bg2); border:1px solid var(--border); border-radius:10px; overflow:hidden; cursor:pointer; transition:.15s; }
+  .swatch-card:hover { border-color:var(--accent); transform:translateY(-2px); }
+  .swatch-color { height:70px; }
+  .swatch-info { padding:10px 12px; }
+  .swatch-hex { font-family:monospace; font-size:.9rem; font-weight:700; color:var(--text); }
+  .swatch-rgb { font-size:.73rem; color:var(--muted); font-family:monospace; }
+  .copy-tag { float:right; font-size:.68rem; color:var(--accent2); }
+  .count-row { display:flex; gap:8px; align-items:center; margin-bottom:12px; }
+  .count-row label { font-size:.83rem; color:var(--muted); }
+  select.s { background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:.83rem; }
+  .css-out { margin-top:12px;background:var(--bg3);border-radius:8px;padding:14px;font-family:monospace;font-size:.75rem;color:var(--text);white-space:pre;overflow-x:auto;line-height:1.7;border:1px solid var(--border); }
+</style>
+</head>
+<body>
+<header><a class="logo" href="index.html">⚡ Quick<span>Tools</span></a></header>
+<main>
+  <h1 class="tool-title">Color Palette from Image</h1>
+  <p class="tool-desc">Drop any photo and instantly extract the dominant color palette as HEX, RGB, HSL, and CSS variables.</p>
+
+  <div class="card">
+    <div id="upload-zone" class="upload-zone">
+      <div class="upload-icon">🎨</div>
+      <p style="font-size:1rem;font-weight:600;color:var(--text);margin:0 0 6px">Drop an image here</p>
+      <p style="color:var(--muted);font-size:.85rem;margin:0">or click to upload — JPEG, PNG, WebP, GIF</p>
+      <input type="file" id="file-input" accept="image/*" style="display:none"/>
+    </div>
+
+    <div id="result" style="display:none;margin-top:16px">
+      <img id="preview-img" class="preview-img" alt="preview"/>
+
+      <div class="count-row" style="margin-top:16px">
+        <label>Colors:</label>
+        <select class="s" id="count-sel">
+          <option value="5">5</option>
+          <option value="8" selected>8</option>
+          <option value="12">12</option>
+          <option value="16">16</option>
+        </select>
+        <label style="margin-left:8px">Sort:</label>
+        <select class="s" id="sort-sel">
+          <option value="freq">By frequency</option>
+          <option value="lum">By luminance</option>
+          <option value="hue">By hue</option>
+        </select>
+        <button class="btn-secondary" id="reextract-btn" style="margin-left:auto">🔄 Re-extract</button>
+      </div>
+
+      <div class="palette-strip" id="palette-strip"></div>
+      <div class="swatches-grid" id="swatches-grid"></div>
+
+      <button class="btn-primary" id="copy-css-btn" style="margin-top:12px">📋 Copy as CSS Variables</button>
+      <div class="css-out" id="css-out" style="display:none"></div>
+    </div>
+  </div>
+</main>
+
+<script>
+let extractedColors = [];
+let imageData = null;
+
+const zone = document.getElementById('upload-zone');
+const fileInput = document.getElementById('file-input');
+
+zone.addEventListener('click', () => fileInput.click());
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
+zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('drag'); loadFile(e.dataTransfer.files[0]); });
+fileInput.addEventListener('change', e => loadFile(e.target.files[0]));
+
+function loadFile(file) {
+  if(!file||!file.type.startsWith('image/')) return;
+  const url = URL.createObjectURL(file);
+  document.getElementById('preview-img').src = url;
+  document.getElementById('result').style.display = 'block';
+
+  const img = new Image();
+  img.onload = () => {
+    const canvas = document.createElement('canvas');
+    const MAX = 128;
+    const scale = Math.min(1, MAX/Math.max(img.width,img.height));
+    canvas.width = Math.round(img.width*scale);
+    canvas.height = Math.round(img.height*scale);
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img,0,0,canvas.width,canvas.height);
+    imageData = ctx.getImageData(0,0,canvas.width,canvas.height);
+    extract();
+  };
+  img.src = url;
+}
+
+function rgbToHex(r,g,b){ return '#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join(''); }
+function hexToHsl(r,g,b){
+  r/=255;g/=255;b/=255;
+  const max=Math.max(r,g,b),min=Math.min(r,g,b);
+  let h,s,l=(max+min)/2;
+  if(max===min){h=s=0;}else{
+    const d=max-min; s=l>.5?d/(2-max-min):d/(max+min);
+    switch(max){case r:h=((g-b)/d+(g<b?6:0))/6;break;case g:h=((b-r)/d+2)/6;break;default:h=((r-g)/d+4)/6;}
+  }
+  return `hsl(${Math.round(h*360)},${Math.round(s*100)}%,${Math.round(l*100)}%)`;
+}
+
+function quantize(data, k) {
+  // Simple k-means color quantization
+  const pixels = [];
+  for(let i=0;i<data.data.length;i+=4) {
+    const a=data.data[i+3]; if(a<128) continue;
+    pixels.push([data.data[i],data.data[i+1],data.data[i+2]]);
+  }
+  if(!pixels.length) return [];
+
+  // Init centroids (evenly spaced by hue)
+  let centroids = [];
+  const step = Math.floor(pixels.length/k);
+  for(let i=0;i<k;i++) centroids.push([...pixels[i*step]]);
+
+  for(let iter=0;iter<20;iter++){
+    const clusters = Array.from({length:k},()=>({sum:[0,0,0],n:0}));
+    for(const px of pixels){
+      let minD=1e18,ci=0;
+      centroids.forEach((c,i)=>{ const d=(px[0]-c[0])**2+(px[1]-c[1])**2+(px[2]-c[2])**2; if(d<minD){minD=d;ci=i;} });
+      clusters[ci].sum[0]+=px[0]; clusters[ci].sum[1]+=px[1]; clusters[ci].sum[2]+=px[2]; clusters[ci].n++;
+    }
+    centroids=clusters.map(c=>c.n?[c.sum[0]/c.n,c.sum[1]/c.n,c.sum[2]/c.n]:centroids[0]);
+  }
+
+  // Count pixels per centroid for frequency sort
+  const freq=Array(k).fill(0);
+  for(const px of pixels){
+    let minD=1e18,ci=0;
+    centroids.forEach((c,i)=>{ const d=(px[0]-c[0])**2+(px[1]-c[1])**2+(px[2]-c[2])**2; if(d<minD){minD=d;ci=i;} });
+    freq[ci]++;
+  }
+  return centroids.map((c,i)=>({ r:Math.round(c[0]),g:Math.round(c[1]),b:Math.round(c[2]),freq:freq[i] }));
+}
+
+function extract(){
+  if(!imageData) return;
+  const k = parseInt(document.getElementById('count-sel').value);
+  const sort = document.getElementById('sort-sel').value;
+
+  let cols = quantize(imageData, k);
+  if(sort==='freq') cols.sort((a,b)=>b.freq-a.freq);
+  else if(sort==='lum') cols.sort((a,b)=>(b.r*.299+b.g*.587+b.b*.114)-(a.r*.299+a.g*.587+a.b*.114));
+  else cols.sort((a,b)=>{ const ha=Math.atan2(a.g-a.b,a.r-128), hb=Math.atan2(b.g-b.b,b.r-128); return ha-hb; });
+
+  extractedColors = cols;
+  render(cols);
+}
+
+function render(cols){
+  const strip = document.getElementById('palette-strip');
+  const grid  = document.getElementById('swatches-grid');
+  strip.innerHTML=''; grid.innerHTML='';
+
+  cols.forEach((c,i)=>{
+    const hex=rgbToHex(c.r,c.g,c.b);
+    const hsl=hexToHsl(c.r,c.g,c.b);
+    const lum=(c.r*.299+c.g*.587+c.b*.114);
+    const fg=lum>140?'#000':'#fff';
+
+    const s=document.createElement('div');
+    s.className='strip-color'; s.style.background=hex; s.title=hex;
+    s.onclick=()=>{ navigator.clipboard.writeText(hex); flashMsg(s,hex); };
+    strip.appendChild(s);
+
+    const card=document.createElement('div');
+    card.className='swatch-card';
+    card.innerHTML=`<div class="swatch-color" style="background:${hex}"></div><div class="swatch-info"><div class="swatch-hex">${hex}<span class="copy-tag">click to copy</span></div><div class="swatch-rgb">rgb(${c.r}, ${c.g}, ${c.b})</div><div class="swatch-rgb">${hsl}</div></div>`;
+    card.onclick=()=>{ navigator.clipboard.writeText(hex); card.querySelector('.copy-tag').textContent='✅ Copied!'; setTimeout(()=>card.querySelector('.copy-tag').textContent='click to copy',1500); };
+    grid.appendChild(card);
+  });
+
+  document.getElementById('css-out').style.display='none';
+  document.getElementById('copy-css-btn').textContent='📋 Copy as CSS Variables';
+}
+
+function flashMsg(el,hex){
+  const prev=el.title; el.title='Copied!'; setTimeout(()=>el.title=prev,1200);
+}
+
+document.getElementById('reextract-btn').addEventListener('click', extract);
+document.getElementById('count-sel').addEventListener('change', extract);
+document.getElementById('sort-sel').addEventListener('change', ()=>render(extractedColors));
+
+document.getElementById('copy-css-btn').addEventListener('click', ()=>{
+  const vars = extractedColors.map((c,i)=>`  --color-${i+1}: ${rgbToHex(c.r,c.g,c.b)};`).join('\n');
+  const css = `:root {\n${vars}\n}`;
+  navigator.clipboard.writeText(css);
+  document.getElementById('css-out').textContent=css;
+  document.getElementById('css-out').style.display='block';
+  document.getElementById('copy-css-btn').textContent='✅ Copied!';
+  setTimeout(()=>document.getElementById('copy-css-btn').textContent='📋 Copy as CSS Variables',2000);
+});
+</script>
+</body>
+</html>

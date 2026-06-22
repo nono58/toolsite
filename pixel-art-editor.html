@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Pixel Art Editor – Free Online Pixel Art Maker | QuickTools</title>
+<meta name="description" content="Create pixel art online for free. Customizable grid, color palette, drawing tools, fill, eraser, and PNG export. No signup required."/>
+<link rel="stylesheet" href="tool.css"/>
+<style>
+  .editor-wrap { display:flex; gap:16px; flex-wrap:wrap; }
+  .toolbar { display:flex; flex-direction:column; gap:8px; min-width:52px; }
+  .tool-btn { width:44px; height:44px; border:2px solid var(--border); border-radius:8px; background:var(--bg2); color:var(--text); font-size:1.2rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:.15s; }
+  .tool-btn:hover,.tool-btn.active { border-color:var(--accent); background:var(--bg3); }
+  #canvas-wrap { border:2px solid var(--border); border-radius:10px; overflow:hidden; cursor:crosshair; flex:1; min-width:0; }
+  canvas { display:block; image-rendering:pixelated; }
+  .palette-row { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+  .swatch { width:28px; height:28px; border-radius:5px; border:2px solid transparent; cursor:pointer; transition:.1s; }
+  .swatch:hover,.swatch.active { border-color:var(--accent); transform:scale(1.15); }
+  .color-group { background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:12px; }
+  .settings-row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:12px; }
+  .grid-info { font-size:.8rem; color:var(--muted); }
+  #current-color { width:44px; height:44px; border-radius:8px; border:2px solid var(--border); cursor:pointer; }
+  .layer-row { display:flex; gap:8px; align-items:center; }
+</style>
+</head>
+<body>
+<header><a class="logo" href="index.html">⚡ Quick<span>Tools</span></a></header>
+<main>
+  <h1 class="tool-title">Pixel Art Editor</h1>
+  <p class="tool-desc">Draw pixel art in your browser — custom grid sizes, full palette, fill & eraser. Export as PNG.</p>
+
+  <div class="card">
+    <div class="settings-row">
+      <label style="font-size:.85rem;color:var(--muted)">Grid size:
+        <select id="grid-size" style="margin-left:6px;background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:4px 8px;">
+          <option value="8">8×8</option>
+          <option value="16" selected>16×16</option>
+          <option value="32">32×32</option>
+          <option value="48">48×48</option>
+          <option value="64">64×64</option>
+        </select>
+      </label>
+      <label style="font-size:.85rem;color:var(--muted)">Zoom:
+        <select id="zoom-size" style="margin-left:6px;background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:4px 8px;">
+          <option value="8">Small</option>
+          <option value="16" selected>Medium</option>
+          <option value="24">Large</option>
+        </select>
+      </label>
+      <label style="font-size:.85rem;color:var(--muted)">Show grid:
+        <input type="checkbox" id="show-grid" checked style="margin-left:4px;"/>
+      </label>
+      <button class="btn-secondary" id="clear-btn" style="margin-left:auto">🗑 Clear</button>
+      <button class="btn-primary" id="export-btn">⬇ Export PNG</button>
+    </div>
+
+    <div class="editor-wrap">
+      <div class="toolbar">
+        <button class="tool-btn active" id="tool-draw" title="Draw (D)">✏️</button>
+        <button class="tool-btn" id="tool-erase" title="Eraser (E)">🧹</button>
+        <button class="tool-btn" id="tool-fill" title="Fill (F)">🪣</button>
+        <button class="tool-btn" id="tool-pick" title="Pick color (P)">💉</button>
+        <hr style="border-color:var(--border);margin:4px 0"/>
+        <button class="tool-btn" id="undo-btn" title="Undo (Ctrl+Z)">↩</button>
+        <button class="tool-btn" id="redo-btn" title="Redo (Ctrl+Y)">↪</button>
+      </div>
+      <div id="canvas-wrap"><canvas id="canvas"></canvas></div>
+    </div>
+
+    <div class="color-group" style="margin-top:12px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <span style="font-size:.85rem;color:var(--muted)">Current color:</span>
+        <input type="color" id="current-color" value="#6366f1"/>
+        <span style="font-size:.8rem;color:var(--muted)">Click palette or pick any color →</span>
+      </div>
+      <div class="palette-row" id="palette"></div>
+    </div>
+  </div>
+</main>
+
+<script>
+const PALETTE = [
+  '#000000','#1a1a2e','#16213e','#0f3460','#533483','#6366f1','#818cf8','#a5b4fc',
+  '#ffffff','#e2e8f0','#94a3b8','#64748b','#334155','#1e293b','#0f172a','#020617',
+  '#ef4444','#f97316','#eab308','#22c55e','#06b6d4','#3b82f6','#8b5cf6','#ec4899',
+  '#fca5a5','#fdba74','#fde047','#86efac','#67e8f9','#93c5fd','#c4b5fd','#f9a8d4',
+  '#7f1d1d','#7c2d12','#713f12','#14532d','#164e63','#1e3a8a','#4c1d95','#831843',
+  '#d97706','#059669','#0284c7','#7c3aed','#db2777','#dc2626','#65a30d','#0891b2',
+];
+
+let gridSize = 16, cellSize = 16, showGrid = true;
+let currentTool = 'draw', currentColor = '#6366f1';
+let pixels = [], undoStack = [], redoStack = [];
+let painting = false;
+
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+function initGrid() {
+  gridSize = parseInt(document.getElementById('grid-size').value);
+  cellSize = parseInt(document.getElementById('zoom-size').value);
+  pixels = Array.from({length:gridSize}, () => Array(gridSize).fill(''));
+  undoStack = []; redoStack = [];
+  resize();
+  render();
+}
+
+function resize() {
+  canvas.width = gridSize * cellSize;
+  canvas.height = gridSize * cellSize;
+}
+
+function render() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  // checkerboard bg
+  for(let y=0;y<gridSize;y++) for(let x=0;x<gridSize;x++) {
+    const c = (x+y)%2===0 ? '#2a2a3a' : '#1e1e2e';
+    ctx.fillStyle = c;
+    ctx.fillRect(x*cellSize,y*cellSize,cellSize,cellSize);
+    if(pixels[y][x]) { ctx.fillStyle = pixels[y][x]; ctx.fillRect(x*cellSize,y*cellSize,cellSize,cellSize); }
+  }
+  if(showGrid && cellSize >= 6) {
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.lineWidth = 0.5;
+    for(let x=0;x<=gridSize;x++) { ctx.beginPath(); ctx.moveTo(x*cellSize,0); ctx.lineTo(x*cellSize,gridSize*cellSize); ctx.stroke(); }
+    for(let y=0;y<=gridSize;y++) { ctx.beginPath(); ctx.moveTo(0,y*cellSize); ctx.lineTo(gridSize*cellSize,y*cellSize); ctx.stroke(); }
+  }
+}
+
+function getCell(e) {
+  const r = canvas.getBoundingClientRect();
+  const x = Math.floor((e.clientX - r.left) / cellSize);
+  const y = Math.floor((e.clientY - r.top) / cellSize);
+  if(x<0||x>=gridSize||y<0||y>=gridSize) return null;
+  return {x,y};
+}
+
+function saveUndo() {
+  undoStack.push(pixels.map(r=>[...r]));
+  if(undoStack.length>50) undoStack.shift();
+  redoStack = [];
+}
+
+function paint(e) {
+  const c = getCell(e); if(!c) return;
+  if(currentTool==='draw') { pixels[c.y][c.x] = currentColor; render(); }
+  else if(currentTool==='erase') { pixels[c.y][c.x] = ''; render(); }
+  else if(currentTool==='pick') {
+    const col = pixels[c.y][c.x];
+    if(col) { currentColor = col; document.getElementById('current-color').value = col; updatePaletteSel(); }
+  }
+}
+
+function floodFill(sx,sy,targetColor,fillColor) {
+  if(targetColor===fillColor) return;
+  const stack = [[sx,sy]];
+  while(stack.length) {
+    const [x,y] = stack.pop();
+    if(x<0||x>=gridSize||y<0||y>=gridSize) continue;
+    if(pixels[y][x]!==targetColor) continue;
+    pixels[y][x]=fillColor;
+    stack.push([x+1,y],[x-1,y],[x,y+1],[x,y-1]);
+  }
+}
+
+canvas.addEventListener('mousedown', e => {
+  const c = getCell(e); if(!c) return;
+  painting = true;
+  saveUndo();
+  if(currentTool==='fill') { floodFill(c.x,c.y,pixels[c.y][c.x],currentColor); render(); }
+  else paint(e);
+});
+canvas.addEventListener('mousemove', e => { if(painting && (currentTool==='draw'||currentTool==='erase')) paint(e); });
+canvas.addEventListener('mouseup', () => painting=false);
+canvas.addEventListener('mouseleave', () => painting=false);
+
+// Touch support
+canvas.addEventListener('touchstart', e => { e.preventDefault(); const t=e.touches[0]; const me = {clientX:t.clientX,clientY:t.clientY}; const c=getCell(me); if(!c) return; painting=true; saveUndo(); if(currentTool==='fill'){floodFill(c.x,c.y,pixels[c.y][c.x],currentColor);render();}else paint(me); }, {passive:false});
+canvas.addEventListener('touchmove', e => { e.preventDefault(); if(!painting) return; const t=e.touches[0]; paint({clientX:t.clientX,clientY:t.clientY}); }, {passive:false});
+canvas.addEventListener('touchend', () => painting=false);
+
+document.getElementById('current-color').addEventListener('input', e => { currentColor=e.target.value; updatePaletteSel(); });
+document.getElementById('grid-size').addEventListener('change', initGrid);
+document.getElementById('zoom-size').addEventListener('change', () => { cellSize=parseInt(document.getElementById('zoom-size').value); resize(); render(); });
+document.getElementById('show-grid').addEventListener('change', e => { showGrid=e.target.checked; render(); });
+document.getElementById('clear-btn').addEventListener('click', () => { saveUndo(); pixels=Array.from({length:gridSize},()=>Array(gridSize).fill('')); render(); });
+document.getElementById('export-btn').addEventListener('click', () => {
+  const exp = document.createElement('canvas');
+  exp.width = gridSize; exp.height = gridSize;
+  const ec = exp.getContext('2d');
+  for(let y=0;y<gridSize;y++) for(let x=0;x<gridSize;x++) {
+    if(pixels[y][x]) { ec.fillStyle=pixels[y][x]; ec.fillRect(x,y,1,1); }
+  }
+  const a = document.createElement('a'); a.download='pixel-art.png'; a.href=exp.toDataURL('image/png'); a.click();
+});
+document.getElementById('undo-btn').addEventListener('click', () => { if(!undoStack.length) return; redoStack.push(pixels.map(r=>[...r])); pixels=undoStack.pop(); render(); });
+document.getElementById('redo-btn').addEventListener('click', () => { if(!redoStack.length) return; undoStack.push(pixels.map(r=>[...r])); pixels=redoStack.pop(); render(); });
+
+// Tool buttons
+['draw','erase','fill','pick'].forEach(t => {
+  document.getElementById('tool-'+t).addEventListener('click', () => {
+    currentTool=t;
+    document.querySelectorAll('.tool-btn').forEach(b=>b.classList.remove('active'));
+    document.getElementById('tool-'+t).classList.add('active');
+  });
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if(e.ctrlKey&&e.key==='z') document.getElementById('undo-btn').click();
+  else if(e.ctrlKey&&e.key==='y') document.getElementById('redo-btn').click();
+  else if(e.key==='d') document.getElementById('tool-draw').click();
+  else if(e.key==='e') document.getElementById('tool-erase').click();
+  else if(e.key==='f') document.getElementById('tool-fill').click();
+  else if(e.key==='p') document.getElementById('tool-pick').click();
+});
+
+// Palette
+function updatePaletteSel() {
+  document.querySelectorAll('.swatch').forEach(s => s.classList.toggle('active', s.dataset.color===currentColor));
+}
+const palEl = document.getElementById('palette');
+PALETTE.forEach(c => {
+  const s = document.createElement('div');
+  s.className='swatch'; s.style.background=c; s.dataset.color=c;
+  s.title=c;
+  s.addEventListener('click', () => { currentColor=c; document.getElementById('current-color').value=c; updatePaletteSel(); });
+  palEl.appendChild(s);
+});
+
+initGrid();
+updatePaletteSel();
+</script>
+</body>
+</html>

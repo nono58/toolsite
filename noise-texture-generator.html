@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Noise Texture Generator – Free Online Texture Maker | QuickTools</title>
+<meta name="description" content="Generate noise and grain textures online for free. Perlin noise, value noise, simplex-style, Worley patterns. Download as PNG or copy as CSS background."/>
+<link rel="stylesheet" href="tool.css"/>
+<style>
+  .noise-layout { display:grid; grid-template-columns:260px 1fr; gap:20px; }
+  @media(max-width:660px){ .noise-layout{grid-template-columns:1fr} }
+  .preview-canvas { border-radius:12px; overflow:hidden; border:1px solid var(--border); width:100%; aspect-ratio:1; display:flex; align-items:center; justify-content:center; background:var(--bg2); }
+  canvas#noise-canvas { width:100%; height:100%; image-rendering:pixelated; display:block; }
+  .ctrl label { display:block; font-size:.8rem; color:var(--muted); margin-top:12px; margin-bottom:3px; }
+  .ctrl input[type=range] { width:100%; accent-color:var(--accent); }
+  .val-tag { float:right; color:var(--accent2); font-size:.78rem; font-weight:600; }
+  select.s { width:100%; background:var(--bg3); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.83rem; }
+  .color-pair { display:flex; gap:8px; margin-top:4px; }
+  .color-pair label { font-size:.75rem; color:var(--muted); text-align:center; }
+  .color-pair input[type=color] { width:48px; height:36px; border:none; border-radius:6px; cursor:pointer; }
+  .action-row { display:flex; gap:10px; margin-top:14px; }
+</style>
+</head>
+<body>
+<header><a class="logo" href="index.html">⚡ Quick<span>Tools</span></a></header>
+<main>
+  <h1 class="tool-title">Noise Texture Generator</h1>
+  <p class="tool-desc">Generate beautiful noise &amp; grain textures for UI backgrounds, design assets, and game art. Download as PNG.</p>
+
+  <div class="card">
+    <div class="noise-layout">
+      <div class="ctrl">
+        <label>Type</label>
+        <select class="s" id="noise-type">
+          <option value="perlin">Perlin Noise</option>
+          <option value="value">Value Noise</option>
+          <option value="fractal">Fractal / fBM</option>
+          <option value="grain">Film Grain</option>
+          <option value="worley">Worley (Cells)</option>
+          <option value="marble">Marble</option>
+        </select>
+
+        <label>Resolution <span class="val-tag" id="res-val">256</span></label>
+        <input type="range" id="res" min="0" max="4" value="2"/>
+
+        <label>Scale <span class="val-tag" id="scale-val">4</span></label>
+        <input type="range" id="scale" min="1" max="16" value="4"/>
+
+        <label>Octaves <span class="val-tag" id="oct-val">4</span></label>
+        <input type="range" id="oct" min="1" max="8" value="4"/>
+
+        <label>Persistence <span class="val-tag" id="persist-val">0.50</span></label>
+        <input type="range" id="persist" min="1" max="10" value="5"/>
+
+        <label>Contrast <span class="val-tag" id="contrast-val">1.0</span></label>
+        <input type="range" id="contrast" min="1" max="30" value="10"/>
+
+        <label>Colors</label>
+        <div class="color-pair">
+          <div><input type="color" id="col-dark" value="#0f1117"/><label>Dark</label></div>
+          <div><input type="color" id="col-light" value="#6366f1"/><label>Light</label></div>
+          <div><input type="color" id="col-bg" value="#0f1117"/><label>BG</label></div>
+        </div>
+
+        <label>Opacity <span class="val-tag" id="opacity-val">100%</span></label>
+        <input type="range" id="opacity" min="10" max="100" value="100"/>
+
+        <label>Seed <span class="val-tag" id="seed-val">42</span></label>
+        <input type="range" id="seed" min="0" max="99" value="42"/>
+
+        <div class="action-row">
+          <button class="btn-primary" id="regen-btn" style="flex:1">🔄 Generate</button>
+          <button class="btn-secondary" id="dl-btn">⬇ PNG</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="preview-canvas">
+          <canvas id="noise-canvas" width="256" height="256"></canvas>
+        </div>
+        <div style="margin-top:10px;background:var(--bg3);border-radius:8px;padding:12px;font-family:monospace;font-size:.75rem;color:var(--muted);border:1px solid var(--border);" id="css-hint">
+          CSS background snippet will appear here.
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+const RESOLUTIONS = [64,128,256,512,1024];
+
+// Simple seeded PRNG (LCG)
+function mkRng(seed) {
+  let s = seed|0;
+  return () => { s=(s*1664525+1013904223)&0x7fffffff; return s/0x7fffffff; };
+}
+
+// Smoothstep
+function fade(t){ return t*t*t*(t*(t*6-15)+10); }
+function lerp(a,b,t){ return a+t*(b-a); }
+
+// Permutation table
+function mkPerm(rng) {
+  const p = Array.from({length:256},(_,i)=>i);
+  for(let i=255;i>0;i--){ const j=Math.floor(rng()*(i+1)); [p[i],p[j]]=[p[j],p[i]]; }
+  return [...p,...p];
+}
+
+function grad(hash,x,y){
+  const h=hash&3;
+  const u=h<2?x:y, v=h<2?y:x;
+  return ((h&1)?-u:u)+((h&2)?-v:v);
+}
+
+function perlinAt(p,x,y){
+  const X=Math.floor(x)&255, Y=Math.floor(y)&255;
+  x-=Math.floor(x); y-=Math.floor(y);
+  const u=fade(x),v=fade(y);
+  const a=p[X]+Y,b=p[X+1]+Y;
+  return lerp(
+    lerp(grad(p[a],x,y),   grad(p[b],x-1,y),   u),
+    lerp(grad(p[a+1],x,y-1),grad(p[b+1],x-1,y-1),u),v
+  );
+}
+
+function valueAt(p,x,y){
+  const X=Math.floor(x)&255, Y=Math.floor(y)&255;
+  const fx=x-Math.floor(x), fy=y-Math.floor(y);
+  const u=fade(fx),v=fade(fy);
+  const a=(p[(X  +p[Y  ])&255])/255;
+  const b=(p[(X+1+p[Y  ])&255])/255;
+  const c=(p[(X  +p[Y+1])&255])/255;
+  const d=(p[(X+1+p[Y+1])&255])/255;
+  return lerp(lerp(a,b,u),lerp(c,d,u),v);
+}
+
+function worleyAt(rng2d,x,y,scale){
+  const gx=Math.floor(x*scale), gy=Math.floor(y*scale);
+  let minD=1e9;
+  for(let dy=-1;dy<=1;dy++) for(let dx=-1;dx<=1;dx++){
+    const cx=gx+dx, cy=gy+dy;
+    const nx=(cx+rng2d(cx,cy,'x'))/scale, ny=(cy+rng2d(cx,cy,'y'))/scale;
+    const d=Math.hypot(x-nx,y-ny);
+    if(d<minD) minD=d;
+  }
+  return Math.min(1,minD*scale*1.5);
+}
+
+function hexToRgb(h){ return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)]; }
+
+function generate(){
+  const type = document.getElementById('noise-type').value;
+  const resIdx = parseInt(document.getElementById('res').value);
+  const res = RESOLUTIONS[resIdx];
+  const scale = parseFloat(document.getElementById('scale').value);
+  const octaves = parseInt(document.getElementById('oct').value);
+  const persist = parseFloat(document.getElementById('persist').value)/10;
+  const contrast = parseFloat(document.getElementById('contrast').value)/10;
+  const opacity = parseInt(document.getElementById('opacity').value)/100;
+  const seed = parseInt(document.getElementById('seed').value)*17+3;
+
+  const colDark = hexToRgb(document.getElementById('col-dark').value);
+  const colLight= hexToRgb(document.getElementById('col-light').value);
+  const colBg   = hexToRgb(document.getElementById('col-bg').value);
+
+  const canvas = document.getElementById('noise-canvas');
+  canvas.width = res; canvas.height = res;
+  const ctx = canvas.getContext('2d');
+  const img = ctx.createImageData(res,res);
+
+  const rng = mkRng(seed);
+  const perm = mkPerm(rng);
+
+  // Worley cell point cache
+  const cellCache = {};
+  function rng2d(cx,cy,axis){ const k=`${cx},${cy},${axis}`; if(!cellCache[k]){ cellCache[k]=mkRng(cx*73856093^cy*19349663+seed)(); } return cellCache[k]; }
+
+  for(let y=0;y<res;y++) for(let x=0;x<res;x++){
+    const nx=x/res, ny=y/res;
+    let v=0;
+
+    if(type==='grain'){
+      v=rng();
+    } else if(type==='worley'){
+      v=worleyAt(rng2d,nx,ny,scale);
+    } else if(type==='marble'){
+      let n=0,amp=1,freq=scale,tot=0;
+      for(let o=0;o<octaves;o++){ n+=perlinAt(perm,nx*freq,ny*freq)*amp; tot+=amp; amp*=persist; freq*=2; }
+      n/=tot;
+      v=Math.abs(Math.sin((nx*scale*3.14+n*4)*Math.PI));
+    } else {
+      let amp=1,freq=scale,tot=0;
+      for(let o=0;o<octaves;o++){
+        const sv = type==='value' ? valueAt(perm,nx*freq,ny*freq) : perlinAt(perm,nx*freq,ny*freq)*.5+.5;
+        v+=sv*amp; tot+=amp; amp*=persist; freq*=2;
+      }
+      v/=tot;
+    }
+
+    // Contrast
+    v=Math.pow(Math.max(0,Math.min(1,v)),1/contrast);
+    // Opacity blend with bg
+    const r=Math.round(lerp(colBg[0],lerp(colDark[0],colLight[0],v),opacity));
+    const g=Math.round(lerp(colBg[1],lerp(colDark[1],colLight[1],v),opacity));
+    const b=Math.round(lerp(colBg[2],lerp(colDark[2],colLight[2],v),opacity));
+    const idx=(y*res+x)*4;
+    img.data[idx]=r; img.data[idx+1]=g; img.data[idx+2]=b; img.data[idx+3]=255;
+  }
+  ctx.putImageData(img,0,0);
+
+  document.getElementById('css-hint').textContent =
+`/* CSS grain overlay (SVG filter) */
+.grain::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.08;
+  background-image: url("data:image/svg+xml,..."); /* export PNG and use as data URL */
+  filter: grayscale(100%) contrast(300%);
+}`;
+}
+
+const RES_LABELS = ['64px','128px','256px','512px','1024px'];
+document.getElementById('res').addEventListener('input', e => { document.getElementById('res-val').textContent=RES_LABELS[e.target.value]; });
+document.getElementById('scale').addEventListener('input', e => { document.getElementById('scale-val').textContent=e.target.value; });
+document.getElementById('oct').addEventListener('input', e => { document.getElementById('oct-val').textContent=e.target.value; });
+document.getElementById('persist').addEventListener('input', e => { document.getElementById('persist-val').textContent=(e.target.value/10).toFixed(2); });
+document.getElementById('contrast').addEventListener('input', e => { document.getElementById('contrast-val').textContent=(e.target.value/10).toFixed(1); });
+document.getElementById('opacity').addEventListener('input', e => { document.getElementById('opacity-val').textContent=e.target.value+'%'; });
+document.getElementById('seed').addEventListener('input', e => { document.getElementById('seed-val').textContent=e.target.value; });
+
+document.getElementById('regen-btn').addEventListener('click', generate);
+document.getElementById('noise-type').addEventListener('change', generate);
+
+document.getElementById('dl-btn').addEventListener('click', () => {
+  const a=document.createElement('a'); a.download='noise-texture.png';
+  a.href=document.getElementById('noise-canvas').toDataURL('image/png'); a.click();
+});
+
+generate();
+</script>
+</body>
+</html>
