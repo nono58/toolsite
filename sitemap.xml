@@ -100,12 +100,17 @@
   <url><loc>https://www.58parts.net/blog/uuid-generator-online.html</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://www.58parts.net/blog/word-counter-online.html</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
 
+  <!-- ── Tools (new: 136-138) ── -->
+  <url><loc>https://www.58parts.net/typing-speed-test.html</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.58parts.net/loan-calculator.html</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.58parts.net/ip-lookup.html</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+
   <!-- ── Blog articles (Japanese) ── -->
-  <url>
-    <loc>https://www.58parts.net/blog/ja/word-counter.html</loc>
-    <lastmod>2026-06-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
+  <url><loc>https://www.58parts.net/blog/ja/word-counter.html</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.58parts.net/blog/ja/qr-code-generator.html</loc><lastmod>2026-02-20</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.58parts.net/blog/ja/image-compressor.html</loc><lastmod>2026-03-14</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.58parts.net/blog/ja/password-generator.html</loc><lastmod>2026-04-05</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.58parts.net/blog/ja/json-formatter.html</loc><lastmod>2026-05-01</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.58parts.net/blog/ja/pomodoro-timer.html</loc><lastmod>2026-05-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
 
 </urlset>

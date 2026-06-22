@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Typing Speed Test – WPM Test Online Free | QuickTools</title>
+<meta name="description" content="Test your typing speed online for free. Measure WPM (words per minute), accuracy, and characters per minute. Multiple difficulty levels. No signup."/>
+<link rel="stylesheet" href="tool.css"/>
+<style>
+  .test-wrap { max-width:680px; margin:0 auto; }
+  .stats-bar { display:flex; gap:20px; justify-content:center; margin-bottom:20px; flex-wrap:wrap; }
+  .stat-box { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:14px 24px; text-align:center; min-width:90px; }
+  .stat-num { font-size:2rem; font-weight:800; color:var(--accent2); line-height:1; }
+  .stat-lbl { font-size:.72rem; color:var(--muted); margin-top:2px; }
+  .passage-box {
+    background:var(--bg2); border:1px solid var(--border); border-radius:12px;
+    padding:20px; font-size:1.1rem; line-height:1.9; margin-bottom:14px;
+    min-height:100px; letter-spacing:.01em; position:relative; user-select:none;
+  }
+  .char { transition:background .05s; border-radius:2px; }
+  .char.correct { color:#22c55e; }
+  .char.wrong   { color:#ef4444; background:rgba(239,68,68,.15); }
+  .char.current { background:var(--accent); color:#fff; border-radius:3px; }
+  #type-input {
+    width:100%; background:var(--bg2); border:2px solid var(--border); border-radius:10px;
+    padding:12px 16px; font-size:1rem; color:var(--text); box-sizing:border-box;
+    font-family:inherit; transition:border-color .2s;
+  }
+  #type-input:focus { outline:none; border-color:var(--accent); }
+  #type-input.error { border-color:#ef4444; }
+  .ctrl-row { display:flex; gap:10px; align-items:center; margin-top:12px; flex-wrap:wrap; }
+  select.s { background:var(--bg3); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:6px 12px; font-size:.83rem; }
+  .result-card { background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:24px; text-align:center; margin-top:16px; display:none; }
+  .result-wpm { font-size:4rem; font-weight:900; color:var(--accent); line-height:1; }
+  .result-grade { font-size:1.1rem; color:var(--muted); margin:8px 0 16px; }
+  .result-grid { display:flex; gap:16px; justify-content:center; flex-wrap:wrap; }
+  .result-item { background:var(--bg3); border-radius:8px; padding:10px 20px; }
+  .result-item .n { font-size:1.4rem; font-weight:800; color:var(--text); }
+  .result-item .l { font-size:.73rem; color:var(--muted); }
+  .timer-bar { height:4px; background:var(--bg3); border-radius:2px; margin-bottom:14px; overflow:hidden; }
+  .timer-fill { height:100%; background:var(--accent); border-radius:2px; transition:width .5s linear; width:100%; }
+</style>
+</head>
+<body>
+<header><a class="logo" href="index.html">⚡ Quick<span>Tools</span></a></header>
+<main>
+  <h1 class="tool-title">Typing Speed Test</h1>
+  <p class="tool-desc">Measure your WPM, accuracy, and consistency. Start typing to begin — the timer starts automatically.</p>
+
+  <div class="card">
+    <div class="test-wrap">
+      <div class="stats-bar">
+        <div class="stat-box"><div class="stat-num" id="s-wpm">0</div><div class="stat-lbl">WPM</div></div>
+        <div class="stat-box"><div class="stat-num" id="s-acc">—</div><div class="stat-lbl">Accuracy</div></div>
+        <div class="stat-box"><div class="stat-num" id="s-time">60</div><div class="stat-lbl">Seconds</div></div>
+        <div class="stat-box"><div class="stat-num" id="s-chars">0</div><div class="stat-lbl">Chars</div></div>
+      </div>
+
+      <div class="timer-bar"><div class="timer-fill" id="timer-fill"></div></div>
+      <div class="passage-box" id="passage"></div>
+      <input type="text" id="type-input" placeholder="Click here and start typing…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+
+      <div class="ctrl-row">
+        <select class="s" id="duration">
+          <option value="30">30 seconds</option>
+          <option value="60" selected>60 seconds</option>
+          <option value="120">2 minutes</option>
+        </select>
+        <select class="s" id="difficulty">
+          <option value="easy">Easy</option>
+          <option value="medium" selected>Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+        <button class="btn-primary" id="restart-btn">🔄 Restart</button>
+      </div>
+
+      <div class="result-card" id="result-card">
+        <div style="font-size:1rem;color:var(--muted);margin-bottom:4px">Your result</div>
+        <div class="result-wpm" id="r-wpm">0</div>
+        <div class="result-grade" id="r-grade">WPM</div>
+        <div class="result-grid">
+          <div class="result-item"><div class="n" id="r-acc">0%</div><div class="l">Accuracy</div></div>
+          <div class="result-item"><div class="n" id="r-chars">0</div><div class="l">Correct chars</div></div>
+          <div class="result-item"><div class="n" id="r-errors">0</div><div class="l">Errors</div></div>
+        </div>
+        <button class="btn-primary" style="margin-top:16px" id="retry-btn">▶ Try Again</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+const PASSAGES = {
+  easy: [
+    "the quick brown fox jumps over the lazy dog and the dog barks at the fox in the park near the big oak tree",
+    "she sells sea shells by the sea shore and the shells she sells are surely sea shells",
+    "how much wood would a woodchuck chuck if a woodchuck could chuck wood it would chuck as much as it could",
+    "the sun rises in the east and sets in the west every single day of the year without fail",
+    "a big black cat sat on a red mat and looked at the fat rat near the old flat",
+  ],
+  medium: [
+    "Programming is the art of telling another human being what one wants the computer to do and how to do it efficiently.",
+    "The internet has transformed commerce, communication, science, transportation, education, health care, and many other areas.",
+    "Good code is its own best documentation. As you're about to add a comment, ask yourself: how can I improve the code so this comment isn't needed?",
+    "Design is not just what it looks like and feels like. Design is how it works and how it solves problems for people.",
+    "The best way to predict the future is to invent it. Focus on building things that are useful and solve real problems.",
+  ],
+  hard: [
+    "Cryptography is the practice of securing communications through algorithmic transformation, ensuring confidentiality, integrity, and authenticity of transmitted data.",
+    "Asynchronous JavaScript enables non-blocking execution through promises, async/await syntax, and event-loop mechanisms that prevent UI thread congestion.",
+    "The Byzantine Generals Problem illustrates distributed consensus challenges: achieving agreement among nodes when some participants may be faulty or malicious.",
+    "Refactoring is the process of restructuring existing code without changing its external behavior, improving readability, reducing complexity, and eliminating technical debt.",
+    "Containerization abstracts application dependencies into portable, isolated environments, enabling consistent deployments across heterogeneous infrastructure.",
+  ],
+};
+
+const GRADES = [
+  [0,  "Beginner — Keep practicing! 💪"],
+  [20, "Novice — Getting started 🐢"],
+  [35, "Average — Not bad! 👍"],
+  [50, "Good — Above average! ⭐"],
+  [70, "Fast — Impressive! 🚀"],
+  [90, "Expert — Excellent! 🏆"],
+  [120,"Master — Incredible! 🎯"],
+];
+
+let passage = "", charIdx = 0, started = false, finished = false;
+let timerInterval = null, countInterval = null;
+let totalTime = 60, remaining = 60;
+let correctChars = 0, wrongChars = 0, totalTyped = 0;
+
+function getPassage() {
+  const d = document.getElementById('difficulty').value;
+  const arr = PASSAGES[d];
+  // extend if needed
+  let txt = "";
+  while(txt.length < 300) txt += arr[Math.floor(Math.random()*arr.length)] + " ";
+  return txt.trim();
+}
+
+function renderPassage() {
+  const el = document.getElementById('passage');
+  el.innerHTML = passage.split('').map((c,i) =>
+    `<span class="char${i===0?' current':''}" id="c${i}">${c==' '?'&nbsp;':c}</span>`
+  ).join('');
+}
+
+function updateChar(idx, state) {
+  const el = document.getElementById('c'+idx);
+  if(el) { el.className = 'char ' + state; }
+}
+
+function calcWPM() {
+  const elapsed = (totalTime - remaining) || 1;
+  return Math.round((correctChars / 5) / (elapsed / 60));
+}
+
+function updateStats() {
+  document.getElementById('s-wpm').textContent = started ? calcWPM() : 0;
+  const acc = totalTyped > 0 ? Math.round((correctChars/totalTyped)*100) : 0;
+  document.getElementById('s-acc').textContent = totalTyped > 0 ? acc+'%' : '—';
+  document.getElementById('s-chars').textContent = correctChars;
+}
+
+function startTimer() {
+  totalTime = parseInt(document.getElementById('duration').value);
+  remaining = totalTime;
+  document.getElementById('s-time').textContent = remaining;
+  document.getElementById('timer-fill').style.width = '100%';
+
+  timerInterval = setInterval(() => {
+    remaining--;
+    document.getElementById('s-time').textContent = remaining;
+    document.getElementById('timer-fill').style.width = (remaining/totalTime*100)+'%';
+    if(remaining <= 0) finish();
+  }, 1000);
+
+  countInterval = setInterval(updateStats, 200);
+}
+
+function finish() {
+  clearInterval(timerInterval);
+  clearInterval(countInterval);
+  finished = true;
+  document.getElementById('type-input').disabled = true;
+
+  const wpm = calcWPM();
+  const acc = totalTyped > 0 ? Math.round((correctChars/totalTyped)*100) : 0;
+  const grade = GRADES.reduce((g,r) => wpm>=r[0]?r:g, GRADES[0]);
+
+  document.getElementById('r-wpm').textContent = wpm;
+  document.getElementById('r-grade').textContent = grade[1];
+  document.getElementById('r-acc').textContent = acc+'%';
+  document.getElementById('r-chars').textContent = correctChars;
+  document.getElementById('r-errors').textContent = wrongChars;
+  document.getElementById('result-card').style.display = 'block';
+}
+
+function reset() {
+  clearInterval(timerInterval);
+  clearInterval(countInterval);
+  charIdx=0; started=false; finished=false;
+  correctChars=0; wrongChars=0; totalTyped=0;
+  totalTime = parseInt(document.getElementById('duration').value);
+  remaining = totalTime;
+
+  passage = getPassage();
+  renderPassage();
+
+  document.getElementById('type-input').value = '';
+  document.getElementById('type-input').disabled = false;
+  document.getElementById('type-input').className = '';
+  document.getElementById('s-wpm').textContent = '0';
+  document.getElementById('s-acc').textContent = '—';
+  document.getElementById('s-time').textContent = totalTime;
+  document.getElementById('s-chars').textContent = '0';
+  document.getElementById('timer-fill').style.width = '100%';
+  document.getElementById('result-card').style.display = 'none';
+  document.getElementById('type-input').focus();
+}
+
+document.getElementById('type-input').addEventListener('input', e => {
+  if(finished) return;
+  if(!started) { started=true; startTimer(); }
+
+  const typed = e.target.value;
+  const lastChar = typed[typed.length-1];
+  if(!lastChar) return;
+
+  const expected = passage[charIdx];
+  totalTyped++;
+
+  if(lastChar === expected) {
+    updateChar(charIdx, 'correct');
+    correctChars++;
+    document.getElementById('type-input').className = '';
+  } else {
+    updateChar(charIdx, 'wrong');
+    wrongChars++;
+    document.getElementById('type-input').className = 'error';
+    setTimeout(()=>{ document.getElementById('type-input').className=''; },200);
+  }
+
+  charIdx++;
+  if(charIdx < passage.length) updateChar(charIdx, 'current');
+  else finish();
+
+  e.target.value = '';
+});
+
+document.getElementById('restart-btn').addEventListener('click', reset);
+document.getElementById('retry-btn').addEventListener('click', reset);
+document.getElementById('duration').addEventListener('change', reset);
+document.getElementById('difficulty').addEventListener('change', reset);
+
+reset();
+</script>
+</body>
+</html>

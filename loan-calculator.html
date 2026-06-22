@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Loan Calculator – Monthly Payment & Amortization Schedule | QuickTools</title>
+<meta name="description" content="Calculate monthly loan payments, total interest, and view a full amortization schedule. Supports mortgage, car loan, and personal loan calculations. Free online."/>
+<link rel="stylesheet" href="tool.css"/>
+<style>
+  .calc-layout { display:grid; grid-template-columns:320px 1fr; gap:20px; }
+  @media(max-width:700px){.calc-layout{grid-template-columns:1fr}}
+  .field { margin-bottom:16px; }
+  .field label { display:block; font-size:.82rem; color:var(--muted); margin-bottom:5px; }
+  .field input { width:100%; background:var(--bg3); color:var(--text); border:1px solid var(--border); border-radius:8px; padding:10px 14px; font-size:1rem; box-sizing:border-box; }
+  .field input:focus { outline:none; border-color:var(--accent); }
+  .result-hero { background:linear-gradient(135deg,rgba(99,102,241,.15),rgba(129,140,248,.08)); border:1px solid var(--accent); border-radius:14px; padding:24px; text-align:center; margin-bottom:16px; }
+  .monthly-pay { font-size:3rem; font-weight:900; color:var(--accent2); line-height:1; }
+  .monthly-lbl { font-size:.85rem; color:var(--muted); margin-top:4px; }
+  .summary-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
+  .summary-card { background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:14px; }
+  .summary-val { font-size:1.3rem; font-weight:700; color:var(--text); }
+  .summary-lbl { font-size:.75rem; color:var(--muted); margin-top:2px; }
+  .chart-wrap { margin-bottom:16px; }
+  .bar-row { display:flex; align-items:center; gap:10px; margin-bottom:6px; font-size:.8rem; }
+  .bar-bg { flex:1; height:18px; background:var(--bg3); border-radius:4px; overflow:hidden; }
+  .bar-fill { height:100%; border-radius:4px; transition:width .4s; }
+  .table-wrap { max-height:320px; overflow-y:auto; border:1px solid var(--border); border-radius:10px; }
+  table.amort { width:100%; border-collapse:collapse; font-size:.78rem; }
+  table.amort th { background:var(--bg3); color:var(--muted); padding:8px 10px; text-align:right; position:sticky; top:0; }
+  table.amort th:first-child { text-align:left; }
+  table.amort td { padding:7px 10px; border-top:1px solid var(--border); text-align:right; color:var(--text); }
+  table.amort td:first-child { text-align:left; color:var(--muted); }
+  table.amort tr:hover td { background:var(--bg2); }
+  .loan-type-row { display:flex; gap:8px; margin-bottom:16px; }
+  .loan-type { flex:1; padding:8px; border-radius:8px; border:1px solid var(--border); background:var(--bg2); color:var(--muted); font-size:.78rem; cursor:pointer; text-align:center; transition:.15s; }
+  .loan-type.active { border-color:var(--accent); color:var(--text); background:var(--bg3); }
+</style>
+</head>
+<body>
+<header><a class="logo" href="index.html">⚡ Quick<span>Tools</span></a></header>
+<main>
+  <h1 class="tool-title">Loan Calculator</h1>
+  <p class="tool-desc">Calculate monthly payments, total interest, and view a complete amortization schedule for any loan.</p>
+
+  <div class="card">
+    <div class="loan-type-row">
+      <div class="loan-type active" data-rate="6.5" data-term="30">🏠 Mortgage</div>
+      <div class="loan-type" data-rate="7.0" data-term="5">🚗 Car Loan</div>
+      <div class="loan-type" data-rate="11.0" data-term="3">💳 Personal</div>
+      <div class="loan-type" data-rate="5.0" data-term="10">🎓 Student</div>
+    </div>
+
+    <div class="calc-layout">
+      <div>
+        <div class="field">
+          <label>Loan Amount ($)</label>
+          <input type="number" id="principal" value="300000" min="0"/>
+        </div>
+        <div class="field">
+          <label>Annual Interest Rate (%)</label>
+          <input type="number" id="rate" value="6.5" step="0.1" min="0"/>
+        </div>
+        <div class="field">
+          <label>Loan Term (years)</label>
+          <input type="number" id="term" value="30" min="1" max="50"/>
+        </div>
+        <div class="field">
+          <label>Start Date</label>
+          <input type="month" id="start-date"/>
+        </div>
+        <button class="btn-primary" id="calc-btn" style="width:100%">Calculate</button>
+      </div>
+
+      <div id="results">
+        <div class="result-hero">
+          <div class="monthly-pay" id="monthly-pay">$0</div>
+          <div class="monthly-lbl">Monthly Payment</div>
+        </div>
+        <div class="summary-grid">
+          <div class="summary-card"><div class="summary-val" id="total-pay">$0</div><div class="summary-lbl">Total Payment</div></div>
+          <div class="summary-card"><div class="summary-val" id="total-int">$0</div><div class="summary-lbl">Total Interest</div></div>
+          <div class="summary-card"><div class="summary-val" id="principal-out">$0</div><div class="summary-lbl">Principal</div></div>
+          <div class="summary-card"><div class="summary-val" id="int-ratio">0%</div><div class="summary-lbl">Interest Ratio</div></div>
+        </div>
+        <div class="chart-wrap">
+          <div class="bar-row">
+            <span style="width:80px;color:var(--muted)">Principal</span>
+            <div class="bar-bg"><div class="bar-fill" id="bar-principal" style="background:var(--accent)"></div></div>
+            <span id="bar-p-pct" style="width:40px;text-align:right">0%</span>
+          </div>
+          <div class="bar-row">
+            <span style="width:80px;color:var(--muted)">Interest</span>
+            <div class="bar-bg"><div class="bar-fill" id="bar-interest" style="background:#ef4444"></div></div>
+            <span id="bar-i-pct" style="width:40px;text-align:right">0%</span>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="amort">
+            <thead><tr><th>#</th><th>Payment</th><th>Principal</th><th>Interest</th><th>Balance</th></tr></thead>
+            <tbody id="amort-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+const fmt = n => '$' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+const fmtK = n => '$' + (n>=1000?(n/1000).toFixed(1)+'K':n.toFixed(0));
+
+function calculate() {
+  const P = parseFloat(document.getElementById('principal').value)||0;
+  const r = (parseFloat(document.getElementById('rate').value)||0) / 100 / 12;
+  const n = (parseFloat(document.getElementById('term').value)||1) * 12;
+
+  let monthly;
+  if(r === 0) { monthly = P / n; }
+  else { monthly = P * (r * Math.pow(1+r,n)) / (Math.pow(1+r,n)-1); }
+
+  const totalPay = monthly * n;
+  const totalInt = totalPay - P;
+  const intRatio = (totalInt/totalPay*100).toFixed(1);
+
+  document.getElementById('monthly-pay').textContent = fmt(monthly);
+  document.getElementById('total-pay').textContent = fmtK(totalPay);
+  document.getElementById('total-int').textContent = fmtK(totalInt);
+  document.getElementById('principal-out').textContent = fmtK(P);
+  document.getElementById('int-ratio').textContent = intRatio+'%';
+
+  const pPct = (P/totalPay*100).toFixed(1);
+  const iPct = (totalInt/totalPay*100).toFixed(1);
+  document.getElementById('bar-principal').style.width = pPct+'%';
+  document.getElementById('bar-interest').style.width = iPct+'%';
+  document.getElementById('bar-p-pct').textContent = pPct+'%';
+  document.getElementById('bar-i-pct').textContent = iPct+'%';
+
+  // Amortization schedule
+  const tbody = document.getElementById('amort-body');
+  tbody.innerHTML = '';
+  let balance = P;
+  const startVal = document.getElementById('start-date').value;
+  let date = startVal ? new Date(startVal+'-01') : new Date();
+
+  for(let i=1;i<=n;i++){
+    const intPay = balance * r;
+    const prinPay = monthly - intPay;
+    balance = Math.max(0, balance - prinPay);
+    const mo = date.toLocaleDateString('en-US',{year:'numeric',month:'short'});
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${mo}</td><td>${fmt(monthly)}</td><td style="color:#22c55e">${fmt(prinPay)}</td><td style="color:#ef4444">${fmt(intPay)}</td><td>${fmt(balance)}</td>`;
+    tbody.appendChild(tr);
+    date.setMonth(date.getMonth()+1);
+  }
+}
+
+document.getElementById('calc-btn').addEventListener('click', calculate);
+
+document.querySelectorAll('.loan-type').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.loan-type').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('rate').value = btn.dataset.rate;
+    document.getElementById('term').value = btn.dataset.term;
+    calculate();
+  });
+});
+
+// Init start date
+const now = new Date();
+document.getElementById('start-date').value = now.getFullYear()+'-'+String(now.getMonth()+2).padStart(2,'0');
+
+['principal','rate','term'].forEach(id => document.getElementById(id).addEventListener('input', calculate));
+calculate();
+</script>
+</body>
+</html>

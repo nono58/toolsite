@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>IP Address Lookup – Find Location & ISP Info | QuickTools</title>
+<meta name="description" content="Look up any IP address to find its location, ISP, timezone, and network info. Find your own IP address instantly. Free online IP lookup tool."/>
+<link rel="stylesheet" href="tool.css"/>
+<style>
+  .ip-layout { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  @media(max-width:660px){.ip-layout{grid-template-columns:1fr}}
+  .ip-input-row { display:flex; gap:10px; margin-bottom:20px; }
+  .ip-input-row input { flex:1; background:var(--bg3); color:var(--text); border:1px solid var(--border); border-radius:8px; padding:10px 16px; font-size:1rem; font-family:monospace; }
+  .ip-input-row input:focus { outline:none; border-color:var(--accent); }
+  .info-card { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:20px; }
+  .info-card h3 { margin:0 0 14px; font-size:.9rem; color:var(--muted); text-transform:uppercase; letter-spacing:.07em; }
+  .info-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border); font-size:.88rem; }
+  .info-row:last-child { border-bottom:none; }
+  .info-label { color:var(--muted); }
+  .info-value { color:var(--text); font-weight:600; font-family:monospace; text-align:right; max-width:60%; word-break:break-all; }
+  .my-ip-badge { display:inline-block; background:var(--accent); color:#fff; border-radius:6px; padding:4px 12px; font-size:.8rem; font-weight:700; margin-bottom:12px; }
+  .flag { font-size:1.4rem; margin-right:6px; }
+  #map-frame { width:100%; height:260px; border-radius:12px; border:1px solid var(--border); }
+  .loading { color:var(--muted); font-size:.9rem; padding:20px; text-align:center; }
+  .error-msg { color:#ef4444; font-size:.88rem; padding:10px; background:rgba(239,68,68,.1); border-radius:8px; }
+  .copy-btn { background:none; border:none; color:var(--accent2); cursor:pointer; font-size:.78rem; padding:2px 8px; border-radius:4px; }
+  .copy-btn:hover { background:var(--bg3); }
+</style>
+</head>
+<body>
+<header><a class="logo" href="index.html">⚡ Quick<span>Tools</span></a></header>
+<main>
+  <h1 class="tool-title">IP Address Lookup</h1>
+  <p class="tool-desc">Find the location, ISP, and network details of any IP address — or instantly look up your own.</p>
+
+  <div class="card">
+    <div class="ip-input-row">
+      <input type="text" id="ip-input" placeholder="Enter IP address or leave blank for your IP…" autocomplete="off" spellcheck="false"/>
+      <button class="btn-primary" id="lookup-btn">🔍 Lookup</button>
+      <button class="btn-secondary" id="myip-btn">📍 My IP</button>
+    </div>
+
+    <div id="result-area">
+      <div class="loading">Enter an IP address or click "My IP" to get started.</div>
+    </div>
+  </div>
+</main>
+
+<script>
+async function lookup(ip) {
+  const area = document.getElementById('result-area');
+  area.innerHTML = '<div class="loading">🔍 Looking up…</div>';
+
+  try {
+    const url = ip ? `https://ipapi.co/${ip}/json/` : 'https://ipapi.co/json/';
+    const res = await fetch(url);
+    if(!res.ok) throw new Error('Request failed');
+    const d = await res.json();
+    if(d.error) throw new Error(d.reason || 'Invalid IP');
+    render(d, !ip);
+  } catch(e) {
+    area.innerHTML = `<div class="error-msg">❌ ${e.message || 'Could not look up this IP. Please check the address and try again.'}</div>`;
+  }
+}
+
+function copyVal(val) {
+  navigator.clipboard.writeText(val);
+}
+
+function row(label, value, copyable=false) {
+  if(!value || value==='null' || value==='undefined') return '';
+  const copyBtn = copyable ? `<button class="copy-btn" onclick="copyVal('${value}')">copy</button>` : '';
+  return `<div class="info-row"><span class="info-label">${label}</span><span class="info-value">${value}${copyBtn}</span></div>`;
+}
+
+function render(d, isOwn) {
+  const flag = d.country_code ? String.fromCodePoint(...[...d.country_code].map(c=>0x1F1E6+c.charCodeAt(0)-65)) : '';
+  const mapUrl = (d.latitude && d.longitude)
+    ? `https://www.openstreetmap.org/export/embed.html?bbox=${d.longitude-.5},${d.latitude-.5},${d.longitude+.5},${d.latitude+.5}&layer=mapnik&marker=${d.latitude},${d.longitude}`
+    : null;
+
+  document.getElementById('result-area').innerHTML = `
+    ${isOwn ? '<div class="my-ip-badge">📍 Your IP Address</div>' : ''}
+    <div class="ip-layout">
+      <div>
+        <div class="info-card" style="margin-bottom:12px">
+          <h3>${flag} IP Information</h3>
+          ${row('IP Address', d.ip, true)}
+          ${row('Version', d.version)}
+          ${row('Hostname', d.hostname)}
+          ${row('ASN', d.asn)}
+          ${row('ISP / Org', d.org)}
+        </div>
+        <div class="info-card">
+          <h3>🌍 Location</h3>
+          ${row('Country', `${flag} ${d.country_name} (${d.country_code})`)}
+          ${row('Region', d.region)}
+          ${row('City', d.city)}
+          ${row('Postal Code', d.postal)}
+          ${row('Latitude', d.latitude)}
+          ${row('Longitude', d.longitude)}
+          ${row('Timezone', d.timezone)}
+          ${row('UTC Offset', d.utc_offset)}
+          ${row('Calling Code', d.country_calling_code)}
+          ${row('Currency', `${d.currency_name} (${d.currency})`)}
+          ${row('Languages', d.languages)}
+        </div>
+      </div>
+      <div>
+        ${mapUrl
+          ? `<iframe id="map-frame" src="${mapUrl}" title="Map" loading="lazy"></iframe>
+             <p style="font-size:.72rem;color:var(--muted);margin-top:6px;text-align:center">📍 ${d.city || ''}, ${d.country_name || ''} · Approximate location</p>`
+          : '<div class="info-card" style="text-align:center;padding:40px;color:var(--muted)">Map not available</div>'
+        }
+        <div class="info-card" style="margin-top:12px">
+          <h3>🔒 Network</h3>
+          ${row('Type', d.network)}
+          ${row('VPN / Proxy', d.proxy ? '⚠️ Detected' : '✅ Not detected')}
+          ${row('Tor exit', d.tor ? '⚠️ Yes' : '✅ No')}
+        </div>
+      </div>
+    </div>`;
+}
+
+document.getElementById('lookup-btn').addEventListener('click', () => {
+  const ip = document.getElementById('ip-input').value.trim();
+  lookup(ip || null);
+});
+
+document.getElementById('myip-btn').addEventListener('click', () => {
+  document.getElementById('ip-input').value = '';
+  lookup(null);
+});
+
+document.getElementById('ip-input').addEventListener('keydown', e => {
+  if(e.key==='Enter') document.getElementById('lookup-btn').click();
+});
+
+// Auto-load own IP on open
+lookup(null);
+</script>
+</body>
+</html>
