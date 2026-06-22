@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ToolKit – 100 Free Online Tools</title>
+  <meta name="description" content="Free online tools for PDF, image, text, developer, and calculator needs. No signup required." />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --bg2: #1a1d27;
+      --bg3: #22263a;
+      --accent: #6366f1;
+      --accent2: #818cf8;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --border: #2d3148;
+      --card-hover: #252a40;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      height: 60px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo { font-size: 1.3rem; font-weight: 700; color: var(--accent2); text-decoration: none; }
+    nav { display: flex; gap: 20px; margin-left: auto; }
+    nav a { color: var(--muted); text-decoration: none; font-size: .9rem; transition: color .2s; }
+    nav a:hover { color: var(--text); }
+
+    /* ── Hero ── */
+    .hero {
+      text-align: center;
+      padding: 64px 24px 48px;
+      background: linear-gradient(180deg, #1a1d27 0%, #0f1117 100%);
+    }
+    .hero h1 { font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800; margin-bottom: 16px; }
+    .hero h1 span { color: var(--accent2); }
+    .hero p { color: var(--muted); font-size: 1.1rem; max-width: 560px; margin: 0 auto 32px; }
+
+    /* Search */
+    .search-wrap { max-width: 520px; margin: 0 auto; position: relative; }
+    .search-wrap input {
+      width: 100%;
+      padding: 14px 48px 14px 20px;
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+      background: var(--bg3);
+      color: var(--text);
+      font-size: 1rem;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .search-wrap input:focus { border-color: var(--accent); }
+    .search-wrap svg { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+
+    /* ── Stats ── */
+    .stats { display: flex; justify-content: center; gap: 40px; padding: 24px; flex-wrap: wrap; }
+    .stat { text-align: center; }
+    .stat-num { font-size: 1.8rem; font-weight: 700; color: var(--accent2); }
+    .stat-label { color: var(--muted); font-size: .85rem; }
+
+    /* ── Main ── */
+    main { max-width: 1280px; margin: 0 auto; padding: 0 24px 64px; }
+
+    /* Category filter */
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 32px;
+      padding: 16px 0;
+    }
+    .filter-btn {
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: 1.5px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-size: .85rem;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .filter-btn:hover { border-color: var(--accent); color: var(--text); }
+    .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    /* Section */
+    .section { margin-bottom: 48px; }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .section-icon { font-size: 1.4rem; }
+    .section-title { font-size: 1.2rem; font-weight: 700; }
+    .section-count { font-size: .8rem; color: var(--muted); background: var(--bg3); padding: 2px 10px; border-radius: 999px; }
+
+    /* Grid */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    /* Card */
+    .tool-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      transition: all .2s;
+      display: block;
+    }
+    .tool-card:hover {
+      background: var(--card-hover);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(99,102,241,.15);
+    }
+    .card-name { font-size: .95rem; font-weight: 600; margin-bottom: 6px; }
+    .card-meta { display: flex; gap: 8px; align-items: center; }
+    .card-vol { font-size: .75rem; color: var(--muted); }
+    .badge {
+      font-size: .7rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+    .badge-p1 { background: #fbbf2420; color: #fbbf24; }
+    .badge-p2 { background: #34d39920; color: #34d399; }
+    .badge-p3 { background: #60a5fa20; color: #60a5fa; }
+    .badge-new { background: #f4717120; color: #f47171; }
+
+    /* Priority Week1 highlight */
+    .tool-card.week1 { border-color: #6366f140; }
+    .tool-card.week1:hover { border-color: var(--accent); }
+    .week1-badge { font-size: .7rem; padding: 2px 8px; border-radius: 999px; background: #6366f130; color: var(--accent2); font-weight: 700; float: right; }
+
+    /* No results */
+    #no-results { display: none; text-align: center; padding: 64px; color: var(--muted); }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 24px;
+      text-align: center;
+      color: var(--muted);
+      font-size: .85rem;
+    }
+
+    @media (max-width: 600px) {
+      .stats { gap: 24px; }
+      nav { gap: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="index.html">⚡ ToolKit</a>
+  <nav>
+    <a href="index.html">Tools</a>
+    <a href="strategy.html">Strategy</a>
+  </nav>
+</header>
+
+<div class="hero">
+  <h1>100 Free Online Tools<br><span>No Signup. No Limits.</span></h1>
+  <p>PDF converters, image tools, developer utilities, calculators — all free and instant.</p>
+  <div class="search-wrap">
+    <input type="text" id="search" placeholder="Search tools…" autocomplete="off" />
+    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-num">100</div><div class="stat-label">Tools</div></div>
+  <div class="stat"><div class="stat-num">9</div><div class="stat-label">Categories</div></div>
+  <div class="stat"><div class="stat-num">Free</div><div class="stat-label">Forever</div></div>
+  <div class="stat"><div class="stat-num">0</div><div class="stat-label">Signups needed</div></div>
+</div>
+
+<main>
+  <div class="filter-bar" id="filterBar">
+    <button class="filter-btn active" data-cat="all">All (100)</button>
+    <button class="filter-btn" data-cat="pdf">📄 PDF (12)</button>
+    <button class="filter-btn" data-cat="developer">💻 Developer (15)</button>
+    <button class="filter-btn" data-cat="image">🖼 Image (14)</button>
+    <button class="filter-btn" data-cat="text">✏️ Text (12)</button>
+    <button class="filter-btn" data-cat="unit">📐 Unit & Color (10)</button>
+    <button class="filter-btn" data-cat="calculator">🧮 Calculator (7)</button>
+    <button class="filter-btn" data-cat="generator">⚙️ Generator (15)</button>
+    <button class="filter-btn" data-cat="network">🌐 Network (10)</button>
+    <button class="filter-btn" data-cat="business">💼 Business (15)</button>
+  </div>
+
+  <div id="toolsContainer"></div>
+  <div id="no-results">No tools found for "<span id="search-term"></span>"</div>
+</main>
+
+<footer>
+  <p>© 2026 ToolKit — All tools are free. Your files stay in your browser.</p>
+</footer>
+
+<script>
+const TOOLS = [
+  // ── PDF (12) ──
+  { id:1,  name:"PDF to JPG Converter",         cat:"pdf",        vol:"25-30k", priority:1, week1:true },
+  { id:2,  name:"PDF to PNG Converter",          cat:"pdf",        vol:"8-12k",  priority:1, week1:true },
+  { id:3,  name:"JPG to PDF Converter",          cat:"pdf",        vol:"15-20k", priority:2 },
+  { id:4,  name:"PNG to PDF Converter",          cat:"pdf",        vol:"6-10k",  priority:2 },
+  { id:5,  name:"PDF to Text Converter",         cat:"pdf",        vol:"8-12k",  priority:2 },
+  { id:6,  name:"Image to PDF Converter (Batch)",cat:"pdf",        vol:"10-15k", priority:2 },
+  { id:7,  name:"PDF Merge Tool",                cat:"pdf",        vol:"5-8k",   priority:3 },
+  { id:8,  name:"PDF Compress Tool",             cat:"pdf",        vol:"8-12k",  priority:2 },
+  { id:9,  name:"PDF Watermark Remover",         cat:"pdf",        vol:"3-5k",   priority:3 },
+  { id:10, name:"PDF to Word Converter",         cat:"pdf",        vol:"6-10k",  priority:2 },
+  { id:11, name:"PDF to Excel Converter",        cat:"pdf",        vol:"2-4k",   priority:3 },
+  { id:12, name:"PDF to CSV Converter",          cat:"pdf",        vol:"1-2k",   priority:3 },
+
+  // ── Developer (15) ──
+  { id:13, name:"Base64 Encode/Decode",          cat:"developer",  vol:"20-25k", priority:1, week1:true },
+  { id:14, name:"URL Encode/Decode",             cat:"developer",  vol:"15-20k", priority:1, week1:true },
+  { id:15, name:"HTML Entity Encode/Decode",     cat:"developer",  vol:"3-5k",   priority:2 },
+  { id:16, name:"Hex to Text Converter",         cat:"developer",  vol:"4-6k",   priority:2 },
+  { id:17, name:"JSON Formatter & Validator",    cat:"developer",  vol:"25-30k", priority:1, week1:true },
+  { id:18, name:"JSON to CSV Converter",         cat:"developer",  vol:"8-12k",  priority:2 },
+  { id:19, name:"JSON Minifier",                 cat:"developer",  vol:"3-5k",   priority:2 },
+  { id:20, name:"CSV to JSON Converter",         cat:"developer",  vol:"8-12k",  priority:2 },
+  { id:21, name:"XML to JSON Converter",         cat:"developer",  vol:"6-8k",   priority:2 },
+  { id:22, name:"YAML to JSON Converter",        cat:"developer",  vol:"2-3k",   priority:3 },
+  { id:23, name:"CSV to XML Converter",          cat:"developer",  vol:"2-3k",   priority:3 },
+  { id:24, name:"UUID Generator (v1, v4)",       cat:"developer",  vol:"12-15k", priority:2 },
+  { id:25, name:"JWT Decoder & Validator",       cat:"developer",  vol:"8-10k",  priority:2 },
+  { id:26, name:"Regex Tester & Validator",      cat:"developer",  vol:"8-10k",  priority:2 },
+  { id:27, name:"Hash Generator (MD5, SHA256)",  cat:"developer",  vol:"6-8k",   priority:2 },
+
+  // ── Image (14) ──
+  { id:28, name:"HEIC to JPG Converter",         cat:"image",      vol:"20-25k", priority:1, week1:true },
+  { id:29, name:"WebP to PNG Converter",         cat:"image",      vol:"8-12k",  priority:2 },
+  { id:30, name:"SVG to PNG Converter",          cat:"image",      vol:"8-10k",  priority:2 },
+  { id:31, name:"TIFF to JPG Converter",         cat:"image",      vol:"3-5k",   priority:3 },
+  { id:32, name:"BMP to PNG Converter",          cat:"image",      vol:"2-3k",   priority:3 },
+  { id:33, name:"Image Resizer (Batch)",         cat:"image",      vol:"10-15k", priority:2 },
+  { id:34, name:"Image Compressor",             cat:"image",      vol:"12-15k", priority:2 },
+  { id:35, name:"Image Cropper",                 cat:"image",      vol:"4-6k",   priority:2 },
+  { id:36, name:"Background Remover",            cat:"image",      vol:"10-15k", priority:2 },
+  { id:37, name:"Image Blur/Pixelate Tool",      cat:"image",      vol:"4-6k",   priority:3 },
+  { id:38, name:"Image Grayscale Converter",     cat:"image",      vol:"2-3k",   priority:3 },
+  { id:39, name:"Image Brightness/Contrast",     cat:"image",      vol:"3-4k",   priority:3 },
+  { id:40, name:"Image to Base64 Converter",     cat:"image",      vol:"5-7k",   priority:2 },
+  { id:41, name:"Image Size Checker",            cat:"image",      vol:"4-6k",   priority:2 },
+
+  // ── Text (12) ──
+  { id:42, name:"Word Counter",                  cat:"text",       vol:"30-35k", priority:1, week1:true },
+  { id:43, name:"Character Counter",             cat:"text",       vol:"15-20k", priority:2 },
+  { id:44, name:"Sentence Counter",              cat:"text",       vol:"5-8k",   priority:2 },
+  { id:45, name:"Text Case Converter",           cat:"text",       vol:"10-15k", priority:2 },
+  { id:46, name:"Remove Extra Spaces",           cat:"text",       vol:"6-8k",   priority:2 },
+  { id:47, name:"Remove / Add Line Breaks",      cat:"text",       vol:"4-6k",   priority:3 },
+  { id:48, name:"Text Reverse Tool",             cat:"text",       vol:"3-5k",   priority:3 },
+  { id:49, name:"Duplicate Line Remover",        cat:"text",       vol:"3-5k",   priority:3 },
+  { id:50, name:"Remove Special Characters",     cat:"text",       vol:"4-6k",   priority:3 },
+  { id:51, name:"Text Diff Checker",             cat:"text",       vol:"4-6k",   priority:2 },
+  { id:52, name:"Lorem Ipsum Generator",         cat:"text",       vol:"8-10k",  priority:2 },
+  { id:53, name:"Random String Generator",       cat:"text",       vol:"6-8k",   priority:2 },
+
+  // ── Unit & Color (10) ──
+  { id:54, name:"Length Converter",              cat:"unit",       vol:"15-20k", priority:1, week1:true },
+  { id:55, name:"Weight Converter",              cat:"unit",       vol:"12-15k", priority:2 },
+  { id:56, name:"Temperature Converter",         cat:"unit",       vol:"8-10k",  priority:2 },
+  { id:57, name:"Volume Converter",              cat:"unit",       vol:"8-10k",  priority:2 },
+  { id:58, name:"Number to Words Converter",     cat:"unit",       vol:"4-6k",   priority:2 },
+  { id:59, name:"Roman Numeral Converter",       cat:"unit",       vol:"3-5k",   priority:3 },
+  { id:60, name:"Scientific Notation Converter", cat:"unit",       vol:"2-3k",   priority:3 },
+  { id:61, name:"RGB to Hex Color Converter",    cat:"unit",       vol:"6-8k",   priority:2 },
+  { id:62, name:"Color Code Converter (HEX/RGB/HSL)", cat:"unit", vol:"4-6k",   priority:2 },
+  { id:63, name:"Color Palette Generator",       cat:"unit",       vol:"5-7k",   priority:2 },
+
+  // ── Calculator (7) ──
+  { id:64, name:"EMI Loan Calculator",           cat:"calculator", vol:"25-30k", priority:1, week1:true },
+  { id:65, name:"Compound Interest Calculator",  cat:"calculator", vol:"15-20k", priority:1, week1:true },
+  { id:66, name:"ROI Calculator",                cat:"calculator", vol:"8-12k",  priority:2 },
+  { id:67, name:"Age Calculator",                cat:"calculator", vol:"12-15k", priority:2 },
+  { id:68, name:"Time Zone Converter",           cat:"calculator", vol:"15-20k", priority:2 },
+  { id:69, name:"Percentage Calculator",         cat:"calculator", vol:"20-25k", priority:1, week1:true },
+  { id:70, name:"GCD/LCM Calculator",            cat:"calculator", vol:"4-6k",   priority:3 },
+
+  // ── Generator (15) ──
+  { id:71, name:"QR Code Generator",             cat:"generator",  vol:"20-25k", priority:2 },
+  { id:72, name:"Barcode Generator (Code128/UPC)",cat:"generator", vol:"5-8k",   priority:3 },
+  { id:73, name:"URL Shortener",                 cat:"generator",  vol:"15-20k", priority:2 },
+  { id:74, name:"URL Expander",                  cat:"generator",  vol:"3-5k",   priority:3 },
+  { id:75, name:"QR Code from URL",              cat:"generator",  vol:"8-10k",  priority:2 },
+  { id:76, name:"Meta Title Generator",          cat:"generator",  vol:"10-15k", priority:2 },
+  { id:77, name:"Meta Description Generator",    cat:"generator",  vol:"8-12k",  priority:2 },
+  { id:78, name:"Open Graph Meta Generator",     cat:"generator",  vol:"4-6k",   priority:3 },
+  { id:79, name:"Robots.txt Generator",          cat:"generator",  vol:"3-5k",   priority:3 },
+  { id:80, name:"Sitemap XML Generator",         cat:"generator",  vol:"4-6k",   priority:3 },
+  { id:81, name:"Slug Generator",                cat:"generator",  vol:"2-4k",   priority:3 },
+  { id:82, name:"Email Subject Line Validator",  cat:"generator",  vol:"2-3k",   priority:3 },
+  { id:83, name:"JSON-LD Schema Generator",      cat:"generator",  vol:"2-3k",   priority:3 },
+  { id:84, name:"Invoice Generator",             cat:"generator",  vol:"8-10k",  priority:2 },
+  { id:85, name:"Cron Expression Validator",     cat:"generator",  vol:"3-5k",   priority:3 },
+
+  // ── Network (10) ──
+  { id:86, name:"Domain Age Checker",            cat:"network",    vol:"8-10k",  priority:2 },
+  { id:87, name:"Whois Lookup",                  cat:"network",    vol:"10-12k", priority:2 },
+  { id:88, name:"DNS Lookup Tool",               cat:"network",    vol:"8-10k",  priority:2 },
+  { id:89, name:"IP Geolocation Checker",        cat:"network",    vol:"6-8k",   priority:2 },
+  { id:90, name:"Port Checker (Open Port)",      cat:"network",    vol:"8-10k",  priority:3 },
+  { id:91, name:"Reverse IP Lookup",             cat:"network",    vol:"4-6k",   priority:3 },
+  { id:92, name:"CNAME Checker",                 cat:"network",    vol:"2-4k",   priority:3 },
+  { id:93, name:"SSL Certificate Checker",       cat:"network",    vol:"5-7k",   priority:2 },
+  { id:94, name:"PING Tool (Online)",            cat:"network",    vol:"8-10k",  priority:2 },
+  { id:95, name:"Traceroute Tool",               cat:"network",    vol:"3-5k",   priority:3 },
+
+  // ── Business (15) ──
+  { id:96,  name:"Markup/Margin Calculator",     cat:"business",   vol:"10-12k", priority:2 },
+  { id:97,  name:"Break-Even Calculator",        cat:"business",   vol:"5-7k",   priority:2 },
+  { id:98,  name:"Profit Calculator",            cat:"business",   vol:"8-10k",  priority:2 },
+  { id:99,  name:"Discount Calculator",          cat:"business",   vol:"12-15k", priority:2 },
+  { id:100, name:"Salary Calculator",            cat:"business",   vol:"15-20k", priority:2 },
+  { id:101, name:"Tax Bracket Calculator",       cat:"business",   vol:"8-10k",  priority:3 },
+  { id:102, name:"Retirement Calculator",        cat:"business",   vol:"8-10k",  priority:2 },
+  { id:103, name:"Budget Calculator",            cat:"business",   vol:"6-8k",   priority:3 },
+  { id:104, name:"Debt Payoff Calculator",       cat:"business",   vol:"4-6k",   priority:3 },
+  { id:105, name:"Mortgage Calculator",          cat:"business",   vol:"10-15k", priority:2 },
+  { id:106, name:"Stock Calculator",             cat:"business",   vol:"5-7k",   priority:3 },
+  { id:107, name:"Expense Splitter",             cat:"business",   vol:"4-6k",   priority:3 },
+  { id:108, name:"Travel Cost Calculator",       cat:"business",   vol:"3-5k",   priority:3 },
+  { id:109, name:"Crypto Unit Converter",        cat:"business",   vol:"4-6k",   priority:3 },
+  { id:110, name:"Contract Generator (NDA)",     cat:"business",   vol:"3-5k",   priority:3 },
+];
+
+const SECTIONS = [
+  { cat:"pdf",        label:"PDF Tools",             icon:"📄" },
+  { cat:"developer",  label:"Developer Tools",        icon:"💻" },
+  { cat:"image",      label:"Image Tools",            icon:"🖼" },
+  { cat:"text",       label:"Text Tools",             icon:"✏️" },
+  { cat:"unit",       label:"Unit & Color Converters",icon:"📐" },
+  { cat:"calculator", label:"Calculators",            icon:"🧮" },
+  { cat:"generator",  label:"Generators & SEO",       icon:"⚙️" },
+  { cat:"network",    label:"Network & Domain",       icon:"🌐" },
+  { cat:"business",   label:"Business & Finance",     icon:"💼" },
+];
+
+function priorityBadge(p, week1) {
+  if (week1) return '<span class="badge badge-p1">Week 1</span>';
+  if (p === 2) return '<span class="badge badge-p2">Phase 2</span>';
+  return '<span class="badge badge-p3">Phase 3</span>';
+}
+
+function renderCard(tool) {
+  return `
+    <a class="tool-card${tool.week1 ? ' week1' : ''}" href="#" title="${tool.name}">
+      <div class="card-name">${tool.name}</div>
+      <div class="card-meta">
+        <span class="card-vol">${tool.vol}/mo</span>
+        ${priorityBadge(tool.priority, tool.week1)}
+      </div>
+    </a>`;
+}
+
+function render(query = '', cat = 'all') {
+  const container = document.getElementById('toolsContainer');
+  const noResults = document.getElementById('no-results');
+  const q = query.toLowerCase().trim();
+
+  let totalVisible = 0;
+
+  const html = SECTIONS.map(sec => {
+    if (cat !== 'all' && cat !== sec.cat) return '';
+
+    const filtered = TOOLS.filter(t => {
+      if (t.cat !== sec.cat) return false;
+      if (q && !t.name.toLowerCase().includes(q)) return false;
+      return true;
+    });
+
+    if (!filtered.length) return '';
+    totalVisible += filtered.length;
+
+    return `
+      <div class="section" data-cat="${sec.cat}">
+        <div class="section-header">
+          <span class="section-icon">${sec.icon}</span>
+          <span class="section-title">${sec.label}</span>
+          <span class="section-count">${filtered.length}</span>
+        </div>
+        <div class="tools-grid">
+          ${filtered.map(renderCard).join('')}
+        </div>
+      </div>`;
+  }).join('');
+
+  container.innerHTML = html;
+
+  if (totalVisible === 0) {
+    document.getElementById('search-term').textContent = q;
+    noResults.style.display = 'block';
+    container.style.display = 'none';
+  } else {
+    noResults.style.display = 'none';
+    container.style.display = 'block';
+  }
+}
+
+// Init
+render();
+
+// Search
+let debounce;
+document.getElementById('search').addEventListener('input', e => {
+  clearTimeout(debounce);
+  debounce = setTimeout(() => {
+    const activeCat = document.querySelector('.filter-btn.active').dataset.cat;
+    render(e.target.value, activeCat);
+  }, 200);
+});
+
+// Filter buttons
+document.getElementById('filterBar').addEventListener('click', e => {
+  const btn = e.target.closest('.filter-btn');
+  if (!btn) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render(document.getElementById('search').value, btn.dataset.cat);
+});
+</script>
+</body>
+</html>
