@@ -120,13 +120,7 @@
       transform: translateY(-2px);
       box-shadow: 0 8px 24px rgba(99,102,241,.15);
     }
-    .card-name { font-size: .95rem; font-weight: 600; margin-bottom: 6px; }
-    .card-meta { display: flex; gap: 8px; align-items: center; }
-    .card-vol { font-size: .75rem; color: var(--muted); }
-    .badge { font-size: .7rem; padding: 2px 8px; border-radius: 999px; font-weight: 600; }
-    .badge-p1 { background: #fbbf2420; color: #fbbf24; }
-    .badge-p2 { background: #34d39920; color: #34d399; }
-    .badge-p3 { background: #60a5fa20; color: #60a5fa; }
+    .card-name { font-size: .95rem; font-weight: 600; }
 
     /* No results */
     #no-results { display: none; text-align: center; padding: 64px; color: var(--muted); }
@@ -178,6 +172,11 @@ const TOOL_URLS = {
   13: 'base64.html',
   14: 'url-encode.html',
   17: 'json-formatter.html',
+  24: 'uuid-generator.html',
+  26: 'regex-tester.html',
+  27: 'hash-generator.html',
+  40: 'image-to-base64.html',
+  38: 'image-grayscale.html',
   42: 'word-counter.html',
   54: 'length-converter.html',
   64: 'emi-calculator.html',
@@ -344,9 +343,6 @@ function renderCard(tool) {
   return `
     <a class="tool-card" href="${url}" title="${tool.name}">
       <div class="card-name">${tool.name}</div>
-      <div class="card-meta">
-        <span class="card-vol">${tool.vol}/mo</span>
-      </div>
     </a>`;
 }
 

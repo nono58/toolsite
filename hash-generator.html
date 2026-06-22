@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hash Generator Online – MD5, SHA-256 | QuickTools</title>
+  <meta name="description" content="Generate MD5, SHA-1, SHA-256, SHA-512 hashes online. Free, instant, no signup required." />
+  <link rel="stylesheet" href="tool.css" />
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Developer<span>›</span>Hash Generator</div>
+
+  <h1>Hash Generator</h1>
+  <p class="tool-desc">Generate SHA-1, SHA-256, SHA-512 hashes from any text. Uses the browser's built-in Web Crypto API — your data never leaves your device.</p>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <span class="card-title" style="margin-bottom:0;">Input Text</span>
+      <button class="btn btn-secondary btn-sm" onclick="clearAll()">Clear</button>
+    </div>
+    <textarea id="input" placeholder="Enter text to hash…" oninput="hashAll()"></textarea>
+  </div>
+
+  <div id="results" style="display:flex;flex-direction:column;gap:10px;margin-top:16px;"></div>
+
+  <div class="card" style="margin-top:16px;">
+    <div class="card-title">Hash a File</div>
+    <p style="color:var(--muted);font-size:.88rem;margin-bottom:12px;">Drop or select a file to compute its SHA-256 hash.</p>
+    <input type="file" id="file-input" onchange="hashFile()" style="color:var(--muted);font-size:.88rem;" />
+    <div id="file-result" style="margin-top:12px;display:none;">
+      <div style="font-size:.8rem;color:var(--muted);margin-bottom:4px;">SHA-256 of file:</div>
+      <code id="file-hash" style="font-family:'SF Mono','Fira Code',monospace;font-size:.85rem;color:var(--accent2);word-break:break-all;"></code>
+    </div>
+  </div>
+
+  <div class="faq" style="margin-top:40px;">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-item">
+      <div class="faq-q">What is a hash function?</div>
+      <div class="faq-a">A hash function converts input data of any size into a fixed-size string. The same input always produces the same output, but you cannot reverse it to get the original input.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Is MD5 secure?</div>
+      <div class="faq-a">MD5 is considered cryptographically broken and should not be used for security purposes. Use SHA-256 or SHA-512 for security-sensitive applications. MD5 is still fine for checksums.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Which algorithm should I use?</div>
+      <div class="faq-a">SHA-256 is the standard choice for most uses. SHA-512 offers more security. SHA-1 is legacy. Avoid MD5 for anything security-critical.</div>
+    </div>
+  </div>
+
+  <div class="related">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="uuid-generator.html">UUID Generator</a>
+      <a class="related-link" href="base64.html">Base64 Encode/Decode</a>
+      <a class="related-link" href="json-formatter.html">JSON Formatter</a>
+    </div>
+  </div>
+</div>
+
+<footer>© 2026 QuickTools — Free online tools. No signup required.</footer>
+
+<script>
+const ALGOS = [
+  { id: 'SHA-1',   label: 'SHA-1',   bits: 160 },
+  { id: 'SHA-256', label: 'SHA-256', bits: 256 },
+  { id: 'SHA-512', label: 'SHA-512', bits: 512 },
+];
+
+async function digest(algo, text) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(text);
+  const hashBuffer = await crypto.subtle.digest(algo, data);
+  return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function hashAll() {
+  const text = document.getElementById('input').value;
+  const container = document.getElementById('results');
+
+  if (!text) { container.innerHTML = ''; return; }
+
+  container.innerHTML = ALGOS.map(a => `
+    <div class="card" style="padding:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <span style="font-size:.8rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;">${a.label} (${a.bits} bits)</span>
+        <button class="btn btn-secondary btn-sm" onclick="copyHash('${a.id}')">Copy</button>
+      </div>
+      <code id="hash-${a.id}" style="font-family:'SF Mono','Fira Code',monospace;font-size:.82rem;color:var(--accent2);word-break:break-all;line-height:1.6;">Computing…</code>
+    </div>`).join('');
+
+  for (const a of ALGOS) {
+    const hash = await digest(a.id, text);
+    const el = document.getElementById(`hash-${a.id}`);
+    if (el) el.textContent = hash;
+  }
+}
+
+async function copyHash(algoId) {
+  const el = document.getElementById(`hash-${algoId}`);
+  if (!el) return;
+  await navigator.clipboard.writeText(el.textContent);
+  const btn = event.target;
+  btn.textContent = 'Copied!';
+  setTimeout(() => btn.textContent = 'Copy', 1500);
+}
+
+async function hashFile() {
+  const file = document.getElementById('file-input').files[0];
+  if (!file) return;
+  const buffer = await file.arrayBuffer();
+  const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+  const hash = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+  document.getElementById('file-hash').textContent = hash;
+  document.getElementById('file-result').style.display = 'block';
+}
+
+function clearAll() {
+  document.getElementById('input').value = '';
+  document.getElementById('results').innerHTML = '';
+  document.getElementById('file-result').style.display = 'none';
+  document.getElementById('file-input').value = '';
+}
+</script>
+</body>
+</html>

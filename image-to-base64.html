@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Image to Base64 Converter Online – Free | QuickTools</title>
+  <meta name="description" content="Convert images to Base64 encoded strings instantly. Supports JPG, PNG, GIF, WebP. Free online tool, no upload required." />
+  <link rel="stylesheet" href="tool.css" />
+  <style>
+    .drop-zone {
+      border: 2px dashed var(--border); border-radius: 14px; padding: 48px 24px;
+      text-align: center; cursor: pointer; transition: all .2s; background: var(--bg3);
+    }
+    .drop-zone:hover, .drop-zone.drag-over { border-color: var(--accent); background: #6366f110; }
+    .drop-zone p { color: var(--muted); margin-top: 8px; font-size: .9rem; }
+    .preview-img { max-width: 100%; max-height: 300px; border-radius: 10px; display: block; margin: 0 auto; }
+    .output-code { font-family: 'SF Mono','Fira Code',monospace; font-size: .78rem; word-break: break-all; line-height: 1.6; color: var(--accent2); background: var(--bg3); border-radius: 10px; padding: 14px; max-height: 200px; overflow-y: auto; border: 1.5px solid var(--border); }
+  </style>
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Image<span>›</span>Image to Base64</div>
+
+  <h1>Image to Base64 Converter</h1>
+  <p class="tool-desc">Convert any image to a Base64 encoded string for embedding in HTML, CSS, or JSON. Your image never leaves your browser.</p>
+
+  <div class="card">
+    <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+      <div style="font-size:2.5rem;">🖼</div>
+      <div style="font-weight:700;margin-top:8px;">Drop image here or click to select</div>
+      <p>Supports JPG, PNG, GIF, WebP, SVG</p>
+    </div>
+    <input type="file" id="file-input" accept="image/*" style="display:none;" onchange="handleFile(this.files[0])" />
+  </div>
+
+  <!-- Preview -->
+  <div class="card" id="preview-card" style="display:none;">
+    <div class="card-title">Preview</div>
+    <img id="preview-img" class="preview-img" />
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:.85rem;color:var(--muted);">
+      <span>Name: <strong id="file-name" style="color:var(--text);">—</strong></span>
+      <span>Size: <strong id="file-size" style="color:var(--text);">—</strong></span>
+      <span>Type: <strong id="file-type" style="color:var(--text);">—</strong></span>
+    </div>
+  </div>
+
+  <!-- Output formats -->
+  <div class="card" id="output-card" style="display:none;">
+    <div class="card-title">Base64 Output</div>
+
+    <div style="margin-bottom:20px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <label style="margin:0;">Raw Base64</label>
+        <button class="btn btn-secondary btn-sm" onclick="copyText('raw-b64')">Copy</button>
+      </div>
+      <div class="output-code" id="raw-b64"></div>
+    </div>
+
+    <div style="margin-bottom:20px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <label style="margin:0;">Data URL (for HTML/CSS)</label>
+        <button class="btn btn-secondary btn-sm" onclick="copyText('data-url')">Copy</button>
+      </div>
+      <div class="output-code" id="data-url"></div>
+    </div>
+
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <label style="margin:0;">HTML img tag</label>
+        <button class="btn btn-secondary btn-sm" onclick="copyText('html-tag')">Copy</button>
+      </div>
+      <div class="output-code" id="html-tag"></div>
+    </div>
+
+    <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+      <div style="font-size:.8rem;color:var(--muted);">Base64 size: <strong id="b64-size" style="color:var(--accent2);">—</strong> (approx. 33% larger than original)</div>
+    </div>
+  </div>
+
+  <div class="faq" style="margin-top:40px;">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-item">
+      <div class="faq-q">When should I use Base64 images?</div>
+      <div class="faq-a">Use Base64 for small icons or images embedded directly in HTML/CSS to reduce HTTP requests. For large images, use regular file URLs — Base64 increases size by ~33%.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Is my image uploaded to a server?</div>
+      <div class="faq-a">No. Everything runs in your browser using the FileReader API. Your image is never sent anywhere.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">How do I use it in CSS?</div>
+      <div class="faq-a"><code style="color:var(--accent2);">background-image: url('data:image/png;base64,...');</code></div>
+    </div>
+  </div>
+
+  <div class="related">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="base64.html">Text Base64 Encode/Decode</a>
+      <a class="related-link" href="image-grayscale.html">Image Grayscale Converter</a>
+    </div>
+  </div>
+</div>
+
+<footer>© 2026 QuickTools — Free online tools. No signup required.</footer>
+
+<script>
+const dropZone = document.getElementById('drop-zone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) handleFile(file);
+});
+
+function handleFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const dataUrl = e.target.result;
+    const base64 = dataUrl.split(',')[1];
+
+    // Preview
+    document.getElementById('preview-img').src = dataUrl;
+    document.getElementById('file-name').textContent = file.name;
+    document.getElementById('file-size').textContent = formatSize(file.size);
+    document.getElementById('file-type').textContent = file.type;
+    document.getElementById('preview-card').style.display = 'block';
+
+    // Output
+    document.getElementById('raw-b64').textContent = base64;
+    document.getElementById('data-url').textContent = dataUrl;
+    document.getElementById('html-tag').textContent = `<img src="${dataUrl}" alt="${file.name}" />`;
+    document.getElementById('b64-size').textContent = formatSize(base64.length);
+    document.getElementById('output-card').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function formatSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / 1048576).toFixed(1) + ' MB';
+}
+
+function copyText(id) {
+  const text = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+</script>
+</body>
+</html>

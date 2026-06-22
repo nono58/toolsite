@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Regex Tester & Validator Online – Free | QuickTools</title>
+  <meta name="description" content="Test and debug regular expressions online. See matches highlighted in real-time. Free regex tester with flags and common patterns." />
+  <link rel="stylesheet" href="tool.css" />
+  <style>
+    .highlight { background: #fbbf2440; border-radius: 3px; outline: 2px solid #fbbf24; }
+    .match-item { background: var(--bg3); border-radius: 8px; padding: 10px 14px; font-family: 'SF Mono','Fira Code',monospace; font-size: .85rem; display: flex; gap: 12px; align-items: baseline; }
+    .match-idx { color: var(--muted); font-size: .75rem; min-width: 28px; }
+    .match-val { color: #fbbf24; font-weight: 600; }
+    .match-pos { color: var(--muted); font-size: .75rem; }
+    .flag-btn { padding: 6px 12px; border-radius: 6px; border: 1.5px solid var(--border); background: transparent; color: var(--muted); font-size: .82rem; font-family: monospace; cursor: pointer; transition: all .2s; }
+    .flag-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .preview-box { background: var(--bg3); border: 1.5px solid var(--border); border-radius: 10px; padding: 14px; font-family: 'SF Mono','Fira Code',monospace; font-size: .9rem; line-height: 1.8; min-height: 60px; word-break: break-all; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Developer<span>›</span>Regex Tester</div>
+
+  <h1>Regex Tester & Validator</h1>
+  <p class="tool-desc">Test regular expressions against text in real-time. See matches highlighted, groups captured, and get match details instantly.</p>
+
+  <!-- Pattern input -->
+  <div class="card">
+    <div class="card-title">Regular Expression</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+      <span style="color:var(--muted);font-size:1.2rem;">/</span>
+      <input type="text" id="pattern" placeholder="e.g. \b\w+@\w+\.\w+\b" oninput="run()" style="flex:1;" />
+      <span style="color:var(--muted);font-size:1.2rem;">/</span>
+      <div style="display:flex;gap:4px;">
+        <button class="flag-btn active" id="flag-g" onclick="toggleFlag('g')" title="Global">g</button>
+        <button class="flag-btn active" id="flag-i" onclick="toggleFlag('i')" title="Case insensitive">i</button>
+        <button class="flag-btn" id="flag-m" onclick="toggleFlag('m')" title="Multiline">m</button>
+        <button class="flag-btn" id="flag-s" onclick="toggleFlag('s')" title="Dotall">s</button>
+      </div>
+    </div>
+    <div class="alert alert-error" id="regex-error" style="margin-top:0;"></div>
+  </div>
+
+  <!-- Test string -->
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <span class="card-title" style="margin-bottom:0;">Test String</span>
+      <span id="match-count" style="font-size:.82rem;color:var(--muted);"></span>
+    </div>
+    <textarea id="test-string" placeholder="Enter text to test against…" oninput="run()" style="min-height:120px;"></textarea>
+  </div>
+
+  <!-- Preview with highlights -->
+  <div class="card" id="preview-card" style="display:none;">
+    <div class="card-title">Match Preview</div>
+    <div class="preview-box" id="preview"></div>
+  </div>
+
+  <!-- Match list -->
+  <div class="card" id="matches-card" style="display:none;">
+    <div class="card-title">Matches</div>
+    <div id="matches" style="display:flex;flex-direction:column;gap:8px;"></div>
+  </div>
+
+  <!-- Common patterns -->
+  <div class="card">
+    <div class="card-title">Common Patterns — Click to use</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;" id="patterns"></div>
+  </div>
+
+  <div class="faq" style="margin-top:40px;">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-item">
+      <div class="faq-q">What do the flags mean?</div>
+      <div class="faq-a"><strong>g</strong> (global): find all matches, not just the first. <strong>i</strong>: case-insensitive. <strong>m</strong>: ^ and $ match line start/end. <strong>s</strong>: dot (.) matches newlines too.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">How do I match a literal dot?</div>
+      <div class="faq-a">Escape it with a backslash: <code style="color:var(--accent2);">\.</code> — without the backslash, a dot matches any character.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">What is a capture group?</div>
+      <div class="faq-a">Parentheses create capture groups: <code style="color:var(--accent2);">(\w+)@(\w+)</code> captures the username and domain separately. Groups are shown in match details.</div>
+    </div>
+  </div>
+
+  <div class="related">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="uuid-generator.html">UUID Generator</a>
+      <a class="related-link" href="hash-generator.html">Hash Generator</a>
+      <a class="related-link" href="json-formatter.html">JSON Formatter</a>
+    </div>
+  </div>
+</div>
+
+<footer>© 2026 QuickTools — Free online tools. No signup required.</footer>
+
+<script>
+const COMMON_PATTERNS = [
+  { label: 'Email',          pattern: '[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}' },
+  { label: 'URL',            pattern: 'https?:\\/\\/[\\w\\-]+(\\.[\\w\\-]+)+([\\w.,@?^=%&:/~+#\\-]*)?' },
+  { label: 'IP Address',     pattern: '\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b' },
+  { label: 'Phone (US)',     pattern: '\\(?\\d{3}\\)?[\\s.\\-]?\\d{3}[\\s.\\-]?\\d{4}' },
+  { label: 'Date (YYYY-MM-DD)', pattern: '\\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\\d|3[01])' },
+  { label: 'Hex Color',      pattern: '#(?:[0-9a-fA-F]{3}){1,2}' },
+  { label: 'HTML Tag',       pattern: '<[^>]+>' },
+  { label: 'Number',         pattern: '-?\\d+(?:\\.\\d+)?' },
+  { label: 'Whitespace',     pattern: '\\s+' },
+  { label: 'Word',           pattern: '\\b\\w+\\b' },
+];
+
+document.getElementById('patterns').innerHTML = COMMON_PATTERNS.map(p =>
+  `<button class="btn btn-secondary btn-sm" onclick="usePattern('${p.pattern}')">${p.label}</button>`
+).join('');
+
+const flags = { g: true, i: true, m: false, s: false };
+
+function toggleFlag(f) {
+  flags[f] = !flags[f];
+  document.getElementById(`flag-${f}`).classList.toggle('active', flags[f]);
+  run();
+}
+
+function getFlags() {
+  return Object.entries(flags).filter(([,v]) => v).map(([k]) => k).join('');
+}
+
+function usePattern(p) {
+  document.getElementById('pattern').value = p;
+  run();
+}
+
+function run() {
+  const patternStr = document.getElementById('pattern').value;
+  const testStr = document.getElementById('test-string').value;
+  const errEl = document.getElementById('regex-error');
+  errEl.style.display = 'none';
+
+  if (!patternStr) {
+    document.getElementById('preview-card').style.display = 'none';
+    document.getElementById('matches-card').style.display = 'none';
+    document.getElementById('match-count').textContent = '';
+    return;
+  }
+
+  let regex;
+  try {
+    regex = new RegExp(patternStr, getFlags());
+  } catch(e) {
+    errEl.textContent = 'Invalid regex: ' + e.message;
+    errEl.style.display = 'block';
+    document.getElementById('preview-card').style.display = 'none';
+    document.getElementById('matches-card').style.display = 'none';
+    return;
+  }
+
+  if (!testStr) {
+    document.getElementById('match-count').textContent = '';
+    document.getElementById('preview-card').style.display = 'none';
+    document.getElementById('matches-card').style.display = 'none';
+    return;
+  }
+
+  // Find all matches
+  const allMatches = [];
+  let m;
+  const safeRegex = new RegExp(patternStr, getFlags().replace('g','') + 'g');
+  while ((m = safeRegex.exec(testStr)) !== null) {
+    allMatches.push({ value: m[0], index: m.index, groups: m.slice(1), end: m.index + m[0].length });
+    if (!flags.g) break;
+    if (m[0].length === 0) safeRegex.lastIndex++;
+  }
+
+  document.getElementById('match-count').textContent = allMatches.length
+    ? `${allMatches.length} match${allMatches.length > 1 ? 'es' : ''}`
+    : 'No matches';
+
+  // Preview with highlights
+  if (allMatches.length > 0) {
+    let highlighted = '';
+    let last = 0;
+    allMatches.forEach(m => {
+      highlighted += escHtml(testStr.slice(last, m.index));
+      highlighted += `<mark class="highlight">${escHtml(m.value)}</mark>`;
+      last = m.end;
+    });
+    highlighted += escHtml(testStr.slice(last));
+    document.getElementById('preview').innerHTML = highlighted;
+    document.getElementById('preview-card').style.display = 'block';
+
+    // Match list
+    document.getElementById('matches').innerHTML = allMatches.map((m, i) => `
+      <div class="match-item">
+        <span class="match-idx">#${i+1}</span>
+        <span class="match-val">${escHtml(m.value)}</span>
+        <span class="match-pos">index ${m.index}–${m.end}</span>
+        ${m.groups.length ? `<span style="color:var(--muted);font-size:.75rem;">groups: ${m.groups.map((g,i) => `$${i+1}="${escHtml(g||'')}"`).join(', ')}</span>` : ''}
+      </div>`).join('');
+    document.getElementById('matches-card').style.display = 'block';
+  } else {
+    document.getElementById('preview').innerHTML = escHtml(testStr);
+    document.getElementById('preview-card').style.display = 'block';
+    document.getElementById('matches-card').style.display = 'none';
+  }
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'↵\n');
+}
+</script>
+</body>
+</html>

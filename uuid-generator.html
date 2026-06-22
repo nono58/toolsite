@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UUID Generator Online – Free | QuickTools</title>
+  <meta name="description" content="Generate UUID v1 and v4 instantly online. Bulk generation, copy with one click. Free, no signup." />
+  <link rel="stylesheet" href="tool.css" />
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Developer<span>›</span>UUID Generator</div>
+
+  <h1>UUID Generator</h1>
+  <p class="tool-desc">Generate version 1 (time-based) or version 4 (random) UUIDs instantly. Bulk generate up to 100 at once.</p>
+
+  <div class="card">
+    <div class="card-title">Options</div>
+    <div class="grid-2" style="margin-bottom:16px;">
+      <div>
+        <label>Version</label>
+        <select id="version">
+          <option value="4">UUID v4 (Random)</option>
+          <option value="1">UUID v1 (Time-based)</option>
+        </select>
+      </div>
+      <div>
+        <label>Count</label>
+        <input type="number" id="count" value="1" min="1" max="100" />
+      </div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="generate()">⚡ Generate</button>
+      <button class="btn btn-secondary" onclick="copyAll()">Copy All</button>
+      <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+    </div>
+  </div>
+
+  <div class="alert alert-success" id="copied-msg">Copied to clipboard!</div>
+
+  <div class="card" id="output-card" style="display:none;margin-top:16px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <span class="card-title" style="margin-bottom:0;">Generated UUIDs</span>
+      <span id="count-label" style="font-size:.8rem;color:var(--muted);"></span>
+    </div>
+    <div id="uuid-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+  </div>
+
+  <div class="faq" style="margin-top:40px;">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-item">
+      <div class="faq-q">What is a UUID?</div>
+      <div class="faq-a">UUID (Universally Unique Identifier) is a 128-bit label used to uniquely identify objects in computer systems. Format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">v1 vs v4 — which should I use?</div>
+      <div class="faq-a">v4 is random and recommended for most use cases (database IDs, session tokens). v1 is time-based and includes the machine's MAC address, which may raise privacy concerns.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Are these UUIDs truly unique?</div>
+      <div class="faq-a">v4 UUIDs have 122 bits of randomness. The probability of collision is astronomically low — you'd need to generate billions per second for thousands of years to get a duplicate.</div>
+    </div>
+  </div>
+
+  <div class="related">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="hash-generator.html">Hash Generator</a>
+      <a class="related-link" href="base64.html">Base64 Encode/Decode</a>
+      <a class="related-link" href="json-formatter.html">JSON Formatter</a>
+    </div>
+  </div>
+</div>
+
+<footer>© 2026 QuickTools — Free online tools. No signup required.</footer>
+
+<script>
+function uuidv4() {
+  return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+  );
+}
+
+function uuidv1() {
+  // Simplified v1-like (time-based) UUID
+  const now = Date.now();
+  const timeHigh = Math.floor(now / 0x100000000);
+  const timeLow = now & 0xFFFFFFFF;
+  const rand = () => Math.floor(Math.random() * 0x10000).toString(16).padStart(4, '0');
+  const hex = (n, len) => n.toString(16).padStart(len, '0');
+  return `${hex(timeLow, 8)}-${hex(timeHigh & 0xFFFF, 4)}-1${hex((timeHigh >> 16) & 0x0FFF, 3)}-${(8 + Math.floor(Math.random()*4)).toString(16)}${rand().slice(1)}-${rand()}${rand()}${rand().slice(0,4)}`;
+}
+
+function generate() {
+  const ver = document.getElementById('version').value;
+  const count = Math.min(100, Math.max(1, parseInt(document.getElementById('count').value) || 1));
+  const uuids = Array.from({length: count}, () => ver === '4' ? uuidv4() : uuidv1());
+
+  document.getElementById('output-card').style.display = 'block';
+  document.getElementById('count-label').textContent = `${count} UUID${count > 1 ? 's' : ''} generated`;
+  document.getElementById('uuid-list').innerHTML = uuids.map(u => `
+    <div style="display:flex;align-items:center;gap:10px;background:var(--bg3);border-radius:8px;padding:10px 14px;">
+      <code style="flex:1;font-family:'SF Mono','Fira Code',monospace;font-size:.9rem;color:var(--accent2);letter-spacing:.02em;">${u}</code>
+      <button class="btn btn-secondary btn-sm" onclick="copySingle('${u}', this)">Copy</button>
+    </div>`).join('');
+
+  document.getElementById('copied-msg').style.display = 'none';
+}
+
+function copySingle(uuid, btn) {
+  navigator.clipboard.writeText(uuid).then(() => {
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+
+function copyAll() {
+  const codes = [...document.querySelectorAll('#uuid-list code')].map(c => c.textContent);
+  if (!codes.length) return;
+  navigator.clipboard.writeText(codes.join('\n')).then(() => {
+    const msg = document.getElementById('copied-msg');
+    msg.style.display = 'block';
+    setTimeout(() => msg.style.display = 'none', 2000);
+  });
+}
+
+function clearAll() {
+  document.getElementById('uuid-list').innerHTML = '';
+  document.getElementById('output-card').style.display = 'none';
+}
+
+// Generate one on load
+generate();
+</script>
+</body>
+</html>
