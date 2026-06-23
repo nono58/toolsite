@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Base64エンコードとは？仕組み・用途・デコード方法をわかりやすく解説 | QuickTools</title>
+<meta name="description" content="Base64エンコードの仕組み、なぜ使われるのか、JavaScriptやPythonでの実装方法、オンラインで即変換する方法をわかりやすく解説。"/>
+<link rel="canonical" href="https://www.58parts.net/blog/ja/base64.html"/>
+<meta property="og:title" content="Base64エンコードとは？仕組み・用途・デコード方法をわかりやすく解説"/>
+<meta property="og:description" content="Base64エンコードの仕組み、なぜ使われるのか、JavaScriptやPythonでの実装方法をわかりやすく解説。"/>
+<meta property="og:type" content="article"/>
+<meta property="og:url" content="https://www.58parts.net/blog/ja/base64.html"/>
+<link rel="stylesheet" href="../blog.css"/>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7091279251828395" crossorigin="anonymous"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Base64エンコードとは？仕組み・用途・デコード方法をわかりやすく解説",
+  "datePublished": "2026-04-18",
+  "dateModified": "2026-04-19",
+  "author": {"@type":"Organization","name":"QuickTools"},
+  "publisher": {"@type":"Organization","name":"QuickTools","url":"https://www.58parts.net"}
+}
+</script>
+</head>
+<body>
+<header><a class="logo" href="../../index.html">⚡ Quick<span>Tools</span></a></header>
+<div class="container">
+  <div class="breadcrumb"><a href="../../index.html">Home</a> › <a href="../index.html">Blog</a> › Base64エンコードとは</div>
+
+  <article>
+    <div class="article-meta">
+      <span class="article-cat">💻 開発ツール</span>
+      <time datetime="2026-04-18">2026年4月18日</time>
+    </div>
+
+    <h1>Base64エンコードとは？仕組み・用途・デコード方法をわかりやすく解説</h1>
+
+    <p class="lead">Webの開発をしていると「Base64エンコード」という言葉を目にすることがあります。しかし「何のためにあるの？」「どういう仕組み？」と疑問を持つ方も多いでしょう。この記事では、Base64の概念から実際の使い方まで、プログラミング初心者でも理解できるようにわかりやすく解説します。</p>
+
+    <div class="cta-box">
+      <p>今すぐBase64のエンコード・デコードを試す</p>
+      <a href="../../base64.html" class="cta-btn">⚡ Base64 Encoder/Decoder を使う →</a>
+    </div>
+
+    <h2>Base64エンコードとは何か</h2>
+    <p>Base64（ベースろくじゅうし）とは、バイナリデータ（画像や音声ファイルなど）を、テキストとして扱える64種類の文字（A〜Z、a〜z、0〜9、+、/）に変換するエンコード方式です。</p>
+    <p>「エンコード」は「変換する」という意味です。Base64エンコードとは、元のデータを64種類の文字だけで表現できる形式に変換することを指します。</p>
+
+    <p>使用する64文字は以下のとおりです：</p>
+    <ul>
+      <li>大文字アルファベット：A〜Z（26文字）</li>
+      <li>小文字アルファベット：a〜z（26文字）</li>
+      <li>数字：0〜9（10文字）</li>
+      <li>記号：+と/（2文字）</li>
+      <li>パディング文字：=（データ末尾の調整用）</li>
+    </ul>
+
+    <h2>なぜBase64が必要なのか</h2>
+    <p>コンピューターはすべてのデータを「0と1」のバイナリ形式で扱います。しかし、メールやHTMLなどのテキストベースのプロトコルは、バイナリデータをそのまま扱えない場合があります。</p>
+    <p>例えば、メールにファイルを添付するとき。ファイルはバイナリですが、メールの本文はテキストです。ここでBase64が活躍します。バイナリデータをテキストに変換することで、テキストしか扱えない場所でもデータを安全に送れるようになります。</p>
+
+    <h2>Base64の仕組み（図解）</h2>
+    <p>Base64は3バイト（24ビット）のデータを4文字に変換します。</p>
+    <p>例として「Man」という文字をエンコードしてみましょう。</p>
+    <ol>
+      <li>「M」「a」「n」をASCIIコードに変換 → 77、97、110</li>
+      <li>2進数に変換 → 01001101 01100001 01101110</li>
+      <li>6ビットずつに分割 → 010011 010110 000101 101110</li>
+      <li>各6ビットを10進数に → 19、22、5、46</li>
+      <li>Base64テーブルで文字に変換 → T、W、F、u</li>
+    </ol>
+    <p>結果：「Man」→「TWFu」になります。</p>
+    <p>このように元のデータより約33%サイズが大きくなるのがBase64の特徴です。</p>
+
+    <h2>Base64の主な用途</h2>
+
+    <h3>1. メールの添付ファイル（MIME）</h3>
+    <p>メールの添付ファイルはBase64でエンコードされてから送信されます。これにより、テキスト形式のメールプロトコル（SMTP）でバイナリファイルを送ることができます。</p>
+
+    <h3>2. HTMLに画像を埋め込む（Data URI）</h3>
+    <p>画像ファイルをBase64に変換することで、外部ファイルなしにHTMLの中に画像を直接埋め込めます。</p>
+    <pre><code>&lt;img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..." /&gt;</code></pre>
+    <p>小さいアイコンやロゴなど、サーバーへのリクエスト数を減らしたいときに便利です。</p>
+
+    <h3>3. JWT（JSON Web Token）</h3>
+    <p>Webの認証によく使われるJWTは、Base64でエンコードされたヘッダー・ペイロード・署名の3つの部分で構成されています。</p>
+
+    <h3>4. APIのBasic認証</h3>
+    <p>HTTPのBasic認証では、「ユーザー名:パスワード」をBase64でエンコードしてHTTPヘッダーに含めます。</p>
+    <pre><code>Authorization: Basic dXNlcjpwYXNzd29yZA==</code></pre>
+    <p>ただしBase64は暗号化ではなく、簡単にデコードできるため、必ずHTTPSと組み合わせて使用する必要があります。</p>
+
+    <h3>5. CSSのFont Embedding</h3>
+    <p>Webフォントをbase64でエンコードしてCSSに直接埋め込むことも可能です。外部フォントファイルを読み込まずに済むため、読み込み速度の最適化に使われます。</p>
+
+    <h2>JavaScriptでBase64を使う方法</h2>
+    <p>ブラウザのJavaScriptには標準でBase64の関数が用意されています。</p>
+    <pre><code>// エンコード
+const encoded = btoa('Hello, World!');
+console.log(encoded); // SGVsbG8sIFdvcmxkIQ==
+
+// デコード
+const decoded = atob('SGVsbG8sIFdvcmxkIQ==');
+console.log(decoded); // Hello, World!</code></pre>
+    <p>ただし<code>btoa()</code>は日本語などの非ASCII文字には対応していません。日本語を扱う場合は次のようにします。</p>
+    <pre><code>// 日本語のエンコード
+const text = 'こんにちは';
+const encoded = btoa(encodeURIComponent(text)
+  .replace(/%([0-9A-F]{2})/g, (_, p1) =>
+    String.fromCharCode('0x' + p1)));
+
+// デコード
+const decoded = decodeURIComponent(atob(encoded)
+  .split('').map(c =>
+    '%' + c.charCodeAt(0).toString(16).padStart(2,'0')).join(''));</code></pre>
+
+    <h2>PythonでBase64を使う方法</h2>
+    <pre><code>import base64
+
+# エンコード
+text = "Hello, World!"
+encoded = base64.b64encode(text.encode()).decode()
+print(encoded)  # SGVsbG8sIFdvcmxkIQ==
+
+# デコード
+decoded = base64.b64decode(encoded).decode()
+print(decoded)  # Hello, World!
+
+# ファイルをBase64に変換
+with open("image.png", "rb") as f:
+    img_b64 = base64.b64encode(f.read()).decode()
+print(img_b64)</code></pre>
+
+    <h2>Base64とBase64URLの違い</h2>
+    <p>通常のBase64は「+」「/」「=」を使いますが、URLの中で使うとエンコードが必要になってしまいます。そこでURL・ファイル名に安全な「Base64URL」という亜種があります。</p>
+    <table style="width:100%;border-collapse:collapse;font-size:.85rem;margin:12px 0">
+      <thead><tr style="background:var(--bg3)"><th style="padding:8px;text-align:left">Base64</th><th style="padding:8px;text-align:left">Base64URL</th></tr></thead>
+      <tbody>
+        <tr style="border-top:1px solid var(--border)"><td style="padding:8px">+</td><td style="padding:8px">-（ハイフン）</td></tr>
+        <tr style="border-top:1px solid var(--border)"><td style="padding:8px">/</td><td style="padding:8px">_（アンダースコア）</td></tr>
+        <tr style="border-top:1px solid var(--border)"><td style="padding:8px">= (パディング)</td><td style="padding:8px">省略可能</td></tr>
+      </tbody>
+    </table>
+    <p>JWTはBase64URLを使用しています。</p>
+
+    <h2>よくある質問</h2>
+
+    <h3>Q. Base64は暗号化ですか？</h3>
+    <p>いいえ。Base64はエンコード（変換）であり、暗号化ではありません。誰でも簡単にデコードできます。セキュリティ目的には使用できません。</p>
+
+    <h3>Q. Base64にするとファイルサイズはどう変わりますか？</h3>
+    <p>元のデータより約33%（4/3倍）大きくなります。1MBの画像をBase64にすると約1.33MBになります。</p>
+
+    <h3>Q. =（イコール）が最後に付くのはなぜですか？</h3>
+    <p>Base64は3バイトずつ処理します。データの末尾が3の倍数でない場合、<code>=</code>でパディング（埋め合わせ）します。<code>=</code>は1〜2個付く場合があります。</p>
+
+    <h3>Q. オンラインでBase64に変換するには？</h3>
+    <p>下のツールを使えば、テキストや画像ファイルをブラウザ上で即座にBase64変換できます。データはサーバーに送信されないので安心です。</p>
+
+    <div class="cta-box">
+      <p>Base64のエンコード・デコードを今すぐ試す</p>
+      <a href="../../base64.html" class="cta-btn">⚡ Base64 Encoder/Decoder を使う →</a>
+    </div>
+
+  </article>
+</div>
+<footer>© 2026 QuickTools · <a href="../../index.html">All Tools</a> · <a href="../index.html">Blog</a></footer>
+</body>
+</html>

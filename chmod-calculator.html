@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>chmod Calculator Online Free – Linux File Permission Calculator | QuickTools</title>
+<meta name="description" content="Linuxファイルパーミッション（chmod）をビジュアルで計算。755・644など数値⇔記号を即変換。登録不要。chmod calculator online — convert between numeric and symbolic Linux file permissions instantly."/>
+<link rel="stylesheet" href="tool.css"/>
+<style>
+  .chmod-wrap { max-width:680px; margin:0 auto; }
+  .perm-table { width:100%; border-collapse:collapse; margin-bottom:24px; }
+  .perm-table th { background:var(--bg3); color:var(--muted); font-size:.78rem; text-transform:uppercase; letter-spacing:.07em; padding:10px 12px; text-align:center; }
+  .perm-table td { padding:12px; text-align:center; border-top:1px solid var(--border); }
+  .perm-table tr td:first-child { text-align:left; font-weight:600; color:var(--text); }
+  .perm-cb { width:20px; height:20px; accent-color:var(--accent); cursor:pointer; }
+  .result-hero { display:flex; gap:16px; align-items:stretch; margin-bottom:24px; flex-wrap:wrap; }
+  .result-box { flex:1; min-width:120px; background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:20px; text-align:center; }
+  .result-val { font-size:2.4rem; font-weight:900; color:var(--accent2); font-family:monospace; line-height:1; }
+  .result-lbl { font-size:.75rem; color:var(--muted); margin-top:6px; }
+  .input-row { display:flex; gap:10px; margin-bottom:24px; }
+  .input-row input { flex:1; background:var(--bg3); color:var(--text); border:1px solid var(--border); border-radius:8px; padding:10px 14px; font-size:1rem; font-family:monospace; }
+  .input-row input:focus { outline:none; border-color:var(--accent); }
+  .examples { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
+  .ex-btn { padding:6px 14px; border-radius:6px; border:1px solid var(--border); background:var(--bg2); color:var(--muted); font-size:.8rem; font-family:monospace; cursor:pointer; transition:.15s; }
+  .ex-btn:hover { border-color:var(--accent); color:var(--text); }
+  .explain-box { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:20px; font-size:.85rem; }
+  .explain-box h3 { font-size:.9rem; color:var(--accent2); margin:0 0 10px; }
+  .perm-row { display:flex; gap:8px; align-items:center; margin-bottom:6px; }
+  .perm-badge { display:inline-block; width:32px; text-align:center; padding:3px 0; border-radius:4px; font-family:monospace; font-size:.85rem; font-weight:700; }
+  .badge-r { background:rgba(34,197,94,.15); color:#22c55e; }
+  .badge-w { background:rgba(239,68,68,.15); color:#ef4444; }
+  .badge-x { background:rgba(99,102,241,.2); color:var(--accent2); }
+  .badge-n { background:var(--bg3); color:var(--muted); }
+  .who-label { width:72px; font-size:.82rem; color:var(--muted); }
+</style>
+</head>
+<body>
+<header><a class="logo" href="index.html">⚡ Quick<span>Tools</span></a></header>
+<main>
+  <h1 class="tool-title">chmod Calculator</h1>
+  <p class="tool-desc">Calculate Linux file permissions visually. Toggle read/write/execute for owner, group, and others.</p>
+
+  <div class="card chmod-wrap">
+
+    <!-- Quick input -->
+    <div class="input-row">
+      <input type="text" id="num-input" placeholder="Numeric (e.g. 755)" maxlength="4"/>
+      <input type="text" id="sym-input" placeholder="Symbolic (e.g. rwxr-xr-x)" maxlength="10"/>
+      <button class="btn-primary" id="parse-btn">Parse</button>
+    </div>
+
+    <!-- Common examples -->
+    <div class="examples">
+      <span style="font-size:.78rem;color:var(--muted);align-self:center">Common:</span>
+      <button class="ex-btn" data-val="755">755</button>
+      <button class="ex-btn" data-val="644">644</button>
+      <button class="ex-btn" data-val="777">777</button>
+      <button class="ex-btn" data-val="600">600</button>
+      <button class="ex-btn" data-val="664">664</button>
+      <button class="ex-btn" data-val="400">400</button>
+      <button class="ex-btn" data-val="750">750</button>
+    </div>
+
+    <!-- Permission checkboxes -->
+    <table class="perm-table">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Read (r)<br/><span style="font-weight:400">+4</span></th>
+          <th>Write (w)<br/><span style="font-weight:400">+2</span></th>
+          <th>Execute (x)<br/><span style="font-weight:400">+1</span></th>
+          <th>Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>👤 Owner</td>
+          <td><input class="perm-cb" type="checkbox" data-who="owner" data-bit="4" checked/></td>
+          <td><input class="perm-cb" type="checkbox" data-who="owner" data-bit="2" checked/></td>
+          <td><input class="perm-cb" type="checkbox" data-who="owner" data-bit="1" checked/></td>
+          <td id="val-owner" style="font-family:monospace;font-weight:700;color:var(--accent2)">7</td>
+        </tr>
+        <tr>
+          <td>👥 Group</td>
+          <td><input class="perm-cb" type="checkbox" data-who="group" data-bit="4" checked/></td>
+          <td><input class="perm-cb" type="checkbox" data-who="group" data-bit="2"/></td>
+          <td><input class="perm-cb" type="checkbox" data-who="group" data-bit="1" checked/></td>
+          <td id="val-group" style="font-family:monospace;font-weight:700;color:var(--accent2)">5</td>
+        </tr>
+        <tr>
+          <td>🌍 Others</td>
+          <td><input class="perm-cb" type="checkbox" data-who="others" data-bit="4" checked/></td>
+          <td><input class="perm-cb" type="checkbox" data-who="others" data-bit="2"/></td>
+          <td><input class="perm-cb" type="checkbox" data-who="others" data-bit="1" checked/></td>
+          <td id="val-others" style="font-family:monospace;font-weight:700;color:var(--accent2)">5</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Result -->
+    <div class="result-hero">
+      <div class="result-box">
+        <div class="result-val" id="res-numeric">755</div>
+        <div class="result-lbl">Numeric (octal)</div>
+      </div>
+      <div class="result-box">
+        <div class="result-val" style="font-size:1.5rem" id="res-symbolic">rwxr-xr-x</div>
+        <div class="result-lbl">Symbolic</div>
+      </div>
+      <div class="result-box">
+        <div class="result-val" style="font-size:1.1rem" id="res-cmd">chmod 755</div>
+        <div class="result-lbl">Command</div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-bottom:20px">
+      <button class="btn-secondary" id="copy-cmd">📋 Copy chmod command</button>
+    </div>
+
+    <!-- Visual explanation -->
+    <div class="explain-box">
+      <h3>Permission breakdown</h3>
+      <div id="breakdown"></div>
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);font-size:.8rem;color:var(--muted)">
+        <strong style="color:var(--text)">Reference table:</strong>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:6px;margin-top:8px;font-family:monospace;font-size:.78rem">
+          <span>0 = ---</span><span>1 = --x</span><span>2 = -w-</span><span>3 = -wx</span>
+          <span>4 = r--</span><span>5 = r-x</span><span>6 = rw-</span><span>7 = rwx</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+function getVals() {
+  const result = {owner:0, group:0, others:0};
+  document.querySelectorAll('.perm-cb').forEach(cb => {
+    if(cb.checked) result[cb.dataset.who] += parseInt(cb.dataset.bit);
+  });
+  return result;
+}
+
+function toSymbol(n) {
+  return (n&4?'r':'-') + (n&2?'w':'-') + (n&1?'x':'-');
+}
+
+function update() {
+  const v = getVals();
+  document.getElementById('val-owner').textContent = v.owner;
+  document.getElementById('val-group').textContent = v.group;
+  document.getElementById('val-others').textContent = v.others;
+
+  const numeric = `${v.owner}${v.group}${v.others}`;
+  const symbolic = toSymbol(v.owner)+toSymbol(v.group)+toSymbol(v.others);
+  document.getElementById('res-numeric').textContent = numeric;
+  document.getElementById('res-symbolic').textContent = symbolic;
+  document.getElementById('res-cmd').textContent = `chmod ${numeric}`;
+  document.getElementById('num-input').value = numeric;
+  document.getElementById('sym-input').value = symbolic;
+
+  // Breakdown
+  const whoLabels = {owner:'👤 Owner', group:'👥 Group', others:'🌍 Others'};
+  let html = '';
+  Object.entries(v).forEach(([who, val]) => {
+    const r = val&4, w = val&2, x = val&1;
+    html += `<div class="perm-row">
+      <span class="who-label">${whoLabels[who]}</span>
+      <span class="perm-badge ${r?'badge-r':'badge-n'}">${r?'r':'-'}</span>
+      <span class="perm-badge ${w?'badge-w':'badge-n'}">${w?'w':'-'}</span>
+      <span class="perm-badge ${x?'badge-x':'badge-n'}">${x?'x':'-'}</span>
+      <span style="margin-left:8px;font-size:.8rem;color:var(--muted)">${val} — ${[r?'read':'',w?'write':'',x?'execute':''].filter(Boolean).join(', ')||'no permissions'}</span>
+    </div>`;
+  });
+  document.getElementById('breakdown').innerHTML = html;
+}
+
+function applyNumeric(val) {
+  val = val.replace(/\D/g,'');
+  if(val.length < 1 || val.length > 3) return;
+  const digits = val.padStart(3,'0').split('').map(Number);
+  const whos = ['owner','group','others'];
+  document.querySelectorAll('.perm-cb').forEach(cb => {
+    const idx = whos.indexOf(cb.dataset.who);
+    cb.checked = !!(digits[idx] & parseInt(cb.dataset.bit));
+  });
+  update();
+}
+
+document.querySelectorAll('.perm-cb').forEach(cb => cb.addEventListener('change', update));
+
+document.getElementById('parse-btn').addEventListener('click', () => {
+  const num = document.getElementById('num-input').value.trim();
+  if(/^\d{1,4}$/.test(num)) applyNumeric(num);
+});
+
+document.getElementById('num-input').addEventListener('keydown', e => {
+  if(e.key==='Enter') document.getElementById('parse-btn').click();
+});
+
+document.querySelectorAll('.ex-btn').forEach(btn => {
+  btn.addEventListener('click', () => applyNumeric(btn.dataset.val));
+});
+
+document.getElementById('copy-cmd').addEventListener('click', () => {
+  navigator.clipboard.writeText(document.getElementById('res-cmd').textContent);
+  const btn = document.getElementById('copy-cmd');
+  btn.textContent = '✅ Copied!';
+  setTimeout(()=>btn.textContent='📋 Copy chmod command',1500);
+});
+
+update();
+</script>
+</body>
+</html>

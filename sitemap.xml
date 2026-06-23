@@ -100,10 +100,12 @@
   <url><loc>https://www.58parts.net/blog/uuid-generator-online.html</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://www.58parts.net/blog/word-counter-online.html</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
 
-  <!-- ── Tools (new: 136-138) ── -->
+  <!-- ── Tools (new: 136-140) ── -->
   <url><loc>https://www.58parts.net/typing-speed-test.html</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://www.58parts.net/loan-calculator.html</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://www.58parts.net/ip-lookup.html</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.58parts.net/favicon-generator.html</loc><lastmod>2026-06-23</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.58parts.net/chmod-calculator.html</loc><lastmod>2026-06-23</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
 
   <!-- ── Blog articles (Japanese) ── -->
   <url><loc>https://www.58parts.net/blog/ja/word-counter.html</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -112,5 +114,6 @@
   <url><loc>https://www.58parts.net/blog/ja/password-generator.html</loc><lastmod>2026-04-05</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://www.58parts.net/blog/ja/json-formatter.html</loc><lastmod>2026-05-01</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://www.58parts.net/blog/ja/pomodoro-timer.html</loc><lastmod>2026-05-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.58parts.net/blog/ja/base64.html</loc><lastmod>2026-04-18</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
 
 </urlset>

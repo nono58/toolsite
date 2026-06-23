@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Favicon Generator Online Free – Create Favicon from Text, Emoji & SVG | QuickTools</title>
+<meta name="description" content="ファビコンを無料でオンライン作成。テキスト・絵文字・SVGからfavicon.ico/PNG/SVGを生成。登録不要。Generate favicon from text, emoji or SVG — download ICO, PNG, SVG instantly free."/>
+<link rel="stylesheet" href="tool.css"/>
+<style>
+  .fav-layout { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+  @media(max-width:640px){.fav-layout{grid-template-columns:1fr}}
+  .tab-row { display:flex; gap:8px; margin-bottom:20px; }
+  .tab-btn { padding:8px 18px; border-radius:8px; border:1px solid var(--border); background:var(--bg2); color:var(--muted); font-size:.85rem; cursor:pointer; transition:.2s; }
+  .tab-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .field { margin-bottom:14px; }
+  .field label { display:block; font-size:.8rem; color:var(--muted); margin-bottom:5px; }
+  .field input, .field select { width:100%; background:var(--bg3); color:var(--text); border:1px solid var(--border); border-radius:8px; padding:9px 12px; font-size:.95rem; box-sizing:border-box; }
+  .field input:focus, .field select:focus { outline:none; border-color:var(--accent); }
+  .preview-wrap { background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:24px; text-align:center; }
+  .preview-label { font-size:.78rem; color:var(--muted); margin-bottom:12px; }
+  .preview-sizes { display:flex; gap:16px; justify-content:center; align-items:flex-end; flex-wrap:wrap; margin-bottom:20px; }
+  .preview-item { text-align:center; }
+  .preview-item span { display:block; font-size:.68rem; color:var(--muted); margin-top:4px; }
+  canvas { border-radius:8px; image-rendering:pixelated; display:block; }
+  .color-row { display:flex; gap:10px; }
+  .color-row .field { flex:1; }
+  .color-row input[type=color] { padding:4px; height:42px; cursor:pointer; }
+  .dl-row { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+  .emoji-input { font-size:2rem; text-align:center; }
+  .browser-mock { background:#1e2030; border-radius:10px; padding:12px 16px; margin-top:16px; display:flex; align-items:center; gap:8px; font-size:.82rem; color:var(--muted); }
+  .tab-mock { background:var(--bg3); border-radius:6px 6px 0 0; padding:6px 12px; display:flex; align-items:center; gap:6px; font-size:.8rem; color:var(--text); }
+  #fav-canvas-16 { border:1px solid var(--border); }
+</style>
+</head>
+<body>
+<header><a class="logo" href="index.html">⚡ Quick<span>Tools</span></a></header>
+<main>
+  <h1 class="tool-title">Favicon Generator</h1>
+  <p class="tool-desc">Create a favicon from text, emoji, or custom design. Download as PNG, SVG, or ICO.</p>
+
+  <div class="card">
+    <div class="fav-layout">
+      <!-- Left: Controls -->
+      <div>
+        <div class="tab-row">
+          <button class="tab-btn active" data-tab="text">✏️ Text</button>
+          <button class="tab-btn" data-tab="emoji">😀 Emoji</button>
+          <button class="tab-btn" data-tab="initials">🔤 Initials</button>
+        </div>
+
+        <!-- Text tab -->
+        <div id="tab-text">
+          <div class="field">
+            <label>Text (1–3 chars recommended)</label>
+            <input type="text" id="text-input" value="QT" maxlength="4"/>
+          </div>
+          <div class="field">
+            <label>Font</label>
+            <select id="font-select">
+              <option value="700 {s}px system-ui, sans-serif">System Sans-Serif Bold</option>
+              <option value="700 {s}px Georgia, serif">Georgia Serif Bold</option>
+              <option value="700 {s}px 'Courier New', monospace">Courier Mono Bold</option>
+              <option value="900 {s}px Impact, sans-serif">Impact</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Emoji tab -->
+        <div id="tab-emoji" style="display:none">
+          <div class="field">
+            <label>Emoji</label>
+            <input type="text" id="emoji-input" class="emoji-input" value="⚡" maxlength="2"/>
+          </div>
+        </div>
+
+        <!-- Initials tab -->
+        <div id="tab-initials" style="display:none">
+          <div class="field">
+            <label>Initials (2 chars)</label>
+            <input type="text" id="initials-input" value="QT" maxlength="2"/>
+          </div>
+          <div class="field">
+            <label>Shape</label>
+            <select id="shape-select">
+              <option value="square">Square</option>
+              <option value="circle">Circle</option>
+              <option value="rounded">Rounded</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Common controls -->
+        <div class="color-row">
+          <div class="field">
+            <label>Background</label>
+            <input type="color" id="bg-color" value="#6366f1"/>
+          </div>
+          <div class="field">
+            <label>Text color</label>
+            <input type="color" id="text-color" value="#ffffff"/>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Background style</label>
+          <select id="bg-style">
+            <option value="solid">Solid</option>
+            <option value="gradient">Gradient</option>
+            <option value="transparent">Transparent</option>
+          </select>
+        </div>
+
+        <div class="field" id="grad-color-wrap" style="display:none">
+          <label>Gradient end color</label>
+          <input type="color" id="grad-color" value="#818cf8"/>
+        </div>
+      </div>
+
+      <!-- Right: Preview -->
+      <div>
+        <div class="preview-wrap">
+          <div class="preview-label">Preview</div>
+          <div class="preview-sizes">
+            <div class="preview-item">
+              <canvas id="fav-canvas-256" width="256" height="256" style="width:96px;height:96px"></canvas>
+              <span>256×256</span>
+            </div>
+            <div class="preview-item">
+              <canvas id="fav-canvas-64" width="64" height="64" style="width:64px;height:64px"></canvas>
+              <span>64×64</span>
+            </div>
+            <div class="preview-item">
+              <canvas id="fav-canvas-32" width="32" height="32" style="width:32px;height:32px"></canvas>
+              <span>32×32</span>
+            </div>
+            <div class="preview-item">
+              <canvas id="fav-canvas-16" width="16" height="16" style="width:16px;height:16px"></canvas>
+              <span>16×16</span>
+            </div>
+          </div>
+
+          <!-- Browser tab mock -->
+          <div class="browser-mock">
+            <div class="tab-mock">
+              <canvas id="tab-icon" width="16" height="16" style="width:14px;height:14px;border-radius:2px"></canvas>
+              <span id="tab-title">QuickTools</span>
+            </div>
+          </div>
+
+          <div class="dl-row" style="margin-top:16px">
+            <button class="btn-primary" id="dl-png-256">⬇ PNG 256px</button>
+            <button class="btn-primary" id="dl-png-32">⬇ PNG 32px</button>
+            <button class="btn-secondary" id="dl-svg">⬇ SVG</button>
+            <button class="btn-secondary" id="copy-svg">📋 Copy SVG</button>
+          </div>
+        </div>
+
+        <div class="info-box" style="margin-top:16px;padding:14px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;font-size:.8rem;color:var(--muted)">
+          <strong style="color:var(--text)">How to use your favicon:</strong><br/>
+          Add to your HTML <code style="background:var(--bg3);padding:2px 6px;border-radius:4px">&lt;head&gt;</code>:<br/>
+          <code style="background:var(--bg3);padding:6px 10px;border-radius:6px;display:block;margin-top:6px;word-break:break-all">&lt;link rel="icon" href="favicon.png" type="image/png"&gt;</code>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+let activeTab = 'text';
+
+// Tab switching
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    activeTab = btn.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    ['text','emoji','initials'].forEach(t => {
+      document.getElementById('tab-'+t).style.display = t===activeTab ? '' : 'none';
+    });
+    render();
+  });
+});
+
+document.getElementById('bg-style').addEventListener('change', function() {
+  document.getElementById('grad-color-wrap').style.display = this.value==='gradient' ? '' : 'none';
+  render();
+});
+
+function render() {
+  const sizes = [256,64,32,16];
+  sizes.forEach(s => draw(document.getElementById('fav-canvas-'+s), s));
+  draw(document.getElementById('tab-icon'), 16);
+}
+
+function draw(canvas, size) {
+  const ctx = canvas.getContext('2d');
+  const bgColor = document.getElementById('bg-color').value;
+  const textColor = document.getElementById('text-color').value;
+  const bgStyle = document.getElementById('bg-style').value;
+  const shape = activeTab==='initials' ? (document.getElementById('shape-select').value) : 'rounded';
+
+  ctx.clearRect(0,0,size,size);
+
+  // Background
+  if(bgStyle !== 'transparent') {
+    ctx.save();
+    // Shape clip
+    if(shape==='circle') {
+      ctx.beginPath(); ctx.arc(size/2,size/2,size/2,0,Math.PI*2); ctx.clip();
+    } else if(shape==='rounded') {
+      const r = size*0.18;
+      ctx.beginPath(); ctx.roundRect(0,0,size,size,r); ctx.clip();
+    }
+    if(bgStyle==='gradient') {
+      const grad = ctx.createLinearGradient(0,0,size,size);
+      grad.addColorStop(0, bgColor);
+      grad.addColorStop(1, document.getElementById('grad-color').value);
+      ctx.fillStyle = grad;
+    } else {
+      ctx.fillStyle = bgColor;
+    }
+    ctx.fillRect(0,0,size,size);
+    ctx.restore();
+  }
+
+  // Content
+  if(activeTab==='emoji') {
+    const emoji = document.getElementById('emoji-input').value || '⚡';
+    const fs = size * 0.72;
+    ctx.font = `${fs}px serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(emoji, size/2, size/2 + size*0.04);
+  } else {
+    const raw = activeTab==='text'
+      ? document.getElementById('text-input').value
+      : document.getElementById('initials-input').value;
+    const txt = (raw || '?').substring(0,4);
+    const fontTpl = document.getElementById('font-select') ? document.getElementById('font-select').value : '700 {s}px system-ui,sans-serif';
+    const fs = txt.length > 2 ? size*0.38 : size*0.48;
+    ctx.font = fontTpl.replace('{s}', fs);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = textColor;
+    ctx.fillText(txt, size/2, size/2 + fs*0.05);
+  }
+}
+
+function getSVG() {
+  const bgColor = document.getElementById('bg-color').value;
+  const textColor = document.getElementById('text-color').value;
+  const bgStyle = document.getElementById('bg-style').value;
+  const gradColor = document.getElementById('grad-color').value;
+
+  let bg = '';
+  if(bgStyle==='solid') bg = `<rect width="100" height="100" rx="18" fill="${bgColor}"/>`;
+  else if(bgStyle==='gradient') bg = `<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${bgColor}"/><stop offset="100%" stop-color="${gradColor}"/></linearGradient></defs><rect width="100" height="100" rx="18" fill="url(#g)"/>`;
+
+  let content = '';
+  if(activeTab==='emoji') {
+    const emoji = document.getElementById('emoji-input').value || '⚡';
+    content = `<text x="50" y="58" font-size="68" text-anchor="middle" dominant-baseline="middle">${emoji}</text>`;
+  } else {
+    const raw = activeTab==='text' ? document.getElementById('text-input').value : document.getElementById('initials-input').value;
+    const txt = (raw||'?').substring(0,4);
+    const fs = txt.length > 2 ? 36 : 48;
+    content = `<text x="50" y="52" font-size="${fs}" font-weight="700" fill="${textColor}" text-anchor="middle" dominant-baseline="middle" font-family="system-ui,sans-serif">${txt}</text>`;
+  }
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">${bg}${content}</svg>`;
+}
+
+// Downloads
+document.getElementById('dl-png-256').addEventListener('click', () => {
+  const a = document.createElement('a');
+  a.href = document.getElementById('fav-canvas-256').toDataURL('image/png');
+  a.download = 'favicon-256.png'; a.click();
+});
+document.getElementById('dl-png-32').addEventListener('click', () => {
+  const a = document.createElement('a');
+  a.href = document.getElementById('fav-canvas-32').toDataURL('image/png');
+  a.download = 'favicon-32.png'; a.click();
+});
+document.getElementById('dl-svg').addEventListener('click', () => {
+  const blob = new Blob([getSVG()], {type:'image/svg+xml'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'favicon.svg'; a.click();
+});
+document.getElementById('copy-svg').addEventListener('click', () => {
+  navigator.clipboard.writeText(getSVG());
+  const btn = document.getElementById('copy-svg');
+  btn.textContent = '✅ Copied!';
+  setTimeout(()=>btn.textContent='📋 Copy SVG', 1500);
+});
+
+// Live update
+document.querySelectorAll('input, select').forEach(el => el.addEventListener('input', render));
+
+render();
+</script>
+</body>
+</html>
