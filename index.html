@@ -134,7 +134,6 @@
       .stats { gap: 24px; }
     }
   </style>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7091279251828395" crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -468,4 +467,21 @@ buildFilterBar();
 render();
 
 let debounce;
-document.getElementById('searc
+document.getElementById('search').addEventListener('input', e => {
+  clearTimeout(debounce);
+  debounce = setTimeout(() => {
+    const activeCat = document.querySelector('.filter-btn.active').dataset.cat;
+    render(e.target.value, activeCat);
+  }, 200);
+});
+
+document.getElementById('filterBar').addEventListener('click', e => {
+  const btn = e.target.closest('.filter-btn');
+  if (!btn) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render(document.getElementById('search').value, btn.dataset.cat);
+});
+</script>
+</body>
+</html>
