@@ -30,6 +30,7 @@
     #preview img { max-width:100%; border-radius:8px; }
     @media(max-width:640px) { .editor-wrap { grid-template-columns:1fr; } #md-input { border-right:none; border-bottom:1px solid var(--border); min-height:240px; } }
   </style>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7091279251828395" crossorigin="anonymous"></script>
 </head>
 <body>
 <header>
@@ -129,7 +130,8 @@ function copyHtml() {
 }
 
 function downloadHtml() {
-  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:system-ui,sans-serif;max-width:800px;margin:40px auto;padding:0 20px;line-height:1.7;}code{background:#f4f4f4;padding:2px 6px;border-radius:3px;}pre{background:#f4f4f4;padding:16px;border-radius:6px;}table{border-collapse:collapse;}td,th{border:1px solid #ddd;padding:8px;}blockquote{border-left:3px solid #6366f1;margin:1em 0;padding:.5em 1em;background:#f8f8f8;}</style></head><body>${mdToHtml(document.getElementById('md-input').value)}</body></html>`;
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:system-ui,sans-serif;max-width:800px;margin:40px auto;padding:0 20px;line-height:1.7;}code{background:#f4f4f4;padding:2px 6px;border-radius:3px;}pre{background:#f4f4f4;padding:16px;border-radius:6px;}table{border-collapse:collapse;}td,th{border:1px solid #ddd;padding:8px;}blockquote{border-left:3px solid #6366f1;margin:1em 0;padding:.5em 1em;background:#f8f8f8;}</style><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7091279251828395" crossorigin="anonymous"></script>
+</head><body>${mdToHtml(document.getElementById('md-input').value)}</body></html>`;
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([html],{type:'text/html'})); a.download='document.html'; a.click();
 }
 
