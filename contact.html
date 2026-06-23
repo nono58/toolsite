@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>お問い合わせ / Contact | QuickTools</title>
+<meta name="description" content="QuickToolsへのお問い合わせはこちら。ご意見・ご要望・不具合報告をお送りください。"/>
+<meta name="robots" content="noindex"/>
+<link rel="stylesheet" href="tool.css"/>
+<style>
+  .contact-wrap { max-width:600px; margin:0 auto; }
+  .field { margin-bottom:18px; }
+  .field label { display:block; font-size:.82rem; color:var(--muted); margin-bottom:6px; }
+  .field input, .field textarea, .field select {
+    width:100%; background:var(--bg3); color:var(--text);
+    border:1px solid var(--border); border-radius:8px;
+    padding:10px 14px; font-size:.95rem; font-family:inherit;
+    box-sizing:border-box; transition:.2s;
+  }
+  .field input:focus, .field textarea:focus, .field select:focus {
+    outline:none; border-color:var(--accent);
+  }
+  .field textarea { min-height:140px; resize:vertical; }
+  [data-fs-error] { color:#ef4444; font-size:.78rem; margin-top:4px; display:block; min-height:1em; }
+  [data-fs-success] {
+    display:none; background:rgba(34,197,94,.12); border:1px solid #22c55e;
+    border-radius:10px; padding:20px 24px; text-align:center; color:#22c55e;
+    font-size:.95rem; margin-bottom:16px;
+  }
+  [data-fs-error=""] { display:none; }
+  .submit-row { display:flex; gap:12px; align-items:center; }
+  .char-count { font-size:.78rem; color:var(--muted); }
+  .lang-switch { display:flex; gap:10px; margin-bottom:1.5rem; }
+  .lang-btn { padding:6px 18px; border-radius:20px; border:1px solid var(--border); background:var(--bg2); color:var(--muted); font-size:.82rem; text-decoration:none; transition:.2s; }
+  .lang-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .note { font-size:.8rem; color:var(--muted); margin-top:14px; }
+</style>
+</head>
+<body>
+<header><a class="logo" href="index.html">⚡ Quick<span>Tools</span></a></header>
+<main>
+<div class="contact-wrap">
+
+  <div class="lang-switch">
+    <a class="lang-btn active" href="#" id="btn-ja">🇯🇵 日本語</a>
+    <a class="lang-btn" href="#" id="btn-en">🇺🇸 English</a>
+  </div>
+
+  <h1 class="tool-title" style="font-size:1.6rem" id="page-title">お問い合わせ</h1>
+  <p id="page-desc" style="color:var(--muted);font-size:.9rem;margin-bottom:24px">ご意見・ご要望・不具合報告などをお気軽にどうぞ。通常2〜3営業日以内にご返信します。</p>
+
+  <div class="card">
+    <div data-fs-success id="success-msg">
+      ✅ <strong id="success-title">送信完了しました！</strong><br/>
+      <span id="success-body">お問い合わせありがとうございます。確認次第ご返信いたします。</span>
+    </div>
+
+    <form id="contact-form">
+      <div class="field">
+        <label for="name" id="label-name">お名前 <span style="color:#ef4444">*</span></label>
+        <input type="text" id="name" name="name" data-fs-field autocomplete="name" required/>
+        <span data-fs-error="name"></span>
+      </div>
+
+      <div class="field">
+        <label for="email" id="label-email">メールアドレス <span style="color:#ef4444">*</span></label>
+        <input type="email" id="email" name="email" data-fs-field autocomplete="email" required/>
+        <span data-fs-error="email"></span>
+      </div>
+
+      <div class="field">
+        <label for="category" id="label-category">お問い合わせ種別</label>
+        <select id="category" name="category">
+          <option id="cat-1" value="bug">🐛 不具合・バグ報告</option>
+          <option id="cat-2" value="request">💡 機能リクエスト</option>
+          <option id="cat-3" value="question">❓ 使い方の質問</option>
+          <option id="cat-4" value="other">📝 その他</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="message" id="label-message">メッセージ <span style="color:#ef4444">*</span></label>
+        <textarea id="message" name="message" data-fs-field required></textarea>
+        <span data-fs-error="message"></span>
+        <div class="char-count"><span id="char-count">0</span> / 2000</div>
+      </div>
+
+      <div data-fs-error id="form-error"></div>
+
+      <div class="submit-row">
+        <button class="btn-primary" type="submit" data-fs-submit-btn id="submit-btn">送信する</button>
+      </div>
+      <p class="note" id="note-text">※ご返信にはお問い合わせフォームに入力いただいたメールアドレスを使用します。メールアドレスは第三者に公開されません。</p>
+    </form>
+  </div>
+
+</div>
+</main>
+<footer>© 2026 QuickTools — Free online tools. No signup required. · <a href="index.html">All Tools</a>
+  <span style="margin:0 8px">·</span><a href="privacy.html" style="color:var(--muted)">プライバシーポリシー</a>
+  <span style="margin:0 8px">·</span><a href="terms.html" style="color:var(--muted)">利用規約</a>
+</footer>
+
+<script>
+// i18n
+const i18n = {
+  ja: {
+    title: 'お問い合わせ',
+    desc: 'ご意見・ご要望・不具合報告などをお気軽にどうぞ。通常2〜3営業日以内にご返信します。',
+    name: 'お名前', email: 'メールアドレス', category: 'お問い合わせ種別', message: 'メッセージ',
+    cat1: '🐛 不具合・バグ報告', cat2: '💡 機能リクエスト', cat3: '❓ 使い方の質問', cat4: '📝 その他',
+    submit: '送信する',
+    successTitle: '送信完了しました！',
+    successBody: 'お問い合わせありがとうございます。確認次第ご返信いたします。',
+    note: '※ご返信にはお問い合わせフォームに入力いただいたメールアドレスを使用します。メールアドレスは第三者に公開されません。',
+  },
+  en: {
+    title: 'Contact Us',
+    desc: 'Have a question, bug report, or feature request? We\'d love to hear from you. We typically reply within 2–3 business days.',
+    name: 'Your Name', email: 'Email Address', category: 'Category', message: 'Message',
+    cat1: '🐛 Bug Report', cat2: '💡 Feature Request', cat3: '❓ Question', cat4: '📝 Other',
+    submit: 'Send Message',
+    successTitle: 'Message sent!',
+    successBody: 'Thank you for reaching out. We\'ll get back to you soon.',
+    note: 'Your email address is used only to reply to your message and will not be shared with third parties.',
+  }
+};
+
+let lang = 'ja';
+
+function applyLang(l) {
+  lang = l;
+  const t = i18n[l];
+  document.getElementById('page-title').textContent = t.title;
+  document.getElementById('page-desc').textContent = t.desc;
+  document.getElementById('label-name').innerHTML = t.name + ' <span style="color:#ef4444">*</span>';
+  document.getElementById('label-email').innerHTML = t.email + ' <span style="color:#ef4444">*</span>';
+  document.getElementById('label-category').textContent = t.category;
+  document.getElementById('label-message').innerHTML = t.message + ' <span style="color:#ef4444">*</span>';
+  document.getElementById('cat-1').textContent = t.cat1;
+  document.getElementById('cat-2').textContent = t.cat2;
+  document.getElementById('cat-3').textContent = t.cat3;
+  document.getElementById('cat-4').textContent = t.cat4;
+  document.getElementById('submit-btn').textContent = t.submit;
+  document.getElementById('success-title').textContent = t.successTitle;
+  document.getElementById('success-body').textContent = t.successBody;
+  document.getElementById('note-text').textContent = t.note;
+  document.getElementById('btn-ja').className = 'lang-btn' + (l==='ja'?' active':'');
+  document.getElementById('btn-en').className = 'lang-btn' + (l==='en'?' active':'');
+  document.title = l==='ja' ? 'お問い合わせ | QuickTools' : 'Contact | QuickTools';
+}
+
+document.getElementById('btn-ja').addEventListener('click', e => { e.preventDefault(); applyLang('ja'); });
+document.getElementById('btn-en').addEventListener('click', e => { e.preventDefault(); applyLang('en'); });
+
+// Character count
+document.getElementById('message').addEventListener('input', function() {
+  document.getElementById('char-count').textContent = this.value.length;
+});
+</script>
+
+<!-- Formspree Ajax -->
+<script>
+  window.formspree = window.formspree || function () { (formspree.q = formspree.q || []).push(arguments); };
+  formspree('initForm', { formElement: '#contact-form', formId: 'mbdvldrz' });
+</script>
+<script src="https://unpkg.com/@formspree/ajax@1" defer></script>
+</body>
+</html>
