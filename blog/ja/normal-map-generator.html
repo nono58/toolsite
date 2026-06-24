@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ノーマルマップ生成ツール無料オンライン【3DCG・ゲーム開発】 | QuickTools</title>
+  <meta name="description" content="ノーマルマップをブラウザで無料生成。Blender・Unity・Unreal Engine対応。テクスチャ画像をアップロードするだけでPNG出力。登録不要。" />
+  <meta name="keywords" content="ノーマルマップ 生成, ノーマルマップ 作り方, normal map generator, 法線マップ 無料, Blender ノーマルマップ, Unity テクスチャ, 3DCG テクスチャ作成" />
+  <link rel="canonical" href="https://toolsite-xn828584.vercel.app/blog/ja/normal-map-generator.html" />
+  <meta property="og:title" content="ノーマルマップ生成ツール無料オンライン【3DCG・ゲーム開発】" />
+  <meta property="og:description" content="ノーマルマップをブラウザで無料生成。Blender・Unity・Unreal Engine対応。登録不要。" />
+  <meta property="og:type" content="article" />
+  <meta property="og:locale" content="ja_JP" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "ノーマルマップ生成ツール無料オンライン【3DCG・ゲーム開発】",
+    "description": "ノーマルマップをブラウザで無料生成する方法を解説。Blender・Unity・Unreal Engine対応。テクスチャ画像をアップロードするだけでPNG出力。",
+    "inLanguage": "ja",
+    "author": { "@type": "Organization", "name": "QuickTools" },
+    "publisher": { "@type": "Organization", "name": "QuickTools", "url": "https://toolsite-xn828584.vercel.app/" },
+    "datePublished": "2026-06-24",
+    "dateModified": "2026-06-24"
+  }
+  </script>
+  <link rel="stylesheet" href="../blog.css" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7091279251828395" crossorigin="anonymous"></script>
+</head>
+<body>
+<header>
+  <a class="logo" href="../../index.html">⚡ Quick<span>Tools</span></a>
+</header>
+<div class="container">
+  <div class="breadcrumb">
+    <a href="../../index.html">ホーム</a> › <a href="../index.html">ブログ</a> › ノーマルマップ生成
+  </div>
+
+  <h1>ノーマルマップをオンラインで無料生成する方法【3DCG・ゲーム開発】</h1>
+  <div class="meta">
+    <span>2026年6月24日</span>
+    <span>6分で読める</span>
+    <span>3DCG・ゲーム開発</span>
+  </div>
+
+  <div class="article-body">
+
+    <p>3DCGやゲーム開発で「リアルな凹凸感を出したい」と思ったことはありませんか？ポリゴン数を増やさずにディテールを追加できる<strong>ノーマルマップ</strong>は、現代のゲームグラフィックスには欠かせないテクニックです。このガイドでは、ノーマルマップの仕組みから、ブラウザだけで無料生成する方法まで解説します。</p>
+
+    <div class="cta-box">
+      <h3>⚡ 無料 ノーマルマップ生成ツール</h3>
+      <p>テクスチャ画像をアップロードするだけ。強度・ブラー調整＆PNG即ダウンロード。登録不要。</p>
+      <a class="btn-cta" href="../../normal-map-generator.html">ノーマルマップを生成する →</a>
+    </div>
+
+    <h2>ノーマルマップとは？</h2>
+    <p>ノーマルマップ（法線マップ）は、3Dメッシュの各ピクセルにおける<strong>表面の向き（法線ベクトル）</strong>をRGBカラーとして記録したテクスチャです。レンダリング時にライティング計算でこの情報を使うことで、実際にはフラットなポリゴンでも、ザラザラした石の表面や金属の打ち傷のような凹凸をリアルに表現できます。</p>
+
+    <p>ノーマルマップの色の意味は次のとおりです：</p>
+    <ul>
+      <li><strong>R（赤）</strong>：X軸方向（左右）の法線成分</li>
+      <li><strong>G（緑）</strong>：Y軸方向（上下）の法線成分</li>
+      <li><strong>B（青）</strong>：Z軸方向（奥行き・手前方向）の法線成分</li>
+    </ul>
+    <p>ノーマルマップが全体的に青紫色（#8080FF）に見えるのは、大半のピクセルの法線がまっすぐカメラ側を向いているためです。</p>
+
+    <h2>ノーマルマップが必要な場面</h2>
+    <ul>
+      <li><strong>ゲーム開発：</strong>低ポリゴンモデルにディテールを追加。Unreal Engineでのリアルな壁・地面テクスチャ、Unityでのキャラクタースキンなど</li>
+      <li><strong>Blenderレンダリング：</strong>プリンシプルBSDFのNormal入力に接続して、布・皮革・コンクリートなどの質感を向上</li>
+      <li><strong>VR／ARコンテンツ：</strong>ポリゴン数を抑えてパフォーマンスを確保しつつ、視覚的なリッチさを維持</li>
+      <li><strong>ウェブ3D（Three.js・Babylon.js）：</strong>ブラウザレンダリングの負荷を下げながらリアルな質感を実現</li>
+    </ul>
+
+    <h2>オンラインツールでのノーマルマップ生成手順</h2>
+    <ol>
+      <li><a href="../../normal-map-generator.html">QuickTools ノーマルマップ生成ツール</a>を開く</li>
+      <li>ハイトマップ（白黒の凹凸画像）またはカラーテクスチャをドロップかクリックで読み込む</li>
+      <li><strong>Strength（強度）</strong>スライダーで凹凸の深さを調整する（推奨：石なら高め、布なら低め）</li>
+      <li><strong>Blur（ブラー）</strong>スライダーでノイズを除去し、なめらかな法線にする</li>
+      <li>プレビューで左が元画像、右がノーマルマップであることを確認する</li>
+      <li>「Download Normal Map」ボタンでPNGをダウンロードする</li>
+    </ol>
+
+    <h2>強度・ブラーの設定ガイド</h2>
+
+    <h3>Strength（強度）の目安</h3>
+    <p>Strengthは法線の傾きの急峻さを決めます。数値が高いほど凹凸がシャープに、低いほどなだらかになります。</p>
+    <ul>
+      <li><strong>0.5〜2.0：</strong>布・レザー・塗装面などなめらかな素材</li>
+      <li><strong>2.0〜5.0：</strong>木材・プラスチック・コンクリートなど中程度の凹凸</li>
+      <li><strong>5.0〜15.0：</strong>岩・レンガ・錆びた金属などザラザラした素材</li>
+    </ul>
+
+    <h3>Blur（ブラー）の目安</h3>
+    <p>Blurはソーベルフィルター適用前に画像をぼかすことで、ピクセル単位のノイズを滑らかにします。</p>
+    <ul>
+      <li><strong>0〜2：</strong>細かいディテールを維持したいシャープなテクスチャ</li>
+      <li><strong>3〜6：</strong>スキャンした写真テクスチャや中程度のノイズがある画像</li>
+      <li><strong>7〜10：</strong>荒いノイズ除去や非常になめらかな法線が必要な場合</li>
+    </ul>
+
+    <h2>各3Dソフトへのインポート方法</h2>
+
+    <h3>Blenderの場合</h3>
+    <ol>
+      <li>マテリアルのノードエディターを開く</li>
+      <li>「Image Texture」ノードを追加し、ダウンロードしたノーマルマップを読み込む</li>
+      <li><strong>Colorspace を「Non-Color」に変更</strong>（重要：リニア変換を防ぐため）</li>
+      <li>「Normal Map」ノードを追加し、Image TextureのColorをNormal MapのColorに接続</li>
+      <li>Normal MapのNormalをプリンシプルBSDFのNormalに接続</li>
+    </ol>
+
+    <h3>Unityの場合</h3>
+    <ol>
+      <li>ノーマルマップPNGをProjectウィンドウにインポート</li>
+      <li>テクスチャのInspectorで「Texture Type」を<strong>「Normal map」</strong>に変更してApply</li>
+      <li>マテリアルの「Normal Map」スロットにドラッグ＆ドロップ</li>
+    </ol>
+
+    <h3>Unreal Engineの場合</h3>
+    <ol>
+      <li>Content BrowserにノーマルマップPNGをインポート</li>
+      <li>テクスチャアセットを開き、「Compression Settings」を<strong>「Normalmap (DXT5, BC5 on DX11)」</strong>に設定</li>
+      <li>マテリアルエディターの「Normal」ピンに接続</li>
+    </ol>
+
+    <h2>ハイトマップとノーマルマップの違い</h2>
+    <p>よく混同されますが、<strong>ハイトマップ（高さマップ）</strong>は白黒の輝度で凹凸の高さを表したテクスチャです。ノーマルマップ生成ツールはこのハイトマップから法線方向を計算してRGBへ変換します。一方、<strong>ノーマルマップ</strong>はすでに法線ベクトルが色として格納されており、ライティング計算に直接使える状態です。</p>
+    <p>Blenderなど一部のソフトでは、ハイトマップを「ディスプレイスメントマップ」として使って実際にメッシュを変形させることもできますが、リアルタイムゲームではパフォーマンス上の理由からノーマルマップが広く使われます。</p>
+
+    <h2>よくある質問</h2>
+
+    <h3>カラーテクスチャからノーマルマップを生成できますか？</h3>
+    <p>はい、可能です。カラー画像は輝度（明暗）に変換されてからソーベルフィルターが適用されます。ただし、元画像に色のコントラストがあっても凹凸が正確に反映されるとは限りません。最も精度が高いのは、グレースケールのハイトマップを使う方法です。</p>
+
+    <h3>生成したノーマルマップが暗すぎる・青一色に見えます</h3>
+    <p>Strengthを上げてみてください。元画像のコントラストが低い場合、法線の変化が小さくなり青一色に近いマップになります。また、Blenderで読み込む際にColorspaceがsRGBになっていると正しく表示されません。必ず「Non-Color」に設定してください。</p>
+
+    <h3>DirectX形式とOpenGL形式の違いは何ですか？</h3>
+    <p>Y軸（緑チャンネル）の向きが逆になります。DirectX形式は緑が下向き（DX座標系）、OpenGL形式は緑が上向きです。UnrealEngineはデフォルトでDirectX形式、BlenderはOpenGL形式を使用します。間違ったフォーマットを使うと、光の当たり方が逆になるので注意が必要です。</p>
+
+    <div class="cta-box" style="margin-top:32px;">
+      <h3>⚡ さっそく試してみましょう</h3>
+      <p>テクスチャをアップロードするだけでノーマルマップを即生成。ダウンロード無料・登録不要。</p>
+      <a class="btn-cta" href="../../normal-map-generator.html">ノーマルマップを生成する →</a>
+    </div>
+
+  </div>
+</div>
+<footer style="text-align:center;padding:32px;color:#64748b;font-size:.8rem;">
+  © 2026 QuickTools · <a href="../../privacy.html" style="color:#64748b;">Privacy</a>
+</footer>
+</body>
+</html>

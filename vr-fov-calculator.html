@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VR Field of View Calculator – HMD FoV Tool | QuickTools</title>
+  <meta name="description" content="Calculate horizontal, vertical, and diagonal field of view for VR headsets and cameras. Presets for Meta Quest 3, PSVR2, Valve Index, and more. Free online FoV calculator." />
+  <meta name="keywords" content="VR FOV calculator, field of view calculator, HMD field of view, Meta Quest FOV, PSVR2 FOV, VR headset comparison, Unity camera FOV, Unreal Engine FOV" />
+  <link rel="canonical" href="https://toolsite-xn828584.vercel.app/vr-fov-calculator.html" />
+  <link rel="stylesheet" href="tool.css" />
+  <style>
+    .fov-visual { position:relative; width:100%; max-width:480px; margin:0 auto; }
+    #fov-canvas { width:100%; border-radius:10px; }
+    .result-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+    .hmd-cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:10px; margin-top:8px; }
+    .hmd-card { background:var(--bg3); border:1.5px solid var(--border); border-radius:10px; padding:12px; cursor:pointer; transition:.15s; }
+    .hmd-card:hover,.hmd-card.active { border-color:var(--accent); }
+    .hmd-name { font-weight:700; font-size:.9rem; margin-bottom:4px; }
+    .hmd-vals { font-size:.78rem; color:var(--muted); }
+    .input-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .engine-box { background:var(--bg3); border-radius:10px; padding:16px; margin-top:8px; }
+    .engine-label { font-size:.8rem; color:var(--muted); margin-bottom:4px; }
+    .engine-val { font-family:monospace; font-size:1rem; color:var(--green); }
+  </style>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7091279251828395" crossorigin="anonymous"></script>
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>VR / 3D<span>›</span>VR FoV Calculator</div>
+  <h1>VR Field of View Calculator</h1>
+  <p class="tool-desc">Convert between horizontal, vertical, and diagonal field of view angles. Select a VR headset preset or enter custom sensor dimensions. Get ready-to-use values for Unity, Unreal Engine, and Godot.</p>
+
+  <div class="card">
+    <div class="card-title">HMD Presets</div>
+    <div class="hmd-cards" id="hmd-cards"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Custom Input</div>
+    <div class="input-row">
+      <div>
+        <label>Horizontal FoV (°)</label>
+        <input type="number" id="hfov" min="1" max="360" step="0.1" value="110" oninput="calcFromH()" />
+      </div>
+      <div>
+        <label>Vertical FoV (°)</label>
+        <input type="number" id="vfov" min="1" max="360" step="0.1" value="96" oninput="calcFromV()" />
+      </div>
+      <div>
+        <label>Aspect Ratio W</label>
+        <input type="number" id="ar-w" min="1" max="32" step="1" value="16" oninput="calcFromH()" />
+      </div>
+      <div>
+        <label>Aspect Ratio H</label>
+        <input type="number" id="ar-h" min="1" max="32" step="1" value="9" oninput="calcFromH()" />
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Results</div>
+    <div class="result-grid">
+      <div class="stat-box">
+        <div class="stat-val" id="r-hfov">—</div>
+        <div class="stat-lbl">Horizontal FoV</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="r-vfov">—</div>
+        <div class="stat-lbl">Vertical FoV</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="r-dfov">—</div>
+        <div class="stat-lbl">Diagonal FoV</div>
+      </div>
+    </div>
+    <div class="fov-visual" style="margin-top:20px;">
+      <canvas id="fov-canvas" width="480" height="260"></canvas>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Engine Values</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;">
+      <div class="engine-box">
+        <div class="engine-label">Unity — Camera.fieldOfView (vertical)</div>
+        <div class="engine-val" id="e-unity">—</div>
+      </div>
+      <div class="engine-box">
+        <div class="engine-label">Unreal Engine — Field of View (horizontal)</div>
+        <div class="engine-val" id="e-unreal">—</div>
+      </div>
+      <div class="engine-box">
+        <div class="engine-label">Godot — Camera3D.fov (vertical)</div>
+        <div class="engine-val" id="e-godot">—</div>
+      </div>
+      <div class="engine-box">
+        <div class="engine-label">Three.js — PerspectiveCamera fov (vertical)</div>
+        <div class="engine-val" id="e-three">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">HMD Comparison</div>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:.85rem;" id="compare-table">
+        <thead>
+          <tr style="color:var(--muted);text-align:left;">
+            <th style="padding:8px 12px;border-bottom:1px solid var(--border);">Headset</th>
+            <th style="padding:8px 12px;border-bottom:1px solid var(--border);">H FoV</th>
+            <th style="padding:8px 12px;border-bottom:1px solid var(--border);">V FoV</th>
+            <th style="padding:8px 12px;border-bottom:1px solid var(--border);">Diag FoV</th>
+            <th style="padding:8px 12px;border-bottom:1px solid var(--border);">Resolution</th>
+          </tr>
+        </thead>
+        <tbody id="compare-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="faq">
+    <h2>FoV Calculator FAQ</h2>
+    <div class="faq-item">
+      <strong>What is Field of View in VR?</strong>
+      <p style="color:var(--muted);margin-top:6px;line-height:1.6;">Field of View (FoV) is the extent of the observable world visible through the headset lenses at any moment. A wider FoV creates a more immersive "window" effect, while a narrow FoV can feel like looking through binoculars. Most standalone HMDs are around 100°–120° horizontal.</p>
+    </div>
+    <div class="faq-item">
+      <strong>Why does Unity use vertical FoV while Unreal uses horizontal?</strong>
+      <p style="color:var(--muted);margin-top:6px;line-height:1.6;">It's a historical convention difference. Unity's Camera.fieldOfView property is the vertical angle; changing the aspect ratio automatically adjusts horizontal FoV. Unreal Engine's FOV setting is horizontal. This calculator converts between both so you can set the correct value in your engine.</p>
+    </div>
+    <div class="faq-item">
+      <strong>What is diagonal FoV?</strong>
+      <p style="color:var(--muted);margin-top:6px;line-height:1.6;">Diagonal FoV measures the angle from corner to corner of the display. It's often cited in lens/camera specs and is always larger than either H or V FoV. You can calculate it from H and V using the formula: 2 × atan(√(tan²(H/2) + tan²(V/2))).</p>
+    </div>
+    <div class="faq-item">
+      <strong>How does asymmetric FoV work in VR?</strong>
+      <p style="color:var(--muted);margin-top:6px;line-height:1.6;">Many HMDs have asymmetric projection planes — the inner (nasal) FoV is smaller than the outer (temporal) FoV per eye, which is why total horizontal FoV often exceeds simple doubling of per-eye values. This calculator uses symmetric approximations; check your headset SDK for precise projection matrices.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const HMDS = [
+  { name:'Meta Quest 3',    hfov:110, vfov:96,  res:'2064×2208 per eye' },
+  { name:'Meta Quest 2',    hfov:97,  vfov:93,  res:'1832×1920 per eye' },
+  { name:'PSVR2',           hfov:110, vfov:110, res:'2000×2040 per eye' },
+  { name:'Valve Index',     hfov:108, vfov:116, res:'1440×1600 per eye' },
+  { name:'HP Reverb G2',    hfov:98,  vfov:90,  res:'2160×2160 per eye' },
+  { name:'HTC Vive Pro 2',  hfov:120, vfov:110, res:'2448×2448 per eye' },
+  { name:'Pimax Crystal',   hfov:130, vfov:118, res:'2880×2880 per eye' },
+  { name:'Apple Vision Pro',hfov:100, vfov:90,  res:'3660×3142 per eye' },
+];
+
+function toRad(d) { return d * Math.PI / 180; }
+function toDeg(r) { return r * 180 / Math.PI; }
+
+function hToV(h, arW, arH) {
+  return toDeg(2 * Math.atan(Math.tan(toRad(h/2)) * arH / arW));
+}
+function vToH(v, arW, arH) {
+  return toDeg(2 * Math.atan(Math.tan(toRad(v/2)) * arW / arH));
+}
+function hToDiag(h, v) {
+  return toDeg(2 * Math.atan(Math.sqrt(Math.tan(toRad(h/2))**2 + Math.tan(toRad(v/2))**2)));
+}
+
+function calcFromH() {
+  const h = parseFloat(document.getElementById('hfov').value) || 110;
+  const arW = parseFloat(document.getElementById('ar-w').value) || 16;
+  const arH = parseFloat(document.getElementById('ar-h').value) || 9;
+  const v = hToV(h, arW, arH);
+  document.getElementById('vfov').value = v.toFixed(1);
+  updateResults(h, v);
+}
+function calcFromV() {
+  const v = parseFloat(document.getElementById('vfov').value) || 96;
+  const arW = parseFloat(document.getElementById('ar-w').value) || 16;
+  const arH = parseFloat(document.getElementById('ar-h').value) || 9;
+  const h = vToH(v, arW, arH);
+  document.getElementById('hfov').value = h.toFixed(1);
+  updateResults(h, v);
+}
+
+function updateResults(h, v) {
+  const d = hToDiag(h, v);
+  document.getElementById('r-hfov').textContent = h.toFixed(1) + '°';
+  document.getElementById('r-vfov').textContent = v.toFixed(1) + '°';
+  document.getElementById('r-dfov').textContent = d.toFixed(1) + '°';
+  document.getElementById('e-unity').textContent = v.toFixed(2) + 'f';
+  document.getElementById('e-unreal').textContent = h.toFixed(2);
+  document.getElementById('e-godot').textContent = v.toFixed(2);
+  document.getElementById('e-three').textContent = v.toFixed(2);
+  drawFov(h, v);
+}
+
+function drawFov(h, v) {
+  const canvas = document.getElementById('fov-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = 480, H = 260;
+  ctx.clearRect(0, 0, W, H);
+
+  // Background
+  ctx.fillStyle = '#0f1117';
+  ctx.fillRect(0, 0, W, H);
+
+  const cx = W / 2, cy = H * 0.88;
+  const maxLen = Math.min(W, H) * 0.85;
+
+  function drawCone(fovDeg, color, label, alpha) {
+    const half = toRad(fovDeg / 2);
+    const lx = cx - Math.sin(half) * maxLen;
+    const rx = cx + Math.sin(half) * maxLen;
+    const ty = cy - Math.cos(half) * maxLen;
+
+    ctx.globalAlpha = alpha;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(lx, ty);
+    ctx.lineTo(rx, ty);
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.fill();
+
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Label
+    ctx.fillStyle = color;
+    ctx.font = 'bold 13px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(label + ' ' + fovDeg.toFixed(0) + '°', cx, ty - 8);
+  }
+
+  drawCone(h, '#6366f1', 'H', 0.18);
+  drawCone(v, '#34d399', 'V', 0.18);
+
+  // Lines
+  const hHalf = toRad(h / 2);
+  ctx.globalAlpha = 0.9;
+  ctx.strokeStyle = '#6366f1';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx - Math.sin(hHalf)*maxLen, cy - Math.cos(hHalf)*maxLen); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.sin(hHalf)*maxLen, cy - Math.cos(hHalf)*maxLen); ctx.stroke();
+
+  const vHalf = toRad(v / 2);
+  ctx.strokeStyle = '#34d399';
+  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx - Math.sin(vHalf)*maxLen, cy - Math.cos(vHalf)*maxLen); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.sin(vHalf)*maxLen, cy - Math.cos(vHalf)*maxLen); ctx.stroke();
+
+  // Eye point
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = '#f8fafc';
+  ctx.beginPath(); ctx.arc(cx, cy, 5, 0, Math.PI*2); ctx.fill();
+
+  // Legend
+  ctx.font = '12px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#6366f1'; ctx.fillRect(W-130, H-42, 12, 12);
+  ctx.fillStyle = '#e2e8f0'; ctx.fillText('Horizontal FoV', W-112, H-32);
+  ctx.fillStyle = '#34d399'; ctx.fillRect(W-130, H-24, 12, 12);
+  ctx.fillStyle = '#e2e8f0'; ctx.fillText('Vertical FoV', W-112, H-14);
+}
+
+function renderHmds() {
+  const cards = document.getElementById('hmd-cards');
+  const tbody = document.getElementById('compare-body');
+  cards.innerHTML = '';
+  tbody.innerHTML = '';
+
+  HMDS.forEach((hmd, i) => {
+    const d = hToDiag(hmd.hfov, hmd.vfov);
+    // Card
+    const card = document.createElement('div');
+    card.className = 'hmd-card' + (i===0?' active':'');
+    card.innerHTML = `<div class="hmd-name">${hmd.name}</div><div class="hmd-vals">H: ${hmd.hfov}° · V: ${hmd.vfov}°<br>${hmd.res}</div>`;
+    card.onclick = () => {
+      document.querySelectorAll('.hmd-card').forEach(c=>c.classList.remove('active'));
+      card.classList.add('active');
+      document.getElementById('hfov').value = hmd.hfov;
+      document.getElementById('vfov').value = hmd.vfov;
+      // infer AR from hfov/vfov ratio
+      const gcd = (a,b)=>b?gcd(b,a%b):a;
+      const g = gcd(hmd.hfov, hmd.vfov);
+      document.getElementById('ar-w').value = (hmd.hfov/g)|0;
+      document.getElementById('ar-h').value = (hmd.vfov/g)|0;
+      updateResults(hmd.hfov, hmd.vfov);
+    };
+    cards.appendChild(card);
+
+    // Table row
+    const tr = document.createElement('tr');
+    tr.style.borderBottom = '1px solid var(--border)';
+    tr.innerHTML = `<td style="padding:8px 12px;font-weight:600;">${hmd.name}</td><td style="padding:8px 12px;">${hmd.hfov}°</td><td style="padding:8px 12px;">${hmd.vfov}°</td><td style="padding:8px 12px;">${d.toFixed(1)}°</td><td style="padding:8px 12px;color:var(--muted);font-size:.8rem;">${hmd.res}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+renderHmds();
+updateResults(110, 96);
+</script>
+</body>
+</html>

@@ -116,4 +116,14 @@
   <url><loc>https://www.58parts.net/blog/ja/pomodoro-timer.html</loc><lastmod>2026-05-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://www.58parts.net/blog/ja/base64.html</loc><lastmod>2026-04-18</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
 
+  <!-- ── Tools (new: 141-143) ── -->
+  <url><loc>https://www.58parts.net/uv-checker-generator.html</loc><lastmod>2026-06-24</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.58parts.net/game-palette-generator.html</loc><lastmod>2026-06-24</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.58parts.net/vr-fov-calculator.html</loc><lastmod>2026-06-24</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+
+  <!-- ── Blog articles (Japanese, new) ── -->
+  <url><loc>https://www.58parts.net/blog/ja/normal-map-generator.html</loc><lastmod>2026-06-24</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+
+</urlset>
+
 </urlset>

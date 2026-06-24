@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UV Checker Generator – Free Online UV Map Test Texture | QuickTools</title>
+  <meta name="description" content="Generate UV checker textures for 3D modeling and game development. Customize grid size, colors, and labels. Download PNG instantly. Free, no signup." />
+  <meta name="keywords" content="UV checker generator, UV map test texture, 3D texture checker, UV unwrap test, game development texture, blender UV checker" />
+  <link rel="canonical" href="https://toolsite-xn828584.vercel.app/uv-checker-generator.html" />
+  <link rel="stylesheet" href="tool.css" />
+  <style>
+    .preview-wrap { display:flex; justify-content:center; align-items:center; background:var(--bg3); border-radius:12px; padding:16px; min-height:300px; }
+    #uv-canvas { max-width:100%; border-radius:8px; image-rendering:pixelated; }
+    .color-pair { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .color-field { display:flex; align-items:center; gap:10px; }
+    .color-field input[type=color] { width:44px; height:36px; border:1.5px solid var(--border); border-radius:8px; background:none; cursor:pointer; padding:2px; }
+    .size-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+    .preset-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+    .preset-btn { padding:6px 14px; border-radius:8px; border:1.5px solid var(--border); background:var(--bg3); color:var(--text); font-size:.82rem; cursor:pointer; transition:.15s; }
+    .preset-btn:hover,.preset-btn.active { border-color:var(--accent); color:var(--accent2); }
+  </style>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7091279251828395" crossorigin="anonymous"></script>
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>3D / Game<span>›</span>UV Checker Generator</div>
+  <h1>UV Checker Generator</h1>
+  <p class="tool-desc">Generate customizable UV checker textures for testing UV unwraps in Blender, Maya, Unity, Unreal Engine, and any 3D application. Choose grid size, colors, and add coordinate labels.</p>
+
+  <div class="card">
+    <div class="card-title">Presets</div>
+    <div class="preset-row">
+      <button class="preset-btn active" onclick="applyPreset('classic')">Classic</button>
+      <button class="preset-btn" onclick="applyPreset('grayscale')">Grayscale</button>
+      <button class="preset-btn" onclick="applyPreset('rainbow')">Rainbow</button>
+      <button class="preset-btn" onclick="applyPreset('blender')">Blender Style</button>
+      <button class="preset-btn" onclick="applyPreset('unity')">Unity Style</button>
+    </div>
+
+    <div class="card-title" style="margin-top:16px;">Texture Size</div>
+    <div class="size-grid" style="margin-bottom:16px;">
+      <div>
+        <label>Width (px)</label>
+        <select id="tex-w" onchange="draw()">
+          <option value="256">256</option>
+          <option value="512">512</option>
+          <option value="1024" selected>1024</option>
+          <option value="2048">2048</option>
+        </select>
+      </div>
+      <div>
+        <label>Height (px)</label>
+        <select id="tex-h" onchange="draw()">
+          <option value="256">256</option>
+          <option value="512">512</option>
+          <option value="1024" selected>1024</option>
+          <option value="2048">2048</option>
+        </select>
+      </div>
+      <div>
+        <label>Grid Divisions</label>
+        <select id="grid-n" onchange="draw()">
+          <option value="4">4 × 4</option>
+          <option value="8" selected>8 × 8</option>
+          <option value="16">16 × 16</option>
+          <option value="32">32 × 32</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card-title">Colors</div>
+    <div class="color-pair" style="margin-bottom:16px;">
+      <div class="color-field">
+        <input type="color" id="col-a" value="#6366f1" oninput="draw()" />
+        <label style="margin:0;">Color A</label>
+      </div>
+      <div class="color-field">
+        <input type="color" id="col-b" value="#1a1d27" oninput="draw()" />
+        <label style="margin:0;">Color B</label>
+      </div>
+      <div class="color-field">
+        <input type="color" id="col-line" value="#ffffff" oninput="draw()" />
+        <label style="margin:0;">Grid Lines</label>
+      </div>
+      <div class="color-field">
+        <input type="color" id="col-text" value="#ffffff" oninput="draw()" />
+        <label style="margin:0;">Label Text</label>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;">
+      <label style="display:flex;align-items:center;gap:8px;margin:0;cursor:pointer;">
+        <input type="checkbox" id="show-lines" checked onchange="draw()" style="width:auto;" />
+        <span>Grid lines</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;margin:0;cursor:pointer;">
+        <input type="checkbox" id="show-labels" checked onchange="draw()" style="width:auto;" />
+        <span>UV coordinates</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;margin:0;cursor:pointer;">
+        <input type="checkbox" id="show-diag" onchange="draw()" style="width:auto;" />
+        <span>Diagonal lines</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;margin:0;cursor:pointer;">
+        <input type="checkbox" id="show-circles" onchange="draw()" style="width:auto;" />
+        <span>Circle markers</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Preview</div>
+    <div class="preview-wrap">
+      <canvas id="uv-canvas"></canvas>
+    </div>
+  </div>
+
+  <div class="btn-group" style="margin-top:8px;">
+    <button class="btn btn-primary" onclick="download('png')">⬇ Download PNG</button>
+    <button class="btn btn-secondary" onclick="download('jpg')">⬇ Download JPG</button>
+  </div>
+
+  <div class="faq">
+    <h2>About UV Checker Textures</h2>
+    <div class="faq-item">
+      <strong>What is a UV checker texture?</strong>
+      <p style="color:var(--muted);margin-top:6px;line-height:1.6;">A UV checker (or UV grid) is a test texture applied to a 3D mesh to verify that UV coordinates are correctly unwrapped. Distorted squares, stretched labels, or misaligned lines indicate UV mapping errors that need correction before texturing.</p>
+    </div>
+    <div class="faq-item">
+      <strong>Which software can I use this with?</strong>
+      <p style="color:var(--muted);margin-top:6px;line-height:1.6;">Any 3D application that accepts PNG textures: Blender, Maya, 3ds Max, Cinema 4D, ZBrush, Unity, Unreal Engine, Godot, and more. Import the PNG as a material texture and apply it to your mesh.</p>
+    </div>
+    <div class="faq-item">
+      <strong>What resolution should I use?</strong>
+      <p style="color:var(--muted);margin-top:6px;line-height:1.6;">For quick checks during modeling, 512×512 is sufficient. For final UV review before texturing, use 1024×1024 or 2048×2048 to clearly see small details and label positions.</p>
+    </div>
+    <div class="faq-item">
+      <strong>How do I read the UV coordinates?</strong>
+      <p style="color:var(--muted);margin-top:6px;line-height:1.6;">Each cell shows its U (horizontal, 0–1 left to right) and V (vertical, 0–1 bottom to top) position. If labels appear squished or rotated on your model, that area of the UV map needs to be adjusted.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('uv-canvas');
+const ctx = canvas.getContext('2d');
+
+const presets = {
+  classic:    { a:'#6366f1', b:'#1a1d27', line:'#ffffff', text:'#ffffff' },
+  grayscale:  { a:'#cccccc', b:'#333333', line:'#888888', text:'#ffffff' },
+  rainbow:    { a:'#ff6b6b', b:'#4ecdc4', line:'#ffffff', text:'#000000' },
+  blender:    { a:'#2e78b5', b:'#c8c8c8', line:'#000000', text:'#000000' },
+  unity:      { a:'#ff6600', b:'#1a1a1a', line:'#ffffff', text:'#ffffff' },
+};
+
+function applyPreset(name) {
+  const p = presets[name];
+  document.getElementById('col-a').value = p.a;
+  document.getElementById('col-b').value = p.b;
+  document.getElementById('col-line').value = p.line;
+  document.getElementById('col-text').value = p.text;
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  draw();
+}
+
+function draw() {
+  const W = parseInt(document.getElementById('tex-w').value);
+  const H = parseInt(document.getElementById('tex-h').value);
+  const N = parseInt(document.getElementById('grid-n').value);
+  const colA = document.getElementById('col-a').value;
+  const colB = document.getElementById('col-b').value;
+  const colLine = document.getElementById('col-line').value;
+  const colText = document.getElementById('col-text').value;
+  const showLines = document.getElementById('show-lines').checked;
+  const showLabels = document.getElementById('show-labels').checked;
+  const showDiag = document.getElementById('show-diag').checked;
+  const showCircles = document.getElementById('show-circles').checked;
+
+  canvas.width = W;
+  canvas.height = H;
+
+  const cw = W / N;
+  const ch = H / N;
+
+  // Checkerboard
+  for (let row = 0; row < N; row++) {
+    for (let col = 0; col < N; col++) {
+      ctx.fillStyle = (row + col) % 2 === 0 ? colA : colB;
+      ctx.fillRect(col * cw, row * ch, cw, ch);
+    }
+  }
+
+  // Diagonal lines
+  if (showDiag) {
+    ctx.strokeStyle = colLine;
+    ctx.globalAlpha = 0.25;
+    ctx.lineWidth = Math.max(1, W / 512);
+    for (let row = 0; row < N; row++) {
+      for (let col = 0; col < N; col++) {
+        const x = col * cw, y = row * ch;
+        ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + cw, y + ch); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x + cw, y); ctx.lineTo(x, y + ch); ctx.stroke();
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // Circle markers
+  if (showCircles) {
+    ctx.strokeStyle = colLine;
+    ctx.globalAlpha = 0.35;
+    ctx.lineWidth = Math.max(1, W / 512);
+    const r = Math.min(cw, ch) * 0.38;
+    for (let row = 0; row < N; row++) {
+      for (let col = 0; col < N; col++) {
+        ctx.beginPath();
+        ctx.arc(col * cw + cw/2, row * ch + ch/2, r, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // Grid lines
+  if (showLines) {
+    ctx.strokeStyle = colLine;
+    ctx.lineWidth = Math.max(1, W / 512);
+    ctx.globalAlpha = 0.5;
+    for (let i = 0; i <= N; i++) {
+      ctx.beginPath(); ctx.moveTo(i * cw, 0); ctx.lineTo(i * cw, H); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, i * ch); ctx.lineTo(W, i * ch); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // UV coordinate labels
+  if (showLabels) {
+    const fs = Math.max(10, Math.min(cw * 0.18, 24));
+    ctx.font = `${fs}px monospace`;
+    ctx.fillStyle = colText;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    for (let row = 0; row < N; row++) {
+      for (let col = 0; col < N; col++) {
+        const u = (col / N).toFixed(2);
+        const v = (1 - row / N).toFixed(2);
+        ctx.fillText(`${u},${v}`, col * cw + cw/2, row * ch + ch/2);
+      }
+    }
+  }
+}
+
+function download(fmt) {
+  const link = document.createElement('a');
+  link.download = `uv-checker-${canvas.width}x${canvas.height}.${fmt}`;
+  link.href = canvas.toDataURL(fmt === 'jpg' ? 'image/jpeg' : 'image/png', 0.95);
+  link.click();
+}
+
+draw();
+</script>
+</body>
+</html>
