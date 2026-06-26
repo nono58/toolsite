@@ -17,7 +17,7 @@
     <priority>0.8</priority>
   </url>
 
-  <!-- ── Tools ── -->
+  <!-- Tools -->
   <url><loc>https://www.58parts.net/age-calculator.html</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://www.58parts.net/ascii-art-generator.html</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://www.58parts.net/aspect-ratio-calculator.html</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
@@ -72,8 +72,19 @@
   <url><loc>https://www.58parts.net/word-counter.html</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://www.58parts.net/word-frequency.html</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://www.58parts.net/word-to-pdf.html</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.58parts.net/typing-speed-test.html</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.58parts.net/loan-calculator.html</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.58parts.net/ip-lookup.html</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.58parts.net/favicon-generator.html</loc><lastmod>2026-06-23</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.58parts.net/chmod-calculator.html</loc><lastmod>2026-06-23</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.58parts.net/uv-checker-generator.html</loc><lastmod>2026-06-24</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.58parts.net/game-palette-generator.html</loc><lastmod>2026-06-24</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.58parts.net/vr-fov-calculator.html</loc><lastmod>2026-06-24</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.58parts.net/bpm-tap-tempo.html</loc><lastmod>2026-06-26</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.58parts.net/video-aspect-ratio.html</loc><lastmod>2026-06-26</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.58parts.net/viewport-unit-calculator.html</loc><lastmod>2026-06-26</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
 
-  <!-- ── Blog articles (English) ── -->
+  <!-- Blog articles (English) -->
   <url><loc>https://www.58parts.net/blog/age-calculator-online.html</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://www.58parts.net/blog/aspect-ratio-calculator-online.html</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://www.58parts.net/blog/base64-encode-decode.html</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -100,14 +111,7 @@
   <url><loc>https://www.58parts.net/blog/uuid-generator-online.html</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://www.58parts.net/blog/word-counter-online.html</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
 
-  <!-- ── Tools (new: 136-140) ── -->
-  <url><loc>https://www.58parts.net/typing-speed-test.html</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://www.58parts.net/loan-calculator.html</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://www.58parts.net/ip-lookup.html</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://www.58parts.net/favicon-generator.html</loc><lastmod>2026-06-23</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://www.58parts.net/chmod-calculator.html</loc><lastmod>2026-06-23</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-
-  <!-- ── Blog articles (Japanese) ── -->
+  <!-- Blog articles (Japanese) -->
   <url><loc>https://www.58parts.net/blog/ja/word-counter.html</loc><lastmod>2026-06-22</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://www.58parts.net/blog/ja/qr-code-generator.html</loc><lastmod>2026-02-20</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://www.58parts.net/blog/ja/image-compressor.html</loc><lastmod>2026-03-14</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -115,15 +119,7 @@
   <url><loc>https://www.58parts.net/blog/ja/json-formatter.html</loc><lastmod>2026-05-01</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://www.58parts.net/blog/ja/pomodoro-timer.html</loc><lastmod>2026-05-28</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://www.58parts.net/blog/ja/base64.html</loc><lastmod>2026-04-18</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-
-  <!-- ── Tools (new: 141-143) ── -->
-  <url><loc>https://www.58parts.net/uv-checker-generator.html</loc><lastmod>2026-06-24</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://www.58parts.net/game-palette-generator.html</loc><lastmod>2026-06-24</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://www.58parts.net/vr-fov-calculator.html</loc><lastmod>2026-06-24</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-
-  <!-- ── Blog articles (Japanese, new) ── -->
   <url><loc>https://www.58parts.net/blog/ja/normal-map-generator.html</loc><lastmod>2026-06-24</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-
-</urlset>
+  <url><loc>https://www.58parts.net/blog/ja/bpm-tap-tempo.html</loc><lastmod>2026-06-26</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
 
 </urlset>

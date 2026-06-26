@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CSS Viewport Unit Calculator – vw, vh, vmin, vmax to px | QuickTools</title>
+  <meta name="description" content="Convert CSS viewport units (vw, vh, vmin, vmax) to pixels and back. Preview at any screen size. Free online CSS viewport calculator for responsive design." />
+  <meta name="keywords" content="viewport unit calculator, vw to px, vh to px, css viewport units, vw calculator, responsive css, vmin vmax converter, CSS units" />
+  <link rel="canonical" href="https://www.58parts.net/viewport-unit-calculator.html" />
+  <link rel="stylesheet" href="tool.css" />
+  <style>
+    .device-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; margin-bottom: 16px; }
+    .dev-btn { background: var(--bg3); border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 10px; cursor: pointer; text-align: center; transition: .15s; }
+    .dev-btn:hover, .dev-btn.active { border-color: var(--accent); }
+    .dev-name { font-size: .82rem; font-weight: 700; }
+    .dev-res  { font-size: .72rem; color: var(--accent2); margin-top: 2px; }
+    .unit-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+    .unit-tab { padding: 8px 20px; cursor: pointer; font-size: .88rem; color: var(--muted); border-bottom: 2px solid transparent; transition: .15s; }
+    .unit-tab.active { color: var(--accent2); border-bottom-color: var(--accent); }
+    .conv-table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    .conv-table th { text-align: left; color: var(--muted); padding: 6px 10px; border-bottom: 1px solid var(--border); font-weight: 600; font-size: .78rem; }
+    .conv-table td { padding: 9px 10px; border-bottom: 1px solid var(--border); font-family: monospace; }
+    .conv-table tr:last-child td { border-bottom: none; }
+    .copy-val { cursor: pointer; color: var(--accent2); }
+    .copy-val:hover { text-decoration: underline; }
+    .screen-vis { position: relative; margin: 0 auto; border: 2px solid var(--accent); border-radius: 6px; background: var(--bg3); display: flex; align-items: center; justify-content: center; }
+    .vw-line { position: absolute; top: 0; left: 0; height: 100%; background: #6366f130; border-right: 2px dashed #6366f1; }
+    .vh-line  { position: absolute; top: 0; left: 0; width: 100%; background: #34d39915; border-bottom: 2px dashed #34d399; }
+    .screen-label { font-size: .75rem; color: var(--muted); position: absolute; }
+  </style>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7091279251828395" crossorigin="anonymous"></script>
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>CSS / Design<span>›</span>Viewport Unit Calculator</div>
+  <h1>CSS Viewport Unit Calculator</h1>
+  <p class="tool-desc">Convert between CSS viewport units (vw, vh, vmin, vmax) and pixels at any screen size. Essential for responsive design and fluid typography.</p>
+
+  <div class="card">
+    <div class="card-title">Screen / Viewport Size</div>
+    <div class="device-grid" id="device-grid"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div>
+        <label>Viewport Width (px)</label>
+        <input type="number" id="vp-w" value="1440" min="1" oninput="recalc()" />
+      </div>
+      <div>
+        <label>Viewport Height (px)</label>
+        <input type="number" id="vp-h" value="900" min="1" oninput="recalc()" />
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Convert Value</div>
+    <div class="unit-tabs" id="unit-tabs">
+      <div class="unit-tab active" onclick="setMode('vw')">vw → px</div>
+      <div class="unit-tab" onclick="setMode('vh')">vh → px</div>
+      <div class="unit-tab" onclick="setMode('px-vw')">px → vw</div>
+      <div class="unit-tab" onclick="setMode('px-vh')">px → vh</div>
+    </div>
+    <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
+      <div style="flex:1;min-width:120px;">
+        <label id="inp-label">Value (vw)</label>
+        <input type="number" id="conv-input" value="50" min="0" step="0.1" oninput="recalc()" />
+      </div>
+      <div class="stat-box" style="flex:2;">
+        <div class="stat-val" id="conv-result">720 px</div>
+        <div class="stat-lbl" id="conv-result-lbl">= 720px at 1440px viewport</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Full Reference Table</div>
+    <table class="conv-table">
+      <thead><tr><th>Unit</th><th>Value</th><th>Pixels (at current viewport)</th><th></th></tr></thead>
+      <tbody id="ref-table"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Fluid Typography Scale</div>
+    <p style="color:var(--muted);font-size:.85rem;margin-bottom:12px;">Common font sizes expressed as viewport units — useful for fluid type that scales with the screen.</p>
+    <div id="typo-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;"></div>
+  </div>
+
+  <div class="faq">
+    <h2>Viewport Units FAQ</h2>
+    <div class="faq-item">
+      <strong>What is 1vw in pixels?</strong>
+      <p style="color:var(--muted);margin-top:6px;line-height:1.6;">1vw equals 1% of the viewport width. On a 1440px wide screen, 1vw = 14.4px. On a 375px mobile screen, 1vw = 3.75px. This makes vw useful for sizes that should scale proportionally with the browser width.</p>
+    </div>
+    <div class="faq-item">
+      <strong>What is the difference between vmin and vmax?</strong>
+      <p style="color:var(--muted);margin-top:6px;line-height:1.6;">vmin is 1% of the smaller viewport dimension (width or height). vmax is 1% of the larger dimension. On a 1440×900 viewport, 1vmin = 9px (1% of 900) and 1vmax = 14.4px (1% of 1440). vmin is great for elements that should always fit on screen regardless of orientation.</p>
+    </div>
+    <div class="faq-item">
+      <strong>What is dvh and svh?</strong>
+      <p style="color:var(--muted);margin-top:6px;line-height:1.6;">dvh (dynamic viewport height) adjusts as mobile browser UI (address bar) shows/hides. svh (small viewport height) uses the smallest viewport height (browser UI visible). lvh (large) uses the largest (browser UI hidden). These are modern replacements for vh on mobile, where classic vh caused layout jumps.</p>
+    </div>
+    <div class="faq-item">
+      <strong>When should I use vw instead of %?</strong>
+      <p style="color:var(--muted);margin-top:6px;line-height:1.6;">Percentage (%) is relative to the parent element, while vw is always relative to the viewport. Use vw when you want an element to be a fixed fraction of the screen regardless of its parent's width — common for full-bleed sections, hero text, or elements that need to break out of a container.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const DEVICES = [
+  { name:'iPhone SE',   w:375,  h:667  },
+  { name:'iPhone 14',   w:390,  h:844  },
+  { name:'iPhone 14 PM',w:430,  h:932  },
+  { name:'iPad',        w:768,  h:1024 },
+  { name:'iPad Pro 12', w:1024, h:1366 },
+  { name:'MacBook Air', w:1280, h:800  },
+  { name:'Desktop HD',  w:1440, h:900  },
+  { name:'Full HD',     w:1920, h:1080 },
+  { name:'4K',          w:3840, h:2160 },
+];
+
+let mode = 'vw';
+
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('.unit-tab').forEach((t, i) => {
+    t.classList.toggle('active', ['vw','vh','px-vw','px-vh'][i] === m);
+  });
+  const labels = { 'vw':'Value (vw)', 'vh':'Value (vh)', 'px-vw':'Value (px)', 'px-vh':'Value (px)' };
+  document.getElementById('inp-label').textContent = labels[m];
+  recalc();
+}
+
+function recalc() {
+  const vpW = parseInt(document.getElementById('vp-w').value) || 1440;
+  const vpH = parseInt(document.getElementById('vp-h').value) || 900;
+  const val = parseFloat(document.getElementById('conv-input').value) || 0;
+  const vmin = Math.min(vpW, vpH);
+  const vmax = Math.max(vpW, vpH);
+
+  let result, unit, desc;
+  if (mode === 'vw')    { result = (val / 100 * vpW).toFixed(2); unit = 'px'; desc = `${val}vw = ${result}px at ${vpW}px viewport width`; }
+  else if (mode === 'vh') { result = (val / 100 * vpH).toFixed(2); unit = 'px'; desc = `${val}vh = ${result}px at ${vpH}px viewport height`; }
+  else if (mode === 'px-vw') { result = (val / vpW * 100).toFixed(4); unit = 'vw'; desc = `${val}px = ${result}vw at ${vpW}px viewport width`; }
+  else { result = (val / vpH * 100).toFixed(4); unit = 'vh'; desc = `${val}px = ${result}vh at ${vpH}px viewport height`; }
+
+  document.getElementById('conv-result').textContent = `${result} ${unit}`;
+  document.getElementById('conv-result-lbl').textContent = desc;
+
+  // Reference table
+  const rows = [
+    { unit:'1vw',   px: (vpW/100).toFixed(2) },
+    { unit:'1vh',   px: (vpH/100).toFixed(2) },
+    { unit:'1vmin', px: (vmin/100).toFixed(2) },
+    { unit:'1vmax', px: (vmax/100).toFixed(2) },
+    { unit:'10vw',  px: (vpW/10).toFixed(2) },
+    { unit:'10vh',  px: (vpH/10).toFixed(2) },
+    { unit:'50vw',  px: (vpW/2).toFixed(2) },
+    { unit:'50vh',  px: (vpH/2).toFixed(2) },
+    { unit:'100vw', px: vpW },
+    { unit:'100vh', px: vpH },
+    { unit:'100vmin',px: vmin },
+    { unit:'100vmax',px: vmax },
+  ];
+  document.getElementById('ref-table').innerHTML = rows.map(r =>
+    `<tr><td style="color:var(--accent2);">${r.unit}</td><td></td><td class="copy-val" onclick="copy('${r.px}px')" title="Click to copy">${r.px} px</td><td style="color:var(--muted);font-size:.75rem;">click to copy</td></tr>`
+  ).join('');
+
+  // Fluid typography
+  const typoSizes = [
+    { label:'Small text',  px:14 },
+    { label:'Body text',   px:16 },
+    { label:'Large body',  px:18 },
+    { label:'H4',          px:20 },
+    { label:'H3',          px:24 },
+    { label:'H2',          px:32 },
+    { label:'H1',          px:48 },
+    { label:'Display',     px:64 },
+  ];
+  document.getElementById('typo-grid').innerHTML = typoSizes.map(t => {
+    const vwVal = (t.px / vpW * 100).toFixed(3);
+    const vhVal = (t.px / vpH * 100).toFixed(3);
+    return `<div class="conv-box" style="text-align:left;">
+      <div style="font-size:.75rem;color:var(--muted);">${t.label} (${t.px}px)</div>
+      <div style="font-weight:700;color:var(--accent2);">${vwVal}vw</div>
+      <div style="font-size:.75rem;color:var(--muted);">${vhVal}vh</div>
+    </div>`;
+  }).join('');
+}
+
+function copy(text) {
+  navigator.clipboard.writeText(text);
+  let t = document.getElementById('toast');
+  if (!t) { t = document.createElement('div'); t.id = 'toast'; t.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#6366f1;color:#fff;padding:10px 18px;border-radius:10px;font-size:.85rem;z-index:9999;'; document.body.appendChild(t); }
+  t.textContent = text + ' copied'; t.style.opacity = 1;
+  clearTimeout(t._t); t._t = setTimeout(() => t.style.opacity = 0, 1500);
+}
+
+// Build device buttons
+const dg = document.getElementById('device-grid');
+DEVICES.forEach((d, i) => {
+  const btn = document.createElement('div');
+  btn.className = 'dev-btn' + (i === 6 ? ' active' : '');
+  btn.innerHTML = `<div class="dev-name">${d.name}</div><div class="dev-res">${d.w}×${d.h}</div>`;
+  btn.onclick = () => {
+    document.querySelectorAll('.dev-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('vp-w').value = d.w;
+    document.getElementById('vp-h').value = d.h;
+    recalc();
+  };
+  dg.appendChild(btn);
+});
+
+recalc();
+</script>
+</body>
+</html>

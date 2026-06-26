@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Video Aspect Ratio Calculator – Resolution & Crop Tool | QuickTools</title>
+  <meta name="description" content="Calculate video aspect ratios and resolutions for YouTube, TikTok, Instagram, and more. Find safe zones, scale dimensions, convert between aspect ratios. Free online tool." />
+  <meta name="keywords" content="video aspect ratio calculator, resolution calculator, 16:9 calculator, YouTube resolution, TikTok aspect ratio, 4K resolution, video crop calculator, safe zone" />
+  <link rel="canonical" href="https://www.58parts.net/video-aspect-ratio.html" />
+  <link rel="stylesheet" href="tool.css" />
+  <style>
+    .platform-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+    .plat-btn { background: var(--bg3); border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 12px; cursor: pointer; transition: .15s; text-align: center; }
+    .plat-btn:hover, .plat-btn.active { border-color: var(--accent); }
+    .plat-name { font-size: .85rem; font-weight: 700; }
+    .plat-res  { font-size: .75rem; color: var(--accent2); margin-top: 2px; }
+    .plat-ratio{ font-size: .72rem; color: var(--muted); }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    #preview-canvas { display: block; margin: 0 auto; border-radius: 8px; max-width: 100%; }
+    .result-table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    .result-table th { text-align: left; color: var(--muted); padding: 6px 10px; border-bottom: 1px solid var(--border); font-weight: 600; font-size: .78rem; text-transform: uppercase; }
+    .result-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
+    .result-table tr:last-child td { border-bottom: none; }
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: .72rem; font-weight: 700; margin-left: 6px; }
+    .tag-green { background: #34d39920; color: var(--green); }
+    .tag-yellow { background: #fbbf2420; color: var(--yellow); }
+  </style>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7091279251828395" crossorigin="anonymous"></script>
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Video<span>›</span>Aspect Ratio Calculator</div>
+  <h1>Video Aspect Ratio Calculator</h1>
+  <p class="tool-desc">Calculate and convert video resolutions, aspect ratios, and safe zones for any platform. Enter a width or height and get all related dimensions instantly.</p>
+
+  <div class="card">
+    <div class="card-title">Platform Presets</div>
+    <div class="platform-grid" id="platform-grid"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Custom Resolution</div>
+    <div class="two-col" style="margin-bottom:14px;">
+      <div>
+        <label>Width (px)</label>
+        <input type="number" id="inp-w" value="1920" min="1" oninput="calcFromW()" />
+      </div>
+      <div>
+        <label>Height (px)</label>
+        <input type="number" id="inp-h" value="1080" min="1" oninput="calcFromH()" />
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+      <label style="margin:0;">Lock aspect ratio</label>
+      <label style="display:flex;align-items:center;gap:6px;margin:0;cursor:pointer;">
+        <input type="checkbox" id="lock-ar" checked style="width:auto;" />
+        <span>Keep ratio when typing</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Results</div>
+    <table class="result-table" id="result-table"></table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Visual Preview</div>
+    <canvas id="preview-canvas" width="480" height="320"></canvas>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Scale to Common Resolutions</div>
+    <div id="scale-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;"></div>
+  </div>
+
+  <div class="faq">
+    <h2>Video Resolution FAQ</h2>
+    <div class="faq-item">
+      <strong>What is aspect ratio?</strong>
+      <p style="color:var(--muted);margin-top:6px;line-height:1.6;">Aspect ratio is the proportional relationship between a video's width and height, expressed as W:H. 16:9 is the standard widescreen format used by YouTube and most modern displays. 9:16 (vertical) is used by TikTok, Instagram Reels, and YouTube Shorts. 1:1 is square, common for Instagram posts.</p>
+    </div>
+    <div class="faq-item">
+      <strong>What is a safe zone in video?</strong>
+      <p style="color:var(--muted);margin-top:6px;line-height:1.6;">Safe zones are inset areas of the frame where text and important graphics should stay to avoid being cropped by different screen sizes or overlaid by platform UI elements (like TikTok's caption area or YouTube's subscribe button). A typical safe zone is 90% of the frame width/height, centered.</p>
+    </div>
+    <div class="faq-item">
+      <strong>What resolution should I export for YouTube?</strong>
+      <p style="color:var(--muted);margin-top:6px;line-height:1.6;">YouTube recommends 1920×1080 (1080p) as the minimum for HD quality, and 3840×2160 (4K/UHD) for the highest quality. Always export at 16:9 aspect ratio for standard landscape videos. For Shorts, use 1080×1920 (9:16 vertical).</p>
+    </div>
+    <div class="faq-item">
+      <strong>How do I calculate a new width from a height while keeping the ratio?</strong>
+      <p style="color:var(--muted);margin-top:6px;line-height:1.6;">Width = Height × (original width / original height). For example, scaling 1920×1080 to a height of 720: Width = 720 × (1920/1080) = 1280. This tool does that calculation automatically — just enter the desired height and the width updates to match.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const PLATFORMS = [
+  { name:'YouTube',        w:1920, h:1080, label:'16:9',  note:'Standard' },
+  { name:'YouTube Shorts', w:1080, h:1920, label:'9:16',  note:'Vertical' },
+  { name:'TikTok',         w:1080, h:1920, label:'9:16',  note:'Vertical' },
+  { name:'Instagram Post', w:1080, h:1080, label:'1:1',   note:'Square' },
+  { name:'Instagram Story',w:1080, h:1920, label:'9:16',  note:'Vertical' },
+  { name:'Instagram Reel', w:1080, h:1920, label:'9:16',  note:'Vertical' },
+  { name:'Twitter/X Video',w:1280, h:720,  label:'16:9',  note:'HD' },
+  { name:'Facebook Video', w:1280, h:720,  label:'16:9',  note:'HD' },
+  { name:'4K / UHD',       w:3840, h:2160, label:'16:9',  note:'4K' },
+  { name:'1080p HD',       w:1920, h:1080, label:'16:9',  note:'Full HD' },
+  { name:'720p HD',        w:1280, h:720,  label:'16:9',  note:'HD' },
+  { name:'Cinema 2.39:1',  w:2560, h:1072, label:'2.39:1',note:'Widescreen' },
+];
+
+const SCALE_PRESETS = [
+  { label:'4K (UHD)', w:3840, h:2160 },
+  { label:'2K (QHD)', w:2560, h:1440 },
+  { label:'1080p',    w:1920, h:1080 },
+  { label:'720p',     w:1280, h:720  },
+  { label:'480p',     w:854,  h:480  },
+  { label:'360p',     w:640,  h:360  },
+];
+
+function gcd(a, b) { return b ? gcd(b, a % b) : a; }
+
+function getAR(w, h) {
+  const g = gcd(w, h);
+  return `${w/g}:${h/g}`;
+}
+
+function calcFromW() {
+  const w = parseInt(document.getElementById('inp-w').value) || 1920;
+  if (document.getElementById('lock-ar').checked) {
+    const ratio = currentRatio;
+    const h = Math.round(w / ratio);
+    document.getElementById('inp-h').value = h;
+    update(w, h);
+  } else {
+    update(w, parseInt(document.getElementById('inp-h').value) || 1080);
+  }
+}
+
+function calcFromH() {
+  const h = parseInt(document.getElementById('inp-h').value) || 1080;
+  if (document.getElementById('lock-ar').checked) {
+    const ratio = currentRatio;
+    const w = Math.round(h * ratio);
+    document.getElementById('inp-w').value = w;
+    update(w, h);
+  } else {
+    update(parseInt(document.getElementById('inp-w').value) || 1920, h);
+  }
+}
+
+let currentRatio = 1920 / 1080;
+
+function update(w, h) {
+  currentRatio = w / h;
+  const g = gcd(w, h);
+  const arStr = `${w/g}:${h/g}`;
+  const mp = ((w * h) / 1000000).toFixed(2);
+  const diag = Math.sqrt(w*w + h*h).toFixed(0);
+  const safe90w = Math.round(w * 0.9);
+  const safe90h = Math.round(h * 0.9);
+
+  // Results table
+  document.getElementById('result-table').innerHTML = `
+    <tr><th>Property</th><th>Value</th></tr>
+    <tr><td>Resolution</td><td><strong>${w} × ${h}</strong></td></tr>
+    <tr><td>Aspect Ratio</td><td>${arStr} <span style="color:var(--muted);font-size:.8rem">(${(w/h).toFixed(4)})</span></td></tr>
+    <tr><td>Megapixels</td><td>${mp} MP</td></tr>
+    <tr><td>Diagonal (px)</td><td>${diag} px</td></tr>
+    <tr><td>Orientation</td><td>${w >= h ? 'Landscape' : 'Portrait'}</td></tr>
+    <tr><td>90% Safe Zone</td><td>${safe90w} × ${safe90h}</td></tr>
+    <tr><td>80% Safe Zone</td><td>${Math.round(w*.8)} × ${Math.round(h*.8)}</td></tr>
+  `;
+
+  // Scale grid
+  const sg = document.getElementById('scale-grid');
+  sg.innerHTML = SCALE_PRESETS.map(p => {
+    const sw = p.w, sh = Math.round(p.w / currentRatio);
+    const exact = (sw === w && sh === h);
+    return `<div class="conv-box" style="text-align:left;">
+      <div style="font-size:.8rem;color:var(--muted);">${p.label}</div>
+      <div style="font-weight:700;color:var(--accent2);">${sw} × ${sh}</div>
+      ${exact ? '<span class="tag tag-green">Current</span>' : `<button class="btn btn-secondary btn-sm" style="margin-top:6px;" onclick="setWH(${sw},${sh})">Use this</button>`}
+    </div>`;
+  }).join('');
+
+  drawPreview(w, h);
+}
+
+function setWH(w, h) {
+  document.getElementById('inp-w').value = w;
+  document.getElementById('inp-h').value = h;
+  currentRatio = w / h;
+  update(w, h);
+  document.querySelectorAll('.plat-btn').forEach(b => b.classList.remove('active'));
+}
+
+function drawPreview(w, h) {
+  const canvas = document.getElementById('preview-canvas');
+  const ctx = canvas.getContext('2d');
+  const CW = 480, CH = 320;
+  ctx.clearRect(0, 0, CW, CH);
+  ctx.fillStyle = '#0f1117';
+  ctx.fillRect(0, 0, CW, CH);
+
+  const ratio = w / h;
+  let rw, rh;
+  if (ratio > CW/CH) { rw = CW * 0.85; rh = rw / ratio; }
+  else { rh = CH * 0.85; rw = rh * ratio; }
+  const rx = (CW - rw) / 2, ry = (CH - rh) / 2;
+
+  // Frame
+  ctx.fillStyle = '#1a1d27';
+  ctx.strokeStyle = '#6366f1';
+  ctx.lineWidth = 2;
+  ctx.fillRect(rx, ry, rw, rh);
+  ctx.strokeRect(rx, ry, rw, rh);
+
+  // Grid lines (rule of thirds)
+  ctx.strokeStyle = '#6366f130';
+  ctx.lineWidth = 1;
+  [1/3, 2/3].forEach(t => {
+    ctx.beginPath(); ctx.moveTo(rx + rw*t, ry); ctx.lineTo(rx + rw*t, ry+rh); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(rx, ry + rh*t); ctx.lineTo(rx+rw, ry + rh*t); ctx.stroke();
+  });
+
+  // Safe zone 90%
+  const sz = 0.9;
+  const szx = rx + rw*(1-sz)/2, szy = ry + rh*(1-sz)/2;
+  ctx.strokeStyle = '#34d39960';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([6, 4]);
+  ctx.strokeRect(szx, szy, rw*sz, rh*sz);
+  ctx.setLineDash([]);
+
+  // Labels
+  ctx.fillStyle = '#e2e8f0';
+  ctx.font = 'bold 13px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(`${w} × ${h}`, CW/2, ry + rh/2 - 10);
+  ctx.font = '11px sans-serif';
+  ctx.fillStyle = '#94a3b8';
+  ctx.fillText(`${(w/gcd(w,h))}:${(h/gcd(w,h))}  •  ${(w/h).toFixed(2)}:1`, CW/2, ry + rh/2 + 10);
+
+  // Safe zone label
+  ctx.fillStyle = '#34d399';
+  ctx.font = '10px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('90% safe', szx + 4, szy + 12);
+}
+
+// Build platform buttons
+const pg = document.getElementById('platform-grid');
+PLATFORMS.forEach((p, i) => {
+  const btn = document.createElement('div');
+  btn.className = 'plat-btn' + (i === 9 ? ' active' : '');
+  btn.innerHTML = `<div class="plat-name">${p.name}</div><div class="plat-res">${p.w}×${p.h}</div><div class="plat-ratio">${p.label} · ${p.note}</div>`;
+  btn.onclick = () => {
+    document.querySelectorAll('.plat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('inp-w').value = p.w;
+    document.getElementById('inp-h').value = p.h;
+    currentRatio = p.w / p.h;
+    update(p.w, p.h);
+  };
+  pg.appendChild(btn);
+});
+
+function gcd(a, b) { return b ? gcd(b, a % b) : a; }
+
+update(1920, 1080);
+</script>
+</body>
+</html>

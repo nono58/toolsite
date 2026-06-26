@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BPM Tap Tempo Calculator – Online Beat Counter | QuickTools</title>
+  <meta name="description" content="Tap to calculate BPM online. Converts BPM to milliseconds for delay and reverb. Find tempo of any song instantly. Free, no signup." />
+  <meta name="keywords" content="BPM calculator, tap tempo, beats per minute, BPM to ms, delay calculator, tempo finder, DJ BPM, music production" />
+  <link rel="canonical" href="https://www.58parts.net/bpm-tap-tempo.html" />
+  <link rel="stylesheet" href="tool.css" />
+  <style>
+    #tap-btn {
+      width: 100%; padding: 48px 24px; font-size: 2rem; font-weight: 800;
+      background: var(--accent); color: #fff; border: none; border-radius: 16px;
+      cursor: pointer; transition: transform .08s, background .15s;
+      letter-spacing: .04em; user-select: none; -webkit-user-select: none;
+    }
+    #tap-btn:active { transform: scale(.97); background: var(--accent2); }
+    .bpm-display { font-size: 5rem; font-weight: 900; color: var(--accent2); text-align: center; line-height: 1; }
+    .bpm-unit { font-size: 1.2rem; color: var(--muted); text-align: center; margin-top: 4px; }
+    .conv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+    .conv-box { background: var(--bg3); border-radius: 10px; padding: 16px; text-align: center; }
+    .conv-val { font-size: 1.4rem; font-weight: 800; color: var(--green); font-family: monospace; }
+    .conv-lbl { font-size: .75rem; color: var(--muted); margin-top: 4px; }
+    .history-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+    .hist-chip { background: var(--bg3); border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; font-size: .8rem; color: var(--muted); }
+    .range-label { display: flex; justify-content: space-between; margin-bottom: 6px; }
+    input[type=range] { width: 100%; accent-color: var(--accent); }
+    .genre-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; }
+    .genre-btn { background: var(--bg3); border: 1.5px solid var(--border); border-radius: 8px; padding: 10px 8px; cursor: pointer; text-align: center; transition: .15s; }
+    .genre-btn:hover { border-color: var(--accent); }
+    .genre-name { font-size: .82rem; font-weight: 700; }
+    .genre-bpm { font-size: .75rem; color: var(--accent2); margin-top: 2px; }
+  </style>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7091279251828395" crossorigin="anonymous"></script>
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ Quick<span>Tools</span></a>
+</header>
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Music<span>›</span>BPM Tap Tempo</div>
+  <h1>BPM Tap Tempo Calculator</h1>
+  <p class="tool-desc">Tap the button (or press Space/Enter) to measure BPM in real time. Converts tempo to milliseconds for delay, reverb pre-delay, and LFO sync. Works for any instrument, DJ set, or music production session.</p>
+
+  <div class="card" style="text-align:center;">
+    <button id="tap-btn" onclick="tap()" onkeydown="return false;">
+      TAP
+    </button>
+    <div style="margin-top:24px;">
+      <div class="bpm-display" id="bpm-display">—</div>
+      <div class="bpm-unit">BPM</div>
+    </div>
+    <div style="margin-top:16px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+      <button class="btn btn-secondary btn-sm" onclick="resetTap()">Reset</button>
+      <span id="tap-count" style="color:var(--muted);font-size:.85rem;padding:7px 0;">Tap at least 4 times</span>
+    </div>
+    <div class="history-row" id="history-row" style="justify-content:center;margin-top:12px;"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Manual BPM Input</div>
+    <div class="range-label">
+      <label style="margin:0;">BPM</label>
+      <span id="manual-val" style="color:var(--accent2);font-weight:800;font-size:1.1rem;">120</span>
+    </div>
+    <input type="range" id="manual-bpm" min="20" max="300" value="120" oninput="setManual(this.value)" />
+    <div style="display:flex;gap:10px;margin-top:12px;align-items:center;">
+      <input type="number" id="manual-input" min="20" max="300" value="120" style="width:100px;" oninput="setManual(this.value)" />
+      <span style="color:var(--muted);font-size:.9rem;">BPM</span>
+      <button class="btn btn-secondary btn-sm" onclick="setManual(60)">60</button>
+      <button class="btn btn-secondary btn-sm" onclick="setManual(120)">120</button>
+      <button class="btn btn-secondary btn-sm" onclick="setManual(140)">140</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">BPM → Milliseconds Conversion</div>
+    <div class="conv-grid" id="conv-grid"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Genre BPM Reference</div>
+    <div class="genre-grid" id="genre-grid"></div>
+  </div>
+
+  <div class="faq">
+    <h2>About BPM & Tap Tempo</h2>
+    <div class="faq-item">
+      <strong>What is tap tempo?</strong>
+      <p style="color:var(--muted);margin-top:6px;line-height:1.6;">Tap tempo is a method of determining the BPM (beats per minute) of a piece of music by tapping a button in time with the beat. Most DJ controllers, DAWs, and guitar pedals include a tap tempo button. This tool calculates the average interval between your taps to give an accurate BPM reading.</p>
+    </div>
+    <div class="faq-item">
+      <strong>How do I use BPM-to-ms for delay effects?</strong>
+      <p style="color:var(--muted);margin-top:6px;line-height:1.6;">Set your delay time in milliseconds to a musical subdivision of the tempo. For example, at 120 BPM a quarter note = 500ms, an eighth note = 250ms, a dotted eighth = 375ms. Syncing delay to tempo creates rhythmically coherent echo effects that sit naturally in the mix.</p>
+    </div>
+    <div class="faq-item">
+      <strong>Why do I need at least 4 taps?</strong>
+      <p style="color:var(--muted);margin-top:6px;line-height:1.6;">The first tap starts the timer. With only 2–3 taps, small timing variations skew the average significantly. After 4+ taps, the rolling average stabilizes and gives a reliable BPM reading. Tapping to 8 or more beats gives the most accurate result.</p>
+    </div>
+    <div class="faq-item">
+      <strong>What is the BPM range for common music genres?</strong>
+      <p style="color:var(--muted);margin-top:6px;line-height:1.6;">Hip-hop typically sits at 80–100 BPM, house music at 120–130, techno at 130–150, drum and bass at 160–180, and ambient often below 80 BPM. The genre reference panel above shows typical ranges to help you identify a track's style from its tempo.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// Tap tempo
+let taps = [];
+let resetTimer = null;
+
+function tap() {
+  const now = performance.now();
+  if (resetTimer) clearTimeout(resetTimer);
+  resetTimer = setTimeout(resetTap, 3000);
+
+  taps.push(now);
+  if (taps.length > 16) taps.shift();
+
+  const count = taps.length;
+  document.getElementById('tap-count').textContent = count < 4
+    ? `Tap ${4 - count} more time${4 - count > 1 ? 's' : ''}…`
+    : `${count} taps`;
+
+  if (count >= 2) {
+    const intervals = [];
+    for (let i = 1; i < taps.length; i++) intervals.push(taps[i] - taps[i-1]);
+    const avgMs = intervals.reduce((a,b) => a+b, 0) / intervals.length;
+    const bpm = 60000 / avgMs;
+    showBpm(bpm);
+
+    // History chips
+    const row = document.getElementById('history-row');
+    const chip = document.createElement('div');
+    chip.className = 'hist-chip';
+    chip.textContent = bpm.toFixed(1);
+    row.appendChild(chip);
+    if (row.children.length > 8) row.removeChild(row.firstChild);
+  }
+}
+
+function resetTap() {
+  taps = [];
+  document.getElementById('bpm-display').textContent = '—';
+  document.getElementById('tap-count').textContent = 'Tap at least 4 times';
+  document.getElementById('history-row').innerHTML = '';
+  updateConv(currentBpm);
+}
+
+let currentBpm = 120;
+
+function showBpm(bpm) {
+  currentBpm = Math.round(bpm * 10) / 10;
+  document.getElementById('bpm-display').textContent = currentBpm.toFixed(1);
+  document.getElementById('manual-bpm').value = Math.round(currentBpm);
+  document.getElementById('manual-input').value = Math.round(currentBpm);
+  document.getElementById('manual-val').textContent = Math.round(currentBpm);
+  updateConv(currentBpm);
+}
+
+function setManual(v) {
+  v = Math.max(20, Math.min(300, parseFloat(v) || 120));
+  currentBpm = v;
+  document.getElementById('bpm-display').textContent = v.toFixed(1);
+  document.getElementById('manual-bpm').value = Math.round(v);
+  document.getElementById('manual-input').value = Math.round(v);
+  document.getElementById('manual-val').textContent = Math.round(v);
+  updateConv(v);
+}
+
+function updateConv(bpm) {
+  const beat = 60000 / bpm;
+  const subdivs = [
+    { label: 'Whole note (4 beats)', mult: 4 },
+    { label: 'Half note (2 beats)', mult: 2 },
+    { label: 'Quarter note (1 beat)', mult: 1 },
+    { label: 'Dotted quarter', mult: 1.5 },
+    { label: '8th note', mult: 0.5 },
+    { label: 'Dotted 8th', mult: 0.75 },
+    { label: '16th note', mult: 0.25 },
+    { label: 'Triplet (1/3 beat)', mult: 1/3 },
+  ];
+  const grid = document.getElementById('conv-grid');
+  grid.innerHTML = subdivs.map(s => {
+    const ms = (beat * s.mult).toFixed(1);
+    return `<div class="conv-box"><div class="conv-val">${ms} <span style="font-size:.8rem">ms</span></div><div class="conv-lbl">${s.label}</div></div>`;
+  }).join('');
+}
+
+// Genre reference
+const GENRES = [
+  { name:'Ambient',        bpm:'60–80' },
+  { name:'Hip-Hop',        bpm:'80–100' },
+  { name:'R&B / Soul',     bpm:'60–100' },
+  { name:'Reggae',         bpm:'60–90' },
+  { name:'Pop',            bpm:'100–130' },
+  { name:'House',          bpm:'120–130' },
+  { name:'Disco / Funk',   bpm:'110–130' },
+  { name:'Techno',         bpm:'130–150' },
+  { name:'Trance',         bpm:'128–145' },
+  { name:'Drum & Bass',    bpm:'160–180' },
+  { name:'Dubstep',        bpm:'138–142' },
+  { name:'Hardstyle',      bpm:'150–160' },
+];
+
+document.getElementById('genre-grid').innerHTML = GENRES.map(g =>
+  `<div class="genre-btn" onclick="setManual(parseInt('${g.bpm}'))">
+    <div class="genre-name">${g.name}</div>
+    <div class="genre-bpm">${g.bpm} BPM</div>
+  </div>`
+).join('');
+
+// Keyboard shortcut
+document.addEventListener('keydown', e => {
+  if ((e.code === 'Space' || e.code === 'Enter') && e.target === document.body) {
+    e.preventDefault();
+    tap();
+  }
+});
+
+updateConv(120);
+</script>
+</body>
+</html>
