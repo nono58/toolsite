@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HTTP Status Code Lookup – Every Code Explained Online Free | QuickTools</title>
+  <meta name="description" content="Look up any HTTP status code instantly. Get the meaning, cause, and fix for 200, 301, 404, 429, 500, 502, and every other HTTP response code. Free online reference." />
+  <link rel="stylesheet" href="tool.css" />
+  <style>
+    .search-wrap { position: relative; }
+    .search-wrap input { padding-left: 44px; font-size: 1.1rem; }
+    .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 1rem; pointer-events: none; }
+    .status-result { display: none; }
+    .status-badge { display: inline-flex; align-items: center; gap: 12px; padding: 16px 24px; border-radius: 12px; font-size: 2rem; font-weight: 800; margin-bottom: 20px; }
+    .s1xx { background: #94a3b820; border: 1.5px solid #94a3b8; color: #94a3b8; }
+    .s2xx { background: #34d39920; border: 1.5px solid #34d399; color: #34d399; }
+    .s3xx { background: #fbbf2420; border: 1.5px solid #fbbf24; color: #fbbf24; }
+    .s4xx { background: #f8717120; border: 1.5px solid #f87171; color: #f87171; }
+    .s5xx { background: #f9731620; border: 1.5px solid #fb923c; color: #fb923c; }
+    .status-name { font-size: 1rem; font-weight: 600; }
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+    .detail-box { background: var(--bg3); border-radius: 10px; padding: 16px; }
+    .detail-box h3 { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; }
+    .detail-box p { font-size: .9rem; line-height: 1.6; color: var(--text); }
+    @media(max-width:600px){.detail-grid{grid-template-columns:1fr;}}
+    .cat-section { margin-bottom: 32px; }
+    .cat-title { font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; font-weight: 700; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .code-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+    .code-chip { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; cursor: pointer; transition: all .2s; }
+    .code-chip:hover { border-color: var(--accent); }
+    .code-chip .code-num { font-size: 1rem; font-weight: 700; font-family: monospace; }
+    .code-chip .code-name { font-size: .72rem; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .chip-1xx .code-num { color: #94a3b8; }
+    .chip-2xx .code-num { color: #34d399; }
+    .chip-3xx .code-num { color: #fbbf24; }
+    .chip-4xx .code-num { color: #f87171; }
+    .chip-5xx .code-num { color: #fb923c; }
+    .no-result { color: var(--muted); text-align: center; padding: 24px; display: none; }
+  </style>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7091279251828395" crossorigin="anonymous"></script>
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ ToolKit</a>
+  <nav><a href="index.html">All Tools</a><a href="strategy.html">Strategy</a></nav>
+</header>
+
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Developer<span>›</span>HTTP Status Code Lookup</div>
+
+  <h1>HTTP Status Code Lookup</h1>
+  <p class="tool-desc">Type any HTTP status code or keyword to instantly get its meaning, common causes, and how to fix it.</p>
+
+  <div class="card">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="search-input" placeholder="Type a code or keyword… e.g. 404, 429, redirect, forbidden" oninput="search()" autofocus />
+    </div>
+  </div>
+
+  <div class="card status-result" id="status-result">
+    <div id="status-badge-wrap"></div>
+    <div id="status-desc" style="color:var(--muted);line-height:1.7;margin-bottom:4px;"></div>
+    <div class="detail-grid" id="detail-grid"></div>
+  </div>
+
+  <div class="no-result" id="no-result">No matching status code found.</div>
+
+  <div id="browse-section">
+    <div class="cat-section" id="cat-1xx">
+      <div class="cat-title">1xx — Informational</div>
+      <div class="code-grid" id="grid-1xx"></div>
+    </div>
+    <div class="cat-section" id="cat-2xx">
+      <div class="cat-title">2xx — Success</div>
+      <div class="code-grid" id="grid-2xx"></div>
+    </div>
+    <div class="cat-section" id="cat-3xx">
+      <div class="cat-title">3xx — Redirection</div>
+      <div class="code-grid" id="grid-3xx"></div>
+    </div>
+    <div class="cat-section" id="cat-4xx">
+      <div class="cat-title">4xx — Client Error</div>
+      <div class="code-grid" id="grid-4xx"></div>
+    </div>
+    <div class="cat-section" id="cat-5xx">
+      <div class="cat-title">5xx — Server Error</div>
+      <div class="code-grid" id="grid-5xx"></div>
+    </div>
+  </div>
+
+  <div class="faq" style="margin-top:40px;">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-item">
+      <div class="faq-q">What is an HTTP status code?</div>
+      <div class="faq-a">HTTP status codes are 3-digit numbers returned by a server in response to a client request. They indicate whether the request succeeded, failed, or needs further action.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">What's the difference between 401 and 403?</div>
+      <div class="faq-a">401 Unauthorized means authentication is required (you're not logged in). 403 Forbidden means you're authenticated but don't have permission to access that resource.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">What causes a 502 Bad Gateway?</div>
+      <div class="faq-a">A 502 Bad Gateway means the server acting as a gateway received an invalid response from the upstream server. Common causes include crashed backend services or load balancer misconfigurations.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">What is HTTP 429 Too Many Requests?</div>
+      <div class="faq-a">429 is returned when you've exceeded the rate limit set by an API. Solutions include adding exponential backoff, caching responses, or requesting a higher rate limit from the API provider.</div>
+    </div>
+  </div>
+
+  <div class="related" style="margin-top:32px;">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="url-parser.html">URL Parser</a>
+      <a class="related-link" href="jwt-decoder.html">JWT Decoder</a>
+      <a class="related-link" href="json-formatter.html">JSON Formatter</a>
+      <a class="related-link" href="regex-tester.html">Regex Tester</a>
+    </div>
+  </div>
+</div>
+
+<footer><p>© 2025 QuickTools. Free online developer tools.</p></footer>
+
+<script>
+const CODES = [
+  // 1xx
+  {code:100,name:'Continue',cat:'1xx',desc:'The server has received the request headers and the client should proceed to send the request body.',cause:'Used in large uploads to check if the server is ready.',fix:'Continue sending the request body as instructed.',keywords:'continue informational'},
+  {code:101,name:'Switching Protocols',cat:'1xx',desc:'The server is switching protocols as requested by the client (e.g., upgrading to WebSocket).',cause:'Client sent an Upgrade header requesting a protocol switch.',fix:'Proceed with the new protocol (e.g., WebSocket handshake).',keywords:'websocket upgrade switching'},
+  {code:102,name:'Processing',cat:'1xx',desc:'The server has received the request and is still processing it (WebDAV).',cause:'Long-running WebDAV requests.',fix:'Wait for the final response.',keywords:'processing webdav'},
+  {code:103,name:'Early Hints',cat:'1xx',desc:'Sends preliminary headers before the final response, allowing the browser to start loading resources.',cause:'Server-side optimization for preloading assets.',fix:'Use Link headers in the early response to preload resources.',keywords:'early hints preload'},
+  // 2xx
+  {code:200,name:'OK',cat:'2xx',desc:'The request was successful. The response body contains the requested data.',cause:'Standard successful GET, POST, PUT, PATCH response.',fix:'No action needed.',keywords:'ok success'},
+  {code:201,name:'Created',cat:'2xx',desc:'The request was successful and a new resource was created.',cause:'Returned after a successful POST that creates a resource.',fix:'No action needed. Check the Location header for the new resource URL.',keywords:'created post'},
+  {code:202,name:'Accepted',cat:'2xx',desc:'The request has been accepted but has not been completed yet.',cause:'Used for async operations where the result is not immediately available.',fix:'Poll the server or wait for a webhook/callback.',keywords:'accepted async'},
+  {code:204,name:'No Content',cat:'2xx',desc:'The request was successful but there is no content to return.',cause:'Common response to DELETE or PUT requests.',fix:'No action needed. Do not expect a response body.',keywords:'no content delete'},
+  {code:206,name:'Partial Content',cat:'2xx',desc:'The server is returning only part of the resource due to a Range request.',cause:'Client sent a Range header (e.g., for video streaming or resumable downloads).',fix:'Combine parts or continue requesting remaining ranges.',keywords:'partial range stream resume'},
+  // 3xx
+  {code:301,name:'Moved Permanently',cat:'3xx',desc:'The resource has been permanently moved to a new URL.',cause:'Site migration, URL restructuring, HTTP→HTTPS redirect.',fix:'Update bookmarks, links, and sitemaps to the new URL. Check SEO impact.',keywords:'moved permanent redirect seo'},
+  {code:302,name:'Found',cat:'3xx',desc:'The resource is temporarily at a different URL.',cause:'Temporary redirects (login pages, A/B tests).',fix:'Follow the redirect. Do not cache it.',keywords:'found temporary redirect'},
+  {code:304,name:'Not Modified',cat:'3xx',desc:'The resource has not changed since the last request; the cached version is still valid.',cause:'Client sent If-Modified-Since or ETag headers.',fix:'Use the cached copy. No action needed.',keywords:'not modified cache etag'},
+  {code:307,name:'Temporary Redirect',cat:'3xx',desc:'Temporary redirect that preserves the HTTP method (unlike 302).',cause:'Temporary redirect where you need the original method (POST) preserved.',fix:'Repeat the original request to the new URL.',keywords:'temporary redirect method post'},
+  {code:308,name:'Permanent Redirect',cat:'3xx',desc:'Permanent redirect that preserves the HTTP method (unlike 301).',cause:'Permanent migration where POST or other methods must be preserved.',fix:'Update all links and clients to use the new URL.',keywords:'permanent redirect method post'},
+  // 4xx
+  {code:400,name:'Bad Request',cat:'4xx',desc:'The server could not understand the request due to invalid syntax.',cause:'Malformed JSON, missing required fields, invalid query parameters.',fix:'Check request body, headers, and parameters for errors.',keywords:'bad request invalid syntax'},
+  {code:401,name:'Unauthorized',cat:'4xx',desc:'Authentication is required but was not provided or is invalid.',cause:'Missing or expired API key, token, or session cookie.',fix:'Include valid credentials (Bearer token, API key, or re-login).',keywords:'unauthorized auth login token'},
+  {code:403,name:'Forbidden',cat:'4xx',desc:'The server understood the request but refuses to authorize it.',cause:'User is authenticated but lacks permission for this resource.',fix:'Check role/permission settings or contact the API provider.',keywords:'forbidden permission access denied'},
+  {code:404,name:'Not Found',cat:'4xx',desc:'The requested resource could not be found on the server.',cause:'Wrong URL, deleted resource, or mistyped path.',fix:'Verify the URL, check for typos, or handle 404s gracefully in your app.',keywords:'not found missing url'},
+  {code:405,name:'Method Not Allowed',cat:'4xx',desc:'The HTTP method used is not supported for this endpoint.',cause:'Sending POST to a GET-only endpoint, or DELETE where not allowed.',fix:'Check the API docs for allowed methods. Check the Allow header in the response.',keywords:'method not allowed post get'},
+  {code:408,name:'Request Timeout',cat:'4xx',desc:'The server timed out waiting for the request.',cause:'Slow network, large request body, or idle connection.',fix:'Retry the request. Optimize payload size or improve network speed.',keywords:'timeout request slow'},
+  {code:409,name:'Conflict',cat:'4xx',desc:'The request conflicts with the current state of the resource.',cause:'Duplicate entry, version conflict, or concurrent modification.',fix:'Resolve the conflict — check for duplicate data or update to the latest version.',keywords:'conflict duplicate version'},
+  {code:410,name:'Gone',cat:'4xx',desc:'The resource has been permanently deleted and will not return.',cause:'Intentional resource removal (unlike 404 which can be temporary).',fix:'Remove links to this resource. Update clients to stop requesting it.',keywords:'gone deleted permanent'},
+  {code:413,name:'Payload Too Large',cat:'4xx',desc:'The request body exceeds the server\'s size limit.',cause:'Uploading a file larger than the allowed limit.',fix:'Compress the payload, split the request, or request a higher limit from the server.',keywords:'payload too large upload file size limit'},
+  {code:415,name:'Unsupported Media Type',cat:'4xx',desc:'The server refuses the request because the content type is not supported.',cause:'Sending XML to a JSON-only endpoint, or wrong Content-Type header.',fix:'Set the correct Content-Type header (e.g., application/json).',keywords:'media type content-type json xml'},
+  {code:422,name:'Unprocessable Entity',cat:'4xx',desc:'The request is well-formed but contains semantic errors.',cause:'Validation failure — valid JSON but business logic rejects the data.',fix:'Check the response body for field-level validation errors.',keywords:'unprocessable validation form error'},
+  {code:429,name:'Too Many Requests',cat:'4xx',desc:'The user has sent too many requests in a given amount of time (rate limiting).',cause:'Exceeding API rate limits.',fix:'Implement exponential backoff, cache responses, or request a higher rate limit.',keywords:'too many requests rate limit throttle 429'},
+  {code:451,name:'Unavailable For Legal Reasons',cat:'4xx',desc:'The resource is unavailable due to a legal demand (e.g., DMCA, government takedown).',cause:'Legal restrictions in the user\'s region.',fix:'If applicable, request access through a VPN or contact the content provider.',keywords:'legal dmca censorship'},
+  // 5xx
+  {code:500,name:'Internal Server Error',cat:'5xx',desc:'The server encountered an unexpected condition that prevented it from fulfilling the request.',cause:'Unhandled exception, crashed process, misconfiguration.',fix:'Check server logs, fix the bug, and redeploy. Add error monitoring.',keywords:'internal server error crash bug 500'},
+  {code:501,name:'Not Implemented',cat:'5xx',desc:'The server does not support the functionality required to fulfill the request.',cause:'Calling an HTTP method the server doesn\'t handle.',fix:'Check the API documentation for supported methods.',keywords:'not implemented method'},
+  {code:502,name:'Bad Gateway',cat:'5xx',desc:'The server, acting as a gateway, received an invalid response from the upstream server.',cause:'Crashed backend, misconfigured load balancer, or upstream timeout.',fix:'Restart the backend service, check upstream health, or check proxy config.',keywords:'bad gateway nginx proxy load balancer 502'},
+  {code:503,name:'Service Unavailable',cat:'5xx',desc:'The server is temporarily unable to handle the request due to overload or maintenance.',cause:'Server is overloaded or under planned maintenance.',fix:'Retry after a delay. Check the Retry-After header if present.',keywords:'service unavailable maintenance overload 503'},
+  {code:504,name:'Gateway Timeout',cat:'5xx',desc:'The server, acting as a gateway, did not receive a timely response from the upstream server.',cause:'Slow backend, database query timeout, or network latency.',fix:'Optimize slow queries, increase upstream timeout, or scale the backend.',keywords:'gateway timeout slow backend database 504'},
+  {code:505,name:'HTTP Version Not Supported',cat:'5xx',desc:'The server does not support the HTTP protocol version used in the request.',cause:'Using HTTP/2 or HTTP/3 on a server that only supports HTTP/1.1.',fix:'Downgrade the HTTP version or upgrade the server.',keywords:'http version not supported'},
+];
+
+function catClass(cat) {
+  return `chip-${cat}`;
+}
+function badgeClass(code) {
+  const c = String(code)[0];
+  return `s${c}xx`;
+}
+
+function buildChip(item) {
+  const div = document.createElement('div');
+  div.className = `code-chip ${catClass(item.cat)}`;
+  div.innerHTML = `<div class="code-num">${item.code}</div><div class="code-name">${item.name}</div>`;
+  div.onclick = () => showCode(item);
+  return div;
+}
+
+function init() {
+  ['1xx','2xx','3xx','4xx','5xx'].forEach(cat => {
+    const grid = document.getElementById(`grid-${cat}`);
+    CODES.filter(c => c.cat === cat).forEach(item => grid.appendChild(buildChip(item)));
+  });
+}
+
+function showCode(item) {
+  const res = document.getElementById('status-result');
+  res.style.display = 'block';
+  document.getElementById('status-badge-wrap').innerHTML = `
+    <div class="status-badge ${badgeClass(item.code)}">
+      <span>${item.code}</span>
+      <div class="status-name">${item.name}</div>
+    </div>`;
+  document.getElementById('status-desc').textContent = item.desc;
+  document.getElementById('detail-grid').innerHTML = `
+    <div class="detail-box"><h3>Common Cause</h3><p>${item.cause}</p></div>
+    <div class="detail-box"><h3>How to Fix / What to Do</h3><p>${item.fix}</p></div>`;
+  res.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function search() {
+  const q = document.getElementById('search-input').value.trim().toLowerCase();
+  const browse = document.getElementById('browse-section');
+  const noResult = document.getElementById('no-result');
+  const result = document.getElementById('status-result');
+
+  if (!q) {
+    browse.style.display = '';
+    noResult.style.display = 'none';
+    result.style.display = 'none';
+    return;
+  }
+
+  const matches = CODES.filter(c =>
+    String(c.code).includes(q) ||
+    c.name.toLowerCase().includes(q) ||
+    c.desc.toLowerCase().includes(q) ||
+    c.keywords.toLowerCase().includes(q)
+  );
+
+  if (matches.length === 1) {
+    browse.style.display = 'none';
+    noResult.style.display = 'none';
+    showCode(matches[0]);
+  } else if (matches.length > 1) {
+    browse.style.display = '';
+    noResult.style.display = 'none';
+    result.style.display = 'none';
+    ['1xx','2xx','3xx','4xx','5xx'].forEach(cat => {
+      const section = document.getElementById(`cat-${cat}`);
+      const grid = document.getElementById(`grid-${cat}`);
+      const catMatches = matches.filter(c => c.cat === cat);
+      section.style.display = catMatches.length ? '' : 'none';
+      grid.innerHTML = '';
+      catMatches.forEach(item => grid.appendChild(buildChip(item)));
+    });
+  } else {
+    browse.style.display = 'none';
+    result.style.display = 'none';
+    noResult.style.display = 'block';
+  }
+}
+
+init();
+</script>
+</body>
+</html>

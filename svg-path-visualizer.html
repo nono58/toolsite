@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SVG Path Visualizer Online Free – Visualize & Analyze SVG d Attribute | QuickTools</title>
+  <meta name="description" content="Paste any SVG path d attribute and instantly visualize it. Supports M, L, C, Q, A, Z commands. Free online SVG path viewer with command breakdown." />
+  <link rel="stylesheet" href="tool.css" />
+  <style>
+    .svg-canvas-wrap { background: var(--bg3); border-radius: 12px; border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center; min-height: 320px; overflow: hidden; position: relative; }
+    #svg-canvas { width: 100%; height: 320px; }
+    .cmd-table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+    .cmd-table th { text-align: left; padding: 8px 12px; color: var(--muted); font-size: .75rem; text-transform: uppercase; letter-spacing: .05em; border-bottom: 1px solid var(--border); }
+    .cmd-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); font-family: 'SF Mono','Fira Code',monospace; }
+    .cmd-badge { display: inline-block; padding: 2px 8px; border-radius: 5px; font-weight: 700; font-size: .78rem; }
+    .cmd-M { background: #6366f120; color: #818cf8; }
+    .cmd-L { background: #34d39920; color: #34d399; }
+    .cmd-C { background: #fbbf2420; color: #fbbf24; }
+    .cmd-Q { background: #f9731620; color: #fb923c; }
+    .cmd-A { background: #ec489920; color: #f472b6; }
+    .cmd-Z { background: #94a3b820; color: #94a3b8; }
+    .cmd-H { background: #34d39920; color: #34d399; }
+    .cmd-V { background: #34d39920; color: #34d399; }
+    .cmd-S { background: #fbbf2420; color: #fbbf24; }
+    .cmd-T { background: #f9731620; color: #fb923c; }
+    .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .range-wrap { display: flex; align-items: center; gap: 8px; font-size: .85rem; color: var(--muted); }
+    input[type=range] { accent-color: var(--accent); width: 100px; }
+    .color-wrap { display: flex; align-items: center; gap: 8px; font-size: .85rem; color: var(--muted); }
+    input[type=color] { border: none; background: none; width: 32px; height: 32px; cursor: pointer; border-radius: 6px; }
+    .error-msg { color: var(--red); font-size: .85rem; display: none; }
+    .examples { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+    .example-btn { background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 4px 12px; font-size: .78rem; color: var(--muted); cursor: pointer; transition: all .2s; }
+    .example-btn:hover { border-color: var(--accent); color: var(--accent2); }
+  </style>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7091279251828395" crossorigin="anonymous"></script>
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ ToolKit</a>
+  <nav><a href="index.html">All Tools</a><a href="strategy.html">Strategy</a></nav>
+</header>
+
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Developer<span>›</span>SVG Path Visualizer</div>
+
+  <h1>SVG Path Visualizer</h1>
+  <p class="tool-desc">Paste an SVG <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:.9em;">d</code> attribute and instantly preview the path with a breakdown of each command.</p>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <span class="card-title" style="margin-bottom:0">SVG Path (d attribute)</span>
+      <button class="btn btn-secondary btn-sm" onclick="clearAll()">Clear</button>
+    </div>
+    <textarea id="path-input" placeholder='e.g. M10 80 C 40 10, 65 10, 95 80 S 150 150, 180 80' oninput="visualize()" spellcheck="false"></textarea>
+    <div class="examples">
+      <span style="font-size:.78rem;color:var(--muted);align-self:center;">Examples:</span>
+      <button class="example-btn" onclick="loadExample('circle')">Circle</button>
+      <button class="example-btn" onclick="loadExample('heart')">Heart</button>
+      <button class="example-btn" onclick="loadExample('arrow')">Arrow</button>
+      <button class="example-btn" onclick="loadExample('curve')">Cubic curve</button>
+      <button class="example-btn" onclick="loadExample('star')">Star</button>
+    </div>
+    <p class="error-msg" id="err-msg">⚠ Invalid path — check your syntax.</p>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+      <span class="card-title" style="margin-bottom:0">Preview</span>
+      <div class="controls">
+        <div class="range-wrap">Stroke <input type="range" id="stroke-w" min="0.5" max="8" step="0.5" value="2" oninput="updateStyle()"> <span id="stroke-val">2</span>px</div>
+        <div class="color-wrap">Color <input type="color" id="stroke-color" value="#818cf8" oninput="updateStyle()"></div>
+        <div class="color-wrap">Fill <input type="color" id="fill-color" value="#6366f1" oninput="updateStyle()"></div>
+        <label style="display:flex;align-items:center;gap:6px;margin:0;font-size:.85rem;color:var(--muted);cursor:pointer;">
+          <input type="checkbox" id="fill-toggle" onchange="updateStyle()"> Fill
+        </label>
+        <button class="btn btn-secondary btn-sm" onclick="downloadSVG()">Download SVG</button>
+      </div>
+    </div>
+    <div class="svg-canvas-wrap">
+      <svg id="svg-canvas" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <path id="svg-path" d="" stroke="#818cf8" stroke-width="2" fill="none" />
+      </svg>
+    </div>
+  </div>
+
+  <div class="card" id="cmd-card" style="display:none;">
+    <span class="card-title">Command Breakdown</span>
+    <div style="overflow-x:auto;">
+      <table class="cmd-table">
+        <thead><tr><th>#</th><th>Cmd</th><th>Params</th><th>Description</th></tr></thead>
+        <tbody id="cmd-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card" id="stats-card" style="display:none;margin-bottom:0;">
+    <span class="card-title">Path Stats</span>
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-val" id="stat-cmds">0</div><div class="stat-lbl">Commands</div></div>
+      <div class="stat-box"><div class="stat-val" id="stat-len">0</div><div class="stat-lbl">Char Length</div></div>
+      <div class="stat-box"><div class="stat-val" id="stat-closed">–</div><div class="stat-lbl">Closed</div></div>
+      <div class="stat-box"><div class="stat-val" id="stat-types">0</div><div class="stat-lbl">Cmd Types</div></div>
+    </div>
+  </div>
+
+  <div class="faq" style="margin-top:40px;">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-item">
+      <div class="faq-q">What is an SVG path d attribute?</div>
+      <div class="faq-a">The <code>d</code> attribute defines a vector path using a sequence of commands like M (move to), L (line to), C (cubic bezier), Q (quadratic bezier), A (arc), and Z (close path). It's the core of SVG drawing.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">What commands are supported?</div>
+      <div class="faq-a">All standard SVG path commands: M/m (moveto), L/l (lineto), H/h (horizontal line), V/v (vertical line), C/c (cubic bezier), S/s (smooth cubic), Q/q (quadratic bezier), T/t (smooth quadratic), A/a (arc), Z/z (closepath). Uppercase = absolute, lowercase = relative.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Why is my path not showing?</div>
+      <div class="faq-a">Make sure the path starts with M or m, all numbers are properly separated, and commands are valid SVG path syntax. The visualizer auto-scales, so very tiny or very large coordinates will still render.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Can I edit and download the SVG?</div>
+      <div class="faq-a">Yes — adjust stroke color, fill, and width in the controls above the preview, then click "Download SVG" to save the file.</div>
+    </div>
+  </div>
+
+  <div class="related" style="margin-top:32px;">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="svg-optimizer.html">SVG Optimizer</a>
+      <a class="related-link" href="css-gradient-generator.html">CSS Gradient Generator</a>
+      <a class="related-link" href="color-converter.html">Color Converter</a>
+      <a class="related-link" href="image-to-base64.html">Image to Base64</a>
+    </div>
+  </div>
+</div>
+
+<footer><p>© 2025 QuickTools. Free online developer tools.</p></footer>
+
+<script>
+const CMD_DESC = {
+  M:'Move to (absolute)', m:'Move to (relative)',
+  L:'Line to (absolute)', l:'Line to (relative)',
+  H:'Horizontal line (absolute)', h:'Horizontal line (relative)',
+  V:'Vertical line (absolute)', v:'Vertical line (relative)',
+  C:'Cubic Bézier (absolute)', c:'Cubic Bézier (relative)',
+  S:'Smooth cubic Bézier (absolute)', s:'Smooth cubic Bézier (relative)',
+  Q:'Quadratic Bézier (absolute)', q:'Quadratic Bézier (relative)',
+  T:'Smooth quadratic Bézier (absolute)', t:'Smooth quadratic Bézier (relative)',
+  A:'Arc (absolute)', a:'Arc (relative)',
+  Z:'Close path', z:'Close path'
+};
+
+const EXAMPLES = {
+  circle: 'M 100 50 A 50 50 0 0 1 100 150 A 50 50 0 0 1 100 50 Z',
+  heart: 'M 100 130 L 40 80 A 30 30 0 0 1 100 60 A 30 30 0 0 1 160 80 Z',
+  arrow: 'M 20 100 L 140 100 L 140 70 L 180 100 L 140 130 L 140 100',
+  curve: 'M 10 80 C 40 10, 65 10, 95 80 S 150 150, 180 80',
+  star: 'M 100 20 L 117 70 L 170 70 L 128 100 L 144 150 L 100 122 L 56 150 L 72 100 L 30 70 L 83 70 Z'
+};
+
+function loadExample(key) {
+  document.getElementById('path-input').value = EXAMPLES[key];
+  visualize();
+}
+
+function parsePath(d) {
+  const cmds = [];
+  const re = /([MmLlHhVvCcSsQqTtAaZz])\s*([\d\s,.\-eE+]*)/g;
+  let m;
+  while ((m = re.exec(d)) !== null) {
+    const cmd = m[1];
+    const raw = m[2].trim();
+    const nums = raw ? raw.split(/[\s,]+/).filter(Boolean).map(Number) : [];
+    cmds.push({ cmd, nums });
+  }
+  return cmds;
+}
+
+function visualize() {
+  const d = document.getElementById('path-input').value.trim();
+  const pathEl = document.getElementById('svg-path');
+  const err = document.getElementById('err-msg');
+  const cmdCard = document.getElementById('cmd-card');
+  const statsCard = document.getElementById('stats-card');
+
+  if (!d) {
+    pathEl.setAttribute('d', '');
+    err.style.display = 'none';
+    cmdCard.style.display = 'none';
+    statsCard.style.display = 'none';
+    return;
+  }
+
+  try {
+    pathEl.setAttribute('d', d);
+    const bbox = pathEl.getBBox();
+    if (bbox.width === 0 && bbox.height === 0 && !d.toLowerCase().includes('z')) throw new Error('empty');
+    err.style.display = 'none';
+
+    // auto fit viewBox
+    const pad = 20;
+    const vb = `${bbox.x - pad} ${bbox.y - pad} ${bbox.width + pad*2} ${bbox.height + pad*2}`;
+    document.getElementById('svg-canvas').setAttribute('viewBox', vb);
+
+    // breakdown
+    const cmds = parsePath(d);
+    const tbody = document.getElementById('cmd-tbody');
+    tbody.innerHTML = '';
+    cmds.forEach((c, i) => {
+      const cls = `cmd-${c.cmd.toUpperCase()}` ;
+      tbody.innerHTML += `<tr>
+        <td style="color:var(--muted)">${i+1}</td>
+        <td><span class="cmd-badge ${cls}">${c.cmd}</span></td>
+        <td style="color:var(--text)">${c.nums.join(', ') || '—'}</td>
+        <td style="color:var(--muted)">${CMD_DESC[c.cmd] || ''}</td>
+      </tr>`;
+    });
+    cmdCard.style.display = 'block';
+
+    // stats
+    document.getElementById('stat-cmds').textContent = cmds.length;
+    document.getElementById('stat-len').textContent = d.length;
+    document.getElementById('stat-closed').textContent = /[Zz]/.test(d) ? 'Yes' : 'No';
+    const types = new Set(cmds.map(c => c.cmd.toUpperCase())).size;
+    document.getElementById('stat-types').textContent = types;
+    statsCard.style.display = 'block';
+  } catch(e) {
+    err.style.display = 'block';
+    cmdCard.style.display = 'none';
+    statsCard.style.display = 'none';
+  }
+}
+
+function updateStyle() {
+  const stroke = document.getElementById('stroke-color').value;
+  const fill = document.getElementById('fill-color').value;
+  const filled = document.getElementById('fill-toggle').checked;
+  const sw = document.getElementById('stroke-w').value;
+  document.getElementById('stroke-val').textContent = sw;
+  const p = document.getElementById('svg-path');
+  p.setAttribute('stroke', stroke);
+  p.setAttribute('stroke-width', sw);
+  p.setAttribute('fill', filled ? fill : 'none');
+}
+
+function downloadSVG() {
+  const svg = document.getElementById('svg-canvas');
+  const blob = new Blob([svg.outerHTML], {type:'image/svg+xml'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'path.svg';
+  a.click();
+}
+
+function clearAll() {
+  document.getElementById('path-input').value = '';
+  visualize();
+}
+</script>
+</body>
+</html>

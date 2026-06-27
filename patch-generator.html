@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Patch File Generator Online Free – Create Unified Diff .patch Files | QuickTools</title>
+  <meta name="description" content="Compare two text files and generate a unified diff .patch file online. Download the patch, copy it, or apply it. Free, no install required." />
+  <link rel="stylesheet" href="tool.css" />
+  <style>
+    .diff-output { white-space: pre; overflow-x: auto; font-family: 'SF Mono','Fira Code',monospace; font-size: .82rem; line-height: 1.7; background: var(--bg3); border-radius: 10px; padding: 16px; min-height: 200px; border: 1.5px solid var(--border); max-height: 500px; overflow-y: auto; }
+    .diff-add { color: #34d399; background: #34d39912; display: block; }
+    .diff-del { color: #f87171; background: #f8717112; display: block; }
+    .diff-hunk { color: #818cf8; background: #6366f115; display: block; }
+    .diff-ctx { color: var(--muted); display: block; }
+    .diff-header { color: #fbbf24; display: block; }
+    .file-label-row { display: flex; gap: 8px; margin-bottom: 6px; align-items: center; flex-wrap: wrap; }
+    .file-label-row input[type=text] { max-width: 260px; font-size: .85rem; padding: 7px 12px; }
+    .patch-meta { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .stat-pill { background: var(--bg3); border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; font-size: .8rem; }
+    .stat-add { border-color: #34d399; color: #34d399; }
+    .stat-del { border-color: #f87171; color: #f87171; }
+    .no-diff { color: var(--muted); text-align: center; padding: 32px; font-size: .9rem; }
+    .options-row { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; font-size: .85rem; color: var(--muted); }
+    .options-row label { display: flex; align-items: center; gap: 6px; margin: 0; cursor: pointer; color: var(--muted); }
+    .options-row select { width: auto; padding: 6px 10px; font-size: .85rem; }
+  </style>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7091279251828395" crossorigin="anonymous"></script>
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html">⚡ ToolKit</a>
+  <nav><a href="index.html">All Tools</a><a href="strategy.html">Strategy</a></nav>
+</header>
+
+<div class="page">
+  <div class="breadcrumb"><a href="index.html">Tools</a><span>›</span>Developer<span>›</span>Patch File Generator</div>
+
+  <h1>Patch File Generator</h1>
+  <p class="tool-desc">Paste two versions of a file to generate a unified diff <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:.9em;">.patch</code> file. Download it or apply it with <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-size:.9em;">patch -p0 &lt; file.patch</code>.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="file-label-row">
+        <span class="card-title" style="margin-bottom:0">Original</span>
+        <input type="text" id="filename-a" value="original.txt" style="margin-left:auto;" placeholder="filename" />
+      </div>
+      <textarea id="text-a" placeholder="Paste original (old) text here…" oninput="generate()"></textarea>
+    </div>
+    <div class="card">
+      <div class="file-label-row">
+        <span class="card-title" style="margin-bottom:0">Modified</span>
+        <input type="text" id="filename-b" value="modified.txt" style="margin-left:auto;" placeholder="filename" />
+      </div>
+      <textarea id="text-b" placeholder="Paste modified (new) text here…" oninput="generate()"></textarea>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px;">
+    <div class="options-row">
+      <label>Context lines:
+        <select id="ctx-lines" onchange="generate()">
+          <option value="0">0</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3" selected>3 (standard)</option>
+          <option value="5">5</option>
+          <option value="8">8</option>
+        </select>
+      </label>
+      <label><input type="checkbox" id="ignore-ws" onchange="generate()"> Ignore trailing whitespace</label>
+      <button class="btn btn-primary" onclick="generate()">Generate Patch</button>
+      <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+    </div>
+  </div>
+
+  <div class="card" id="output-card" style="display:none;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <span class="card-title" style="margin-bottom:0">Patch Output</span>
+        <div class="patch-meta" id="patch-meta"></div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-secondary btn-sm" onclick="copyPatch()">Copy</button>
+        <button class="btn btn-primary btn-sm" onclick="downloadPatch()">Download .patch</button>
+      </div>
+    </div>
+    <div class="diff-output" id="diff-output"></div>
+  </div>
+
+  <div id="no-diff" class="no-diff" style="display:none;">✅ No differences found — the texts are identical.</div>
+
+  <div class="faq" style="margin-top:40px;">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-item">
+      <div class="faq-q">What is a unified diff / patch file?</div>
+      <div class="faq-a">A unified diff is a standard text format that records the differences between two files. Lines starting with + were added, lines starting with - were removed, and context lines (no prefix) help locate the change. The format is accepted by tools like <code>patch</code>, <code>git apply</code>, and most code review platforms.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">How do I apply the downloaded .patch file?</div>
+      <div class="faq-a">Run <code>patch -p0 &lt; file.patch</code> in the same directory as your files. For Git repositories, use <code>git apply file.patch</code>. Use <code>patch -R -p0 &lt; file.patch</code> to reverse (undo) a patch.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">What does the context lines setting do?</div>
+      <div class="faq-a">Context lines are unchanged lines shown around each change to help <code>patch</code> locate where to apply the change. The standard is 3 lines. More context makes patches more resilient; fewer makes them shorter.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">What's the difference between unified diff and normal diff?</div>
+      <div class="faq-a">Unified diff (the format generated here) combines added and removed lines in a single block, making it easier to read. Normal diff shows them in separate blocks. Unified diff is the standard for open source patches and <code>git diff</code>.</div>
+    </div>
+  </div>
+
+  <div class="related" style="margin-top:32px;">
+    <h2>Related Tools</h2>
+    <div class="related-grid">
+      <a class="related-link" href="diff-checker.html">Diff Checker</a>
+      <a class="related-link" href="hash-generator.html">Hash Generator</a>
+      <a class="related-link" href="json-formatter.html">JSON Formatter</a>
+      <a class="related-link" href="regex-tester.html">Regex Tester</a>
+    </div>
+  </div>
+</div>
+
+<footer><p>© 2025 QuickTools. Free online developer tools.</p></footer>
+
+<script>
+let lastPatch = '';
+
+function lcs(a, b) {
+  const m = a.length, n = b.length;
+  const dp = Array.from({length: m+1}, () => new Uint16Array(n+1));
+  for (let i = m-1; i >= 0; i--)
+    for (let j = n-1; j >= 0; j--)
+      dp[i][j] = a[i] === b[j] ? dp[i+1][j+1]+1 : Math.max(dp[i+1][j], dp[i][j+1]);
+  const edit = [];
+  let i=0, j=0;
+  while (i < m && j < n) {
+    if (a[i] === b[j]) { edit.push({type:'=',val:a[i]}); i++; j++; }
+    else if (dp[i+1][j] >= dp[i][j+1]) { edit.push({type:'-',val:a[i]}); i++; }
+    else { edit.push({type:'+',val:b[j]}); j++; }
+  }
+  while (i < m) { edit.push({type:'-',val:a[i++]}); }
+  while (j < n) { edit.push({type:'+',val:b[j++]}); }
+  return edit;
+}
+
+function buildUnifiedDiff(nameA, nameB, linesA, linesB, ctx) {
+  const edit = lcs(linesA, linesB);
+  // build hunks
+  const hunks = [];
+  let i = 0;
+  while (i < edit.length) {
+    if (edit[i].type !== '=') {
+      const start = Math.max(0, i - ctx);
+      let end = i;
+      while (end < edit.length && (edit[end].type !== '=' || end - i < ctx)) end++;
+      end = Math.min(edit.length, end + ctx);
+      hunks.push({ start, end });
+      i = end;
+    } else { i++; }
+  }
+  if (hunks.length === 0) return '';
+  // merge overlapping hunks
+  const merged = [hunks[0]];
+  for (let h = 1; h < hunks.length; h++) {
+    const last = merged[merged.length-1];
+    if (hunks[h].start <= last.end) last.end = Math.max(last.end, hunks[h].end);
+    else merged.push(hunks[h]);
+  }
+
+  // map edit positions to line numbers
+  let oldLine=1, newLine=1;
+  const positions = edit.map(e => {
+    const pos = {old: oldLine, new: newLine};
+    if (e.type==='-' || e.type==='=') oldLine++;
+    if (e.type==='+' || e.type==='=') newLine++;
+    return pos;
+  });
+
+  const now = new Date().toUTCString();
+  let patch = `--- ${nameA}\t${now}\n+++ ${nameB}\t${now}\n`;
+
+  for (const h of merged) {
+    const slice = edit.slice(h.start, h.end);
+    const pos = positions[h.start];
+    const oldCount = slice.filter(e=>e.type!=='+').length;
+    const newCount = slice.filter(e=>e.type!=='-').length;
+    const oldStart = pos.old;
+    const newStart = pos.new;
+    patch += `@@ -${oldStart},${oldCount} +${newStart},${newCount} @@\n`;
+    for (const e of slice) {
+      if (e.type==='-') patch += `-${e.val}\n`;
+      else if (e.type==='+') patch += `+${e.val}\n`;
+      else patch += ` ${e.val}\n`;
+    }
+  }
+  return patch;
+}
+
+function generate() {
+  let a = document.getElementById('text-a').value;
+  let b = document.getElementById('text-b').value;
+  const nameA = document.getElementById('filename-a').value || 'original.txt';
+  const nameB = document.getElementById('filename-b').value || 'modified.txt';
+  const ctx = parseInt(document.getElementById('ctx-lines').value);
+  const ignoreWs = document.getElementById('ignore-ws').checked;
+
+  if (ignoreWs) {
+    a = a.split('\n').map(l=>l.trimEnd()).join('\n');
+    b = b.split('\n').map(l=>l.trimEnd()).join('\n');
+  }
+
+  if (!a && !b) {
+    document.getElementById('output-card').style.display = 'none';
+    document.getElementById('no-diff').style.display = 'none';
+    return;
+  }
+
+  const linesA = a ? a.split('\n') : [];
+  const linesB = b ? b.split('\n') : [];
+
+  const patch = buildUnifiedDiff(nameA, nameB, linesA, linesB, ctx);
+  lastPatch = patch;
+
+  if (!patch) {
+    document.getElementById('output-card').style.display = 'none';
+    document.getElementById('no-diff').style.display = 'block';
+    return;
+  }
+  document.getElementById('no-diff').style.display = 'none';
+  document.getElementById('output-card').style.display = 'block';
+
+  // syntax highlight
+  const lines = patch.split('\n');
+  let html = '';
+  let adds=0, dels=0;
+  lines.forEach(line => {
+    const esc = line.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+    if (line.startsWith('+++') || line.startsWith('---')) html += `<span class="diff-header">${esc}</span>`;
+    else if (line.startsWith('@@')) html += `<span class="diff-hunk">${esc}</span>`;
+    else if (line.startsWith('+')) { html += `<span class="diff-add">${esc}</span>`; adds++; }
+    else if (line.startsWith('-')) { html += `<span class="diff-del">${esc}</span>`; dels++; }
+    else html += `<span class="diff-ctx">${esc}</span>`;
+  });
+  document.getElementById('diff-output').innerHTML = html;
+
+  document.getElementById('patch-meta').innerHTML = `
+    <span class="stat-pill stat-add">+${adds} added</span>
+    <span class="stat-pill stat-del">-${dels} removed</span>`;
+}
+
+function copyPatch() {
+  navigator.clipboard.writeText(lastPatch).then(() => {
+    const btn = document.querySelector('.copy-btn') || event.target;
+    event.target.textContent = 'Copied!';
+    setTimeout(() => event.target.textContent = 'Copy', 1500);
+  });
+}
+
+function downloadPatch() {
+  const nameA = document.getElementById('filename-a').value || 'original.txt';
+  const base = nameA.replace(/\.[^.]+$/, '');
+  const blob = new Blob([lastPatch], {type:'text/x-patch'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${base}.patch`;
+  a.click();
+}
+
+function clearAll() {
+  document.getElementById('text-a').value = '';
+  document.getElementById('text-b').value = '';
+  document.getElementById('output-card').style.display = 'none';
+  document.getElementById('no-diff').style.display = 'none';
+}
+</script>
+</body>
+</html>

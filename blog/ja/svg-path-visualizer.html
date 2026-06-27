@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SVGパスのd属性を視覚化して理解する【コマンド一覧と使い方完全ガイド】 | QuickTools</title>
+  <meta name="description" content="SVGパスのd属性（M、L、C、Q、A、Zなどのコマンド）をオンラインで視覚化する方法を解説。パスの読み方・書き方をわかりやすく説明。無料ビジュアライザーで確認しながら学べる。" />
+  <meta name="keywords" content="SVG パス 視覚化, SVG d属性 使い方, SVGパス コマンド 一覧, M L C Q A Z SVG, SVGパス ビジュアライザー, SVG path 書き方" />
+  <link rel="canonical" href="https://www.58parts.net/blog/ja/svg-path-visualizer.html" />
+  <meta property="og:title" content="SVGパスのd属性を視覚化して理解する【コマンド一覧と使い方】" />
+  <meta property="og:description" content="SVGパスのd属性（M、L、C、Q、A、Zなどのコマンド）をオンラインで視覚化する方法を解説。パスの読み方・書き方をわかりやすく説明。" />
+  <meta property="og:type" content="article" />
+  <meta property="og:locale" content="ja_JP" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "SVGパスのd属性を視覚化して理解する【コマンド一覧と使い方完全ガイド】",
+    "description": "SVGパスのd属性（M、L、C、Q、A、Zなどのコマンド）をオンラインで視覚化する方法を解説。パスの読み方・書き方をわかりやすく説明。無料ビジュアライザーで確認しながら学べる。",
+    "inLanguage": "ja",
+    "author": {"@type": "Organization", "name": "QuickTools"},
+    "publisher": {"@type": "Organization", "name": "QuickTools", "url": "https://www.58parts.net/"},
+    "datePublished": "2026-06-27",
+    "dateModified": "2026-06-27"
+  }
+  </script>
+  <link rel="stylesheet" href="../blog.css" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7091279251828395" crossorigin="anonymous"></script>
+</head>
+<body>
+<header>
+  <a class="logo" href="../../index.html">⚡ Quick<span>Tools</span></a>
+  <a class="nav-blog" href="../index.html">📝 ブログ</a>
+</header>
+<div class="container">
+  <div class="breadcrumb"><a href="../../index.html">ホーム</a> › <a href="../index.html">ブログ</a> › 開発者ツール</div>
+  <h1>SVGパスの<code>d</code>属性を視覚化して理解する【コマンド一覧と書き方ガイド】</h1>
+  <div class="meta"><span>2026年6月27日</span><span>6分で読める</span><span>開発者ツール</span></div>
+  <div class="article-body">
+
+    <p>SVGファイルを開いたとき、<code>d="M10 80 C 40 10, 65 10, 95 80 S 150 150, 180 80"</code> のような謎の文字列を見て困ったことはありませんか？これがSVGパスの<code>d</code>属性です。慣れると読めるようになりますが、最初は何が描かれているか全くわかりません。このガイドでは、各コマンドの意味を解説し、ブラウザ上でリアルタイムに視覚確認しながら学ぶ方法を紹介します。</p>
+
+    <div class="cta-box">
+      <h3>⚡ SVGパスをブラウザで即確認</h3>
+      <p>貼り付けるだけで描画 + コマンド一覧表示。インストール不要・無料。</p>
+      <a class="btn-cta" href="../../svg-path-visualizer.html">SVG Path Visualizerを使う →</a>
+    </div>
+
+    <h2>SVGパスの<code>d</code>属性とは</h2>
+    <p>SVGの <code>&lt;path&gt;</code> 要素は、<code>d</code>属性にパスデータを文字列として受け取ります。この文字列はコマンドと座標の組み合わせで、「ここから始めて、ここまで直線を引いて、この曲線を描いて、閉じる」という手順書のようなものです。</p>
+    <p>IllustratorやFigmaでアイコンを書き出すと、裏ではこの形式が自動生成されています。手書きするケースは少ないですが、アニメーションの <code>morphing</code>（形の変形）やSVGの最適化・手動修正では読み書きできると非常に役立ちます。</p>
+
+    <h2>コマンド一覧</h2>
+    <p>SVGパスコマンドには <strong>大文字（絶対座標）</strong> と <strong>小文字（相対座標）</strong> の2種類があります。たとえば <code>M</code> は「指定した絶対座標に移動」、<code>m</code> は「現在位置から相対移動」です。</p>
+
+    <table style="width:100%;border-collapse:collapse;font-size:.88rem;margin:16px 0;">
+      <thead>
+        <tr style="border-bottom:2px solid var(--border);">
+          <th style="text-align:left;padding:8px 12px;color:var(--muted);">コマンド</th>
+          <th style="text-align:left;padding:8px 12px;color:var(--muted);">名前</th>
+          <th style="text-align:left;padding:8px 12px;color:var(--muted);">パラメータ</th>
+          <th style="text-align:left;padding:8px 12px;color:var(--muted);">説明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:8px 12px;font-family:monospace;color:#818cf8;font-weight:700;">M / m</td>
+          <td style="padding:8px 12px;">Move to</td>
+          <td style="padding:8px 12px;font-family:monospace;font-size:.8rem;">x y</td>
+          <td style="padding:8px 12px;color:var(--muted);">ペンを持ち上げて移動（線は引かない）</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:8px 12px;font-family:monospace;color:#34d399;font-weight:700;">L / l</td>
+          <td style="padding:8px 12px;">Line to</td>
+          <td style="padding:8px 12px;font-family:monospace;font-size:.8rem;">x y</td>
+          <td style="padding:8px 12px;color:var(--muted);">指定座標まで直線を引く</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:8px 12px;font-family:monospace;color:#34d399;font-weight:700;">H / h</td>
+          <td style="padding:8px 12px;">Horizontal line</td>
+          <td style="padding:8px 12px;font-family:monospace;font-size:.8rem;">x</td>
+          <td style="padding:8px 12px;color:var(--muted);">水平線を引く（Y座標は変わらない）</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:8px 12px;font-family:monospace;color:#34d399;font-weight:700;">V / v</td>
+          <td style="padding:8px 12px;">Vertical line</td>
+          <td style="padding:8px 12px;font-family:monospace;font-size:.8rem;">y</td>
+          <td style="padding:8px 12px;color:var(--muted);">垂直線を引く（X座標は変わらない）</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:8px 12px;font-family:monospace;color:#fbbf24;font-weight:700;">C / c</td>
+          <td style="padding:8px 12px;">Cubic Bézier</td>
+          <td style="padding:8px 12px;font-family:monospace;font-size:.8rem;">x1 y1, x2 y2, x y</td>
+          <td style="padding:8px 12px;color:var(--muted);">3次ベジェ曲線。制御点2つ＋終点</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:8px 12px;font-family:monospace;color:#fbbf24;font-weight:700;">S / s</td>
+          <td style="padding:8px 12px;">Smooth cubic</td>
+          <td style="padding:8px 12px;font-family:monospace;font-size:.8rem;">x2 y2, x y</td>
+          <td style="padding:8px 12px;color:var(--muted);">前のC/Sの続きを滑らかに結ぶ（制御点1つ省略可）</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:8px 12px;font-family:monospace;color:#fb923c;font-weight:700;">Q / q</td>
+          <td style="padding:8px 12px;">Quadratic Bézier</td>
+          <td style="padding:8px 12px;font-family:monospace;font-size:.8rem;">x1 y1, x y</td>
+          <td style="padding:8px 12px;color:var(--muted);">2次ベジェ曲線。制御点1つ＋終点</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:8px 12px;font-family:monospace;color:#fb923c;font-weight:700;">T / t</td>
+          <td style="padding:8px 12px;">Smooth quadratic</td>
+          <td style="padding:8px 12px;font-family:monospace;font-size:.8rem;">x y</td>
+          <td style="padding:8px 12px;color:var(--muted);">前のQ/Tの続きを滑らかに結ぶ</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:8px 12px;font-family:monospace;color:#f472b6;font-weight:700;">A / a</td>
+          <td style="padding:8px 12px;">Arc</td>
+          <td style="padding:8px 12px;font-family:monospace;font-size:.8rem;">rx ry x-rot large-arc sweep x y</td>
+          <td style="padding:8px 12px;color:var(--muted);">楕円弧。最も複雑なコマンド</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 12px;font-family:monospace;color:#94a3b8;font-weight:700;">Z / z</td>
+          <td style="padding:8px 12px;">Close path</td>
+          <td style="padding:8px 12px;font-family:monospace;font-size:.8rem;">（なし）</td>
+          <td style="padding:8px 12px;color:var(--muted);">現在位置からパスの始点に直線を引いて閉じる</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>実例で読み解く</h2>
+    <p>たとえばこのパスを見てみましょう：</p>
+    <pre style="background:var(--bg3);border-radius:8px;padding:14px;font-size:.82rem;overflow-x:auto;border:1px solid var(--border);"><code>M 100 20 L 117 70 L 170 70 L 128 100 L 144 150
+L 100 122 L 56 150 L 72 100 L 30 70 L 83 70 Z</code></pre>
+    <p>読み解くと：</p>
+    <ul style="margin:12px 0 12px 20px;line-height:2;color:var(--text);">
+      <li><code>M 100 20</code> → 座標(100, 20)にペンを移動</li>
+      <li><code>L 117 70</code> → (117, 70)まで直線</li>
+      <li>…10点を直線でつないで</li>
+      <li><code>Z</code> → パスを閉じる</li>
+    </ul>
+    <p>これは5角形の星形です。直線コマンド（L）だけで構成された比較的シンプルなパスです。</p>
+
+    <h2>ベジェ曲線の直感的な理解</h2>
+    <p>直線系のコマンド（M、L、H、V、Z）はすぐ理解できますが、曲線系のC・Q・Aは少し難しいです。</p>
+    <p><strong>Qコマンド（2次ベジェ）</strong> はゴム紐を1本の棒で引っ張るイメージです。制御点(x1,y1)が「引っ張る位置」で、終点(x,y)がゴム紐の先端です。</p>
+    <p><strong>Cコマンド（3次ベジェ）</strong> は棒が2本になります。始点側と終点側それぞれに制御点があるため、より自由度の高い曲線が描けます。Figma・Illustratorのパス編集でハンドルを動かすのがこの操作に対応しています。</p>
+    <pre style="background:var(--bg3);border-radius:8px;padding:14px;font-size:.82rem;overflow-x:auto;border:1px solid var(--border);"><code>/* 3次ベジェの例：S字カーブ */
+M 10 80 C 40 10, 65 10, 95 80 S 150 150, 180 80</code></pre>
+    <p>このパスをビジュアライザーに貼り付けると、S字型の滑らかな曲線が描かれるのを確認できます。</p>
+
+    <h2>Aコマンド（楕円弧）の読み方</h2>
+    <p>AコマンドはSVGで最も読みにくいコマンドです。パラメータが7つあります：</p>
+    <pre style="background:var(--bg3);border-radius:8px;padding:14px;font-size:.82rem;overflow-x:auto;border:1px solid var(--border);"><code>A rx ry x-axis-rotation large-arc-flag sweep-flag x y</code></pre>
+    <ul style="margin:12px 0 12px 20px;line-height:2;color:var(--text);">
+      <li><code>rx ry</code>：楕円の半径（X方向・Y方向）</li>
+      <li><code>x-axis-rotation</code>：楕円の傾き（度数）</li>
+      <li><code>large-arc-flag</code>：0=短い弧、1=長い弧</li>
+      <li><code>sweep-flag</code>：0=反時計回り、1=時計回り</li>
+      <li><code>x y</code>：終点座標</li>
+    </ul>
+    <p>円を描くには同じ半径で2つのAコマンドをつなぎます（1つのAコマンドでは完全な円を描けないため）：</p>
+    <pre style="background:var(--bg3);border-radius:8px;padding:14px;font-size:.82rem;overflow-x:auto;border:1px solid var(--border);"><code>M 100 50 A 50 50 0 0 1 100 150 A 50 50 0 0 1 100 50 Z</code></pre>
+
+    <h2>絶対座標 vs 相対座標</h2>
+    <p>大文字コマンド（M、L、C…）は<strong>絶対座標</strong>、小文字（m、l、c…）は<strong>相対座標</strong>（現在位置からの差分）です。</p>
+    <pre style="background:var(--bg3);border-radius:8px;padding:14px;font-size:.82rem;overflow-x:auto;border:1px solid var(--border);"><code>/* 絶対座標：(0,0)から(50,50)まで、次に(100,0)まで */
+M 0 0 L 50 50 L 100 0
+
+/* 相対座標：同じ形 */
+M 0 0 l 50 50 l 50 -50</code></pre>
+    <p>ツールが生成するSVGはたいてい絶対座標を使いますが、アニメーション用に手書きするときは相対座標の方がコンパクトになることがあります。</p>
+
+    <h2>SVGパスの最適化</h2>
+    <p>IllustratorやFigmaが出力するSVGパスは、不要な小数点や冗長なコマンドが含まれていることがあります。<a href="../../svg-optimizer.html">SVG Optimizer</a>を使うと、パスの精度を保ちながらファイルサイズを削減できます。</p>
+
+    <h2>まとめ</h2>
+    <p>SVGパスの<code>d</code>属性は最初は暗号のように見えますが、コマンドの種類を覚えればすぐ読めるようになります。ビジュアライザーを使えば「このコマンドがこの形を描く」という対応関係を目で確認しながら学べるので、習得スピードが格段に上がります。アイコンのカスタマイズ、モーフィングアニメーション、SVG手動編集など、パスを読み書きする場面で役立ててください。</p>
+
+    <div class="cta-box">
+      <h3>⚡ SVGパスをリアルタイム確認</h3>
+      <p>d属性を貼り付けるだけで即描画 + コマンド分解表示。ストロークやフィルも調整可能。</p>
+      <a class="btn-cta" href="../../svg-path-visualizer.html">SVG Path Visualizerを試す →</a>
+    </div>
+
+  </div>
+
+  <div style="margin-top:40px;padding-top:24px;border-top:1px solid var(--border);">
+    <h3 style="font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;">関連ツール</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;">
+      <a href="../../svg-optimizer.html" style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 16px;text-decoration:none;color:var(--text);font-size:.88rem;">SVG Optimizer</a>
+      <a href="../../css-gradient-generator.html" style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 16px;text-decoration:none;color:var(--text);font-size:.88rem;">CSS Gradient Generator</a>
+      <a href="../../color-converter.html" style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 16px;text-decoration:none;color:var(--text);font-size:.88rem;">Color Converter</a>
+      <a href="../../patch-generator.html" style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 16px;text-decoration:none;color:var(--text);font-size:.88rem;">Patch File Generator</a>
+    </div>
+  </div>
+
+</div>
+<footer style="border-top:1px solid var(--border);padding:24px;text-align:center;color:var(--muted);font-size:.82rem;margin-top:40px;">
+  <p>© 2025 QuickTools. 無料オンライン開発者ツール</p>
+</footer>
+</body>
+</html>
